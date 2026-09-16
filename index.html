@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlanLife — Executive Notion Planning Dashboard</title>
+  <!-- Google Fonts: Inter for UI & Instrument Serif / Newsreader for Notion-styled serif headers -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-light">
+  <div class="app-container">
+    <!-- Top Notion Navigation Bar -->
+    <header class="notion-navbar">
+      <div class="nav-left">
+        <span class="workspace-icon">⚡</span>
+        <span class="workspace-title">PlanLife Workspace</span>
+        <span class="workspace-badge">Pro Executive OS</span>
+      </div>
+      <div class="nav-center">
+        <nav class="nav-tabs">
+          <button class="nav-tab active" data-tab="dashboard">
+            <span class="tab-icon">📊</span> Dashboard
+          </button>
+          <button class="nav-tab" data-tab="dayplanner">
+            <span class="tab-icon">📅</span> Day Planner
+          </button>
+          <button class="nav-tab" data-tab="finance">
+            <span class="tab-icon">💰</span> Finance Manager
+          </button>
+          <button class="nav-tab" data-tab="goals">
+            <span class="tab-icon">🎯</span> Goals & Strategy
+          </button>
+          <button class="nav-tab" data-tab="habits">
+            <span class="tab-icon">🔥</span> Habit Streaks
+          </button>
+          <button class="nav-tab" data-tab="checklist">
+            <span class="tab-icon">✅</span> Checklist
+          </button>
+          <button class="nav-tab" data-tab="focus">
+            <span class="tab-icon">⚡</span> Focus & Review
+          </button>
+        </nav>
+      </div>
+      <div class="nav-right">
+        <button id="themeToggleBtn" class="icon-btn" title="Toggle Dark/Light Mode">
+          <span class="theme-icon">🌙</span>
+        </button>
+        <button id="exportDataBtn" class="btn btn-subtle" title="Export Backup JSON">
+          <span>Backup</span>
+        </button>
+        <button id="importDataBtn" class="btn btn-subtle" title="Import Backup JSON">
+          <span>Restore</span>
+        </button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none;">
+        <button id="resetDataBtn" class="btn btn-subtle text-danger" title="Reset Demo Data">
+          <span>Reset</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- ========================================================================= -->
+      <!-- TAB 1: EXECUTIVE SUMMARIZED DASHBOARD -->
+      <!-- ========================================================================= -->
+      <section id="tab-dashboard" class="tab-view active">
+        <div class="page-header">
+          <div class="header-pretitle" id="dashGreetingDate">WEDNESDAY, SEPTEMBER 16, 2026</div>
+          <h1 class="page-title serif-title">Executive Command Center</h1>
+          <p class="page-subtitle">Your synchronized overview of daily planning, financial runway, active goals, and consistency streaks.</p>
+        </div>
+
+        <!-- Top Metric KPI Cards -->
+        <div class="kpi-grid">
+          <!-- KPI 1: Net Financial Surplus / Deficit -->
+          <div class="kpi-card" id="kpiSurplusCard">
+            <div class="kpi-header">
+              <span class="kpi-label">NET CASH SURPLUS / DEFICIT</span>
+              <span class="kpi-icon">💰</span>
+            </div>
+            <div class="kpi-value" id="kpiNetSurplus">$0.00</div>
+            <div class="kpi-footer">
+              <span class="kpi-badge badge-success" id="kpiSurplusStatus">Healthy Surplus</span>
+              <span class="kpi-subtext" id="kpiRunwayText">3.4 mos runway</span>
+            </div>
+          </div>
+
+          <!-- KPI 2: Today's Time Allocated -->
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-label">DAY SCHEDULED</span>
+              <span class="kpi-icon">⏱️</span>
+            </div>
+            <div class="kpi-value" id="kpiScheduledHours">0.0h <span class="kpi-unit">/ 24h</span></div>
+            <div class="kpi-footer">
+              <span class="kpi-badge badge-info" id="kpiBlocksCount">0 Blocks</span>
+              <span class="kpi-subtext" id="kpiActiveBlock">Current: None</span>
+            </div>
+          </div>
+
+          <!-- KPI 3: Daily Habits Streak -->
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-label">TODAY'S HABITS</span>
+              <span class="kpi-icon">🔥</span>
+            </div>
+            <div class="kpi-value" id="kpiHabitsCompleted">0 / 0</div>
+            <div class="kpi-footer">
+              <span class="kpi-badge badge-warning" id="kpiHabitRate">0% Done</span>
+              <span class="kpi-subtext" id="kpiTopStreak">Top Streak: 14d</span>
+            </div>
+          </div>
+
+          <!-- KPI 4: Pending Checklist Tasks -->
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-label">TASKS & CHECKLIST</span>
+              <span class="kpi-icon">✅</span>
+            </div>
+            <div class="kpi-value" id="kpiTasksPending">0 <span class="kpi-unit">pending</span></div>
+            <div class="kpi-footer">
+              <span class="kpi-badge badge-neutral" id="kpiTasksDueToday">0 Due Today</span>
+              <span class="kpi-subtext" id="kpiTasksCompletedToday">0 done</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Split Grid -->
+        <div class="dash-split-grid">
+          <!-- Left Column: Day Planner Snapshot & Current Schedule -->
+          <div class="dash-card">
+            <div class="card-header-flex">
+              <div>
+                <h3 class="card-title">📅 Today's Time Matrix</h3>
+                <p class="card-desc">Active schedule blocks and real-time execution</p>
+              </div>
+              <button class="btn btn-sm btn-outline jump-tab-btn" data-target="dayplanner">Open Planner →</button>
+            </div>
+            <div class="dash-timeline-container" id="dashScheduleTimeline">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Right Column: Goals Progression & Financial Health -->
+          <div class="dash-col-stack">
+            <!-- Goals Progress Preview -->
+            <div class="dash-card">
+              <div class="card-header-flex">
+                <div>
+                  <h3 class="card-title">🎯 Active Goals & Milestones</h3>
+                  <p class="card-desc">Quarterly and annual strategic trajectory</p>
+                </div>
+                <button class="btn btn-sm btn-outline jump-tab-btn" data-target="goals">Manage Goals →</button>
+              </div>
+              <div class="dash-goals-list" id="dashGoalsList">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+
+            <!-- Financial Runway & Cash Flow Snapshot -->
+            <div class="dash-card">
+              <div class="card-header-flex">
+                <div>
+                  <h3 class="card-title">💵 Cash Flow & Liabilities</h3>
+                  <p class="card-desc">Banks, Inflows vs Loans, Cards, and Expenses</p>
+                </div>
+                <button class="btn btn-sm btn-outline jump-tab-btn" data-target="finance">Open Finance →</button>
+              </div>
+              <div class="dash-finance-mini" id="dashFinanceMini">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Priority & Brain Dump Quick Bar -->
+        <div class="dash-card mt-4">
+          <div class="card-header-flex">
+            <div>
+              <h3 class="card-title">⚡ Daily Focus: The Non-Negotiable 3</h3>
+              <p class="card-desc">Identify your 3 high-leverage outcomes for today</p>
+            </div>
+            <button class="btn btn-sm btn-outline jump-tab-btn" data-target="focus">Focus Engine →</button>
+          </div>
+          <div class="dash-top3-grid" id="dashTop3Container">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TAB 2: 24-HOUR CIRCULAR DAY PLANNER (Matching Reference Images 1 & 2) -->
+      <!-- ========================================================================= -->
+      <section id="tab-dayplanner" class="tab-view">
+        <div class="dayplanner-header-wrap">
+          <div class="dayplanner-title-row">
+            <div class="dayplanner-icon-box">📅</div>
+            <h1 class="dayplanner-title serif-title">DAY PLANNER</h1>
+          </div>
+          <p class="dayplanner-subtitle">Drag on the 24-hour clock (15-min intervals) to schedule or edit blocks.</p>
+        </div>
+
+        <!-- Date Controls Bar -->
+        <div class="planner-controls-bar">
+          <div class="date-stepper">
+            <button id="prevDayBtn" class="control-btn" title="Previous Day">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+            </button>
+            <div class="date-input-wrap">
+              <input type="date" id="plannerDateInput" class="planner-date-field">
+              <span class="calendar-icon">📅</span>
+            </div>
+            <button id="nextDayBtn" class="control-btn" title="Next Day">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+            </button>
+            <button id="todayBtn" class="btn btn-pill">Today</button>
+          </div>
+
+          <div class="planner-actions">
+            <button id="quickAddBlockBtn" class="btn btn-dark">
+              <span class="btn-icon">+</span> Quick Add
+            </button>
+            <button id="rolloverBtn" class="btn btn-pill">
+              Roll over
+            </button>
+          </div>
+        </div>
+
+        <!-- Main Day Planner Two-Column Grid (Image 1 & 2 layout) -->
+        <div class="planner-layout-grid">
+          <!-- Left Column: 24-Hour Circular Clock Dial & Categories Breakdown -->
+          <div class="clock-column">
+            <div class="clock-card">
+              <div class="clock-svg-container" id="clockContainer">
+                <svg id="clockSvg" viewBox="0 0 500 500" class="clock-svg" width="100%" height="100%">
+                  <!-- SVG elements rendered dynamically in app.js -->
+                  <defs>
+                    <filter id="clockGlow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.4"/>
+                    </filter>
+                  </defs>
+                </svg>
+
+                <!-- Center Hub Overlay -->
+                <div class="clock-center-hub" id="clockCenterHub">
+                  <div class="center-time" id="clockLiveTime">22:32</div>
+                  <div class="center-label">NOW</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hours By Category Breakdown Card (as in Image 1) -->
+            <div class="category-breakdown-card">
+              <div class="breakdown-header">
+                <span class="breakdown-icon">🕒</span>
+                <h4 class="breakdown-title">HOURS BY CATEGORY</h4>
+              </div>
+              <div class="category-bars-list" id="categoryBarsList">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Schedule Block List (Matching Image 1 & 2) -->
+          <div class="schedule-column">
+            <div class="schedule-header-row">
+              <h2 class="schedule-title">Schedule</h2>
+              <span class="schedule-badge" id="scheduleBlocksBadge">7 blocks</span>
+            </div>
+
+            <!-- Block List Container -->
+            <div class="schedule-list" id="scheduleListContainer">
+              <!-- Empty state or populated block cards rendered dynamically -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TAB 3: FINANCE MANAGER -->
+      <!-- ========================================================================= -->
+      <section id="tab-finance" class="tab-view">
+        <div class="page-header">
+          <div class="header-pretitle">WEALTH & CASH FLOW CONTROL</div>
+          <h1 class="page-title serif-title">Finance Manager</h1>
+          <p class="page-subtitle">Real-time balances, scheduled debt obligations, future cash flows, and intelligent surplus/deficit projection.</p>
+        </div>
+
+        <!-- Master Financial Surplus / Deficit Engine Banner -->
+        <div class="finance-hero-banner" id="financeHeroBanner">
+          <div class="hero-surplus-content">
+            <div class="surplus-tagline">PROJECTED NET SURPLUS / DEFICIT</div>
+            <div class="surplus-large-figure" id="bannerSurplusFigure">+$12,450.00</div>
+            <div class="surplus-explanation" id="bannerSurplusExplanation">
+              Total Bank Cash ($28,500) + Inflows ($6,800) − Liabilities & Future Outflows ($22,850)
+            </div>
+          </div>
+          <div class="hero-stats-row">
+            <div class="hero-stat-pill">
+              <span class="stat-lbl">Liquid Bank Cash</span>
+              <span class="stat-val font-mono" id="statBankTotal">$28,500.00</span>
+            </div>
+            <div class="hero-stat-pill">
+              <span class="stat-lbl">Expected Inflows</span>
+              <span class="stat-val font-mono text-success" id="statInflowsTotal">+$6,800.00</span>
+            </div>
+            <div class="hero-stat-pill">
+              <span class="stat-lbl">Total Liabilities Due</span>
+              <span class="stat-val font-mono text-danger" id="statOutflowsTotal">−$22,850.00</span>
+            </div>
+            <div class="hero-stat-pill">
+              <span class="stat-lbl">Wishlist Total</span>
+              <span class="stat-val font-mono text-muted" id="statWishlistTotal">$3,420.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Finance Manager Modules Tabs / Switcher -->
+        <div class="finance-nav-tabs">
+          <button class="finance-subtab active" data-fintab="banks">i. Bank Accounts (<span id="countBanks">0</span>)</button>
+          <button class="finance-subtab" data-fintab="loans">ii. Loans Due (<span id="countLoans">0</span>)</button>
+          <button class="finance-subtab" data-fintab="cards">iii. Credit Cards (<span id="countCards">0</span>)</button>
+          <button class="finance-subtab" data-fintab="inflows">iv. Expected Inflows (<span id="countInflows">0</span>)</button>
+          <button class="finance-subtab" data-fintab="expenses">v. Future Expenses (<span id="countExpenses">0</span>)</button>
+          <button class="finance-subtab" data-fintab="wishlist">vii. Things to Buy (<span id="countWishlist">0</span>)</button>
+        </div>
+
+        <!-- Subtab Content Panels -->
+        <div class="finance-panel-container">
+          <!-- 1. Bank Accounts Panel -->
+          <div class="fin-panel active" id="fpanel-banks">
+            <div class="panel-action-bar">
+              <h3 class="panel-heading">Available Bank & Cash Reserves</h3>
+              <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('bank')">+ Add Bank Account</button>
+            </div>
+            <div class="fin-table-wrap">
+              <table class="fin-table">
+                <thead>
+                  <tr>
+                    <th>Account Name</th>
+                    <th>Type / Purpose</th>
+                    <th>Bank Institution</th>
+                    <th>Available Balance</th>
+                    <th>Last Updated</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="bankAccountsTbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 2. Loans Due Panel -->
+          <div class="fin-panel" id="fpanel-loans">
+            <div class="panel-action-bar">
+              <h3 class="panel-heading">Active Loans & EMI Obligations</h3>
+              <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('loan')">+ Add Loan / EMI</button>
+            </div>
+            <div class="fin-table-wrap">
+              <table class="fin-table">
+                <thead>
+                  <tr>
+                    <th>Loan Name / Type</th>
+                    <th>Lender / Bank</th>
+                    <th>Monthly EMI Due</th>
+                    <th>Next Due Date</th>
+                    <th>Total Remaining</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="loansDueTbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 3. Credit Cards Due Panel -->
+          <div class="fin-panel" id="fpanel-cards">
+            <div class="panel-action-bar">
+              <h3 class="panel-heading">Credit Card Statements & Outstanding Balances</h3>
+              <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('card')">+ Add Credit Card</button>
+            </div>
+            <div class="fin-table-wrap">
+              <table class="fin-table">
+                <thead>
+                  <tr>
+                    <th>Card Name</th>
+                    <th>Statement Balance</th>
+                    <th>Minimum Due</th>
+                    <th>Payment Due Date</th>
+                    <th>Limit Utilization</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="creditCardsTbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 4. Expected Inflows Panel -->
+          <div class="fin-panel" id="fpanel-inflows">
+            <div class="panel-action-bar">
+              <h3 class="panel-heading">Expected Income & Inflows</h3>
+              <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('inflow')">+ Add Expected Inflow</button>
+            </div>
+            <div class="fin-table-wrap">
+              <table class="fin-table">
+                <thead>
+                  <tr>
+                    <th>Source / Description</th>
+                    <th>Category</th>
+                    <th>Expected Amount</th>
+                    <th>Expected Date</th>
+                    <th>Probability</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="expectedInflowsTbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 5. Future Expenses Panel -->
+          <div class="fin-panel" id="fpanel-expenses">
+            <div class="panel-action-bar">
+              <h3 class="panel-heading">Upcoming Expenses & Bills</h3>
+              <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('expense')">+ Add Future Expense</button>
+            </div>
+            <div class="fin-table-wrap">
+              <table class="fin-table">
+                <thead>
+                  <tr>
+                    <th>Expense Item</th>
+                    <th>Category</th>
+                    <th>Amount Due</th>
+                    <th>Due Date</th>
+                    <th>Recurrence</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="futureExpensesTbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 7. Things to Buy / Wishlist Panel -->
+          <div class="fin-panel" id="fpanel-wishlist">
+            <div class="panel-action-bar">
+              <h3 class="panel-heading">Things to Buy / Wishlist & Capital Allocation</h3>
+              <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('wishlist')">+ Add Item</button>
+            </div>
+            <div class="fin-table-wrap">
+              <table class="fin-table">
+                <thead>
+                  <tr>
+                    <th>Item Name</th>
+                    <th>Priority</th>
+                    <th>Estimated Cost</th>
+                    <th>Classification</th>
+                    <th>Target Purchase Date</th>
+                    <th>Affordability Status</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="thingsToBuyTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TAB 4: GOALS & STRATEGY (Matching Reference Image 3) -->
+      <!-- ========================================================================= -->
+      <section id="tab-goals" class="tab-view">
+        <div class="page-header-flex">
+          <div>
+            <div class="header-pretitle">OUTCOME ROADMAP & EXECUTION</div>
+            <h1 class="page-title serif-title">Strategic Goals</h1>
+            <p class="page-subtitle">Track multi-step milestones, strategic notes, and critical project attachments.</p>
+          </div>
+          <button id="addNewGoalBtn" class="btn btn-dark">
+            <span class="btn-icon">+</span> Create New Goal
+          </button>
+        </div>
+
+        <!-- Goals Cards Container -->
+        <div class="goals-card-list" id="goalsCardsContainer">
+          <!-- Rendered dynamically matching Reference Image 3 -->
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TAB 5: HABIT STREAK COUNTER -->
+      <!-- ========================================================================= -->
+      <section id="tab-habits" class="tab-view">
+        <div class="page-header-flex">
+          <div>
+            <div class="header-pretitle">DISCIPLINE & REPETITION ENGINE</div>
+            <h1 class="page-title serif-title">Habit Streak Counter</h1>
+            <p class="page-subtitle">Build compounding momentum with daily check-ins, active streak multipliers, and weekly history.</p>
+          </div>
+          <button id="addNewHabitBtn" class="btn btn-dark">
+            <span class="btn-icon">+</span> Add New Habit
+          </button>
+        </div>
+
+        <!-- Habit Summary Stats -->
+        <div class="habit-stats-strip">
+          <div class="h-stat-box">
+            <span class="h-stat-number" id="habitsTodayDone">0 / 0</span>
+            <span class="h-stat-label">Done Today</span>
+          </div>
+          <div class="h-stat-box">
+            <span class="h-stat-number font-fire" id="habitsActiveStreaks">0 🔥</span>
+            <span class="h-stat-label">Active Streaks</span>
+          </div>
+          <div class="h-stat-box">
+            <span class="h-stat-number" id="habitsWeeklyRate">0%</span>
+            <span class="h-stat-label">Weekly Consistency</span>
+          </div>
+          <div class="h-stat-box">
+            <span class="h-stat-number font-gold" id="habitsAllTimeBest">0d 🏆</span>
+            <span class="h-stat-label">Best Record</span>
+          </div>
+        </div>
+
+        <!-- Habits Cards Grid -->
+        <div class="habits-grid" id="habitsGridContainer">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TAB 6: CHECKLIST & MASTER TASK HUB -->
+      <!-- ========================================================================= -->
+      <section id="tab-checklist" class="tab-view">
+        <div class="page-header-flex">
+          <div>
+            <div class="header-pretitle">ACTIONABLE EXECUTION</div>
+            <h1 class="page-title serif-title">Checklist & Tasks</h1>
+            <p class="page-subtitle">Prioritized task management with subtasks, due dates, tags, and zero cognitive load.</p>
+          </div>
+        </div>
+
+        <!-- Quick Add Task Bar -->
+        <div class="task-quick-add-bar">
+          <input type="text" id="quickTaskTitle" class="quick-task-input" placeholder="+ Add a new task... (Press Enter to save)">
+          <select id="quickTaskPriority" class="task-select">
+            <option value="high">🔴 P1 High</option>
+            <option value="medium" selected>🟡 P2 Medium</option>
+            <option value="low">🟢 P3 Low</option>
+          </select>
+          <select id="quickTaskTag" class="task-select">
+            <option value="Work">💼 Work</option>
+            <option value="Personal">🏠 Personal</option>
+            <option value="Finance">💰 Finance</option>
+            <option value="Health">🧘 Health</option>
+            <option value="Learning">📚 Learning</option>
+          </select>
+          <input type="date" id="quickTaskDate" class="task-date-input">
+          <button id="quickTaskSubmitBtn" class="btn btn-dark">Add Task</button>
+        </div>
+
+        <!-- Task Filters -->
+        <div class="task-filters-bar">
+          <div class="filter-pills">
+            <button class="filter-pill active" data-taskfilter="all">All Tasks (<span id="countTaskAll">0</span>)</button>
+            <button class="filter-pill" data-taskfilter="today">Today (<span id="countTaskToday">0</span>)</button>
+            <button class="filter-pill" data-taskfilter="upcoming">Upcoming (<span id="countTaskUpcoming">0</span>)</button>
+            <button class="filter-pill" data-taskfilter="completed">Completed (<span id="countTaskCompleted">0</span>)</button>
+          </div>
+          <div class="task-meta-stats" id="taskCompletionBarWrap">
+            <span id="taskProgressLabel">0% Completed</span>
+            <div class="mini-progress-track">
+              <div class="mini-progress-fill" id="taskProgressFill" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tasks List Container -->
+        <div class="checklist-items-container" id="checklistItemsContainer">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- TAB 7: FOCUS ENGINE & BRAIN DUMP (Value-Add Feature) -->
+      <!-- ========================================================================= -->
+      <section id="tab-focus" class="tab-view">
+        <div class="page-header">
+          <div class="header-pretitle">THE ESSENTIAL OPERATING SYSTEM</div>
+          <h1 class="page-title serif-title">Daily Focus & Time Audit</h1>
+          <p class="page-subtitle">Eliminate distraction with your non-negotiable Top 3, frictionless brain dump, and end-of-day reflection.</p>
+        </div>
+
+        <div class="focus-grid">
+          <!-- Top 3 Non-Negotiable Priorities -->
+          <div class="focus-card">
+            <div class="focus-card-header">
+              <span class="focus-icon">🎯</span>
+              <div>
+                <h3 class="focus-title">Top 3 Non-Negotiable Priorities Today</h3>
+                <p class="focus-sub">If you only achieve these 3 items today, your day was a total win.</p>
+              </div>
+            </div>
+            <div class="top3-inputs-wrap">
+              <div class="top3-item-row">
+                <span class="top3-number">1</span>
+                <input type="text" id="top3_1" class="top3-input" placeholder="Primary high-impact priority...">
+                <input type="checkbox" id="top3_1_check" class="top3-check">
+              </div>
+              <div class="top3-item-row">
+                <span class="top3-number">2</span>
+                <input type="text" id="top3_2" class="top3-input" placeholder="Secondary critical outcome...">
+                <input type="checkbox" id="top3_2_check" class="top3-check">
+              </div>
+              <div class="top3-item-row">
+                <span class="top3-number">3</span>
+                <input type="text" id="top3_3" class="top3-input" placeholder="Tertiary important task...">
+                <input type="checkbox" id="top3_3_check" class="top3-check">
+              </div>
+            </div>
+            <div class="top3-actions">
+              <button id="saveTop3Btn" class="btn btn-dark btn-sm">Save Daily Top 3</button>
+            </div>
+          </div>
+
+          <!-- Quick Brain Dump Capture -->
+          <div class="focus-card">
+            <div class="focus-card-header">
+              <span class="focus-icon">🧠</span>
+              <div>
+                <h3 class="focus-title">Frictionless Brain Dump</h3>
+                <p class="focus-sub">Dump mental loops and fleeting thoughts. Convert to task or schedule with 1 click.</p>
+              </div>
+            </div>
+            <div class="brain-dump-input-box">
+              <textarea id="brainDumpText" class="brain-dump-textarea" placeholder="Type anything on your mind... Ideas, errands, reminders, notes"></textarea>
+              <div class="brain-dump-btn-row">
+                <button id="dumpToTaskBtn" class="btn btn-sm btn-subtle">+ Send to Checklist</button>
+                <button id="dumpToBlockBtn" class="btn btn-sm btn-subtle">+ Send to Day Planner</button>
+                <button id="saveDumpNotesBtn" class="btn btn-sm btn-dark">Save to Daily Notes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- End of Day Review & Energy Audit -->
+        <div class="focus-card mt-4">
+          <div class="focus-card-header">
+            <span class="focus-icon">🌙</span>
+            <div>
+              <h3 class="focus-title">Evening Review & Energy Audit</h3>
+              <p class="focus-sub">Close out the day with intentional reflection and clean up leftover commitments.</p>
+            </div>
+          </div>
+          <div class="evening-review-grid">
+            <div class="review-col">
+              <label class="review-label">Energy & Focus Level Today (1 to 10)</label>
+              <input type="range" id="dailyEnergyRating" min="1" max="10" value="8" class="energy-slider">
+              <div class="slider-val-readout"><span id="energyValText">8</span> / 10</div>
+            </div>
+            <div class="review-col">
+              <label class="review-label">What moved the needle most today?</label>
+              <input type="text" id="needleMovedInput" class="form-input" placeholder="Key breakthrough or achievement">
+            </div>
+            <div class="review-col">
+              <label class="review-label">What drained energy or was avoided?</label>
+              <input type="text" id="frictionInput" class="form-input" placeholder="Friction point or distraction">
+            </div>
+          </div>
+          <div class="review-bottom-actions mt-3">
+            <button id="saveReviewBtn" class="btn btn-dark btn-sm">Save Reflection</button>
+            <button id="rolloverIncompleteReviewBtn" class="btn btn-pill btn-sm">Auto-Rollover Incomplete Items to Tomorrow</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- MODALS -->
+    <!-- ========================================================================= -->
+
+    <!-- Modal 1: Day Planner Quick Add / Edit Block -->
+    <div id="blockModal" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title" id="blockModalTitle">Add Schedule Block</h3>
+          <button class="modal-close-btn" onclick="app.planner.closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Block Title</label>
+            <input type="text" id="modalBlockTitle" class="form-input" placeholder="e.g. WORK @ FINX, Sleep, Gym, Deep Work">
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Start Time (24h)</label>
+              <input type="time" id="modalBlockStart" class="form-input" step="900" value="09:00">
+            </div>
+            <div class="form-group">
+              <label class="form-label">End Time (24h)</label>
+              <input type="time" id="modalBlockEnd" class="form-input" step="900" value="10:30">
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select id="modalBlockCategory" class="form-input">
+                <option value="WORK">WORK</option>
+                <option value="OFFICE">OFFICE</option>
+                <option value="SLEEP">SLEEP</option>
+                <option value="PERSONAL">PERSONAL</option>
+                <option value="TRAVEL">TRAVEL</option>
+                <option value="HEALTH">HEALTH</option>
+                <option value="STUDY">STUDY</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sector Color</label>
+              <input type="color" id="modalBlockColor" class="form-color-picker" value="#8b5cf6">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="app.planner.closeModal()">Cancel</button>
+          <button id="saveBlockBtn" class="btn btn-dark">Save Block</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 2: Goal Edit / Milestone / Notes / Attachments Modal -->
+    <div id="goalModal" class="modal-backdrop">
+      <div class="modal-card modal-lg">
+        <div class="modal-header">
+          <h3 class="modal-title" id="goalModalTitle">Strategic Goal</h3>
+          <button class="modal-close-btn" onclick="app.goals.closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Goal Title</label>
+            <input type="text" id="modalGoalTitle" class="form-input" placeholder="e.g. BUILD A NOTION TEMPLATE">
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Total Steps Required</label>
+              <input type="number" id="modalGoalTotalSteps" class="form-input" min="1" value="5">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Current Completed Steps</label>
+              <input type="number" id="modalGoalCurrentSteps" class="form-input" min="0" value="0">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notes & Strategy (Markdown / Bullets)</label>
+            <textarea id="modalGoalNotes" class="form-textarea" rows="4" placeholder="• Define database schema&#10;• Design executive typography&#10;• Prepare launch documentation"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target Deadline</label>
+            <input type="date" id="modalGoalDeadline" class="form-input">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="app.goals.closeModal()">Cancel</button>
+          <button id="saveGoalBtn" class="btn btn-dark">Save Goal</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 3: Add Doc / Attachment Modal -->
+    <div id="attachmentModal" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title">Attach Doc / File Link</h3>
+          <button class="modal-close-btn" onclick="app.goals.closeAttachModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Document Title</label>
+            <input type="text" id="attachDocTitle" class="form-input" placeholder="e.g. Design Specs PDF, Schema Spreadsheet, Research Paper">
+          </div>
+          <div class="form-group">
+            <label class="form-label">URL or File Path</label>
+            <input type="text" id="attachDocUrl" class="form-input" placeholder="https://notion.so/... or file:///path/to/doc">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Document Type</label>
+            <select id="attachDocType" class="form-input">
+              <option value="PDF">PDF Document</option>
+              <option value="Sheet">Spreadsheet / Excel</option>
+              <option value="Notion">Notion Page / Doc</option>
+              <option value="Figma">Figma / Design</option>
+              <option value="Link">Web Link / Reference</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="app.goals.closeAttachModal()">Cancel</button>
+          <button id="saveAttachmentBtn" class="btn btn-dark">Attach Document</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 4: Finance Item Modal (Universal for Bank, Loan, Card, Inflow, Expense, Wishlist) -->
+    <div id="financeModal" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title" id="financeModalTitle">Add Financial Record</h3>
+          <button class="modal-close-btn" onclick="app.finance.closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="financeModalBody">
+          <!-- Dynamic form fields injected by JS depending on finance type -->
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="app.finance.closeModal()">Cancel</button>
+          <button id="saveFinanceItemBtn" class="btn btn-dark">Save Record</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 5: Add Habit Modal -->
+    <div id="habitModal" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title">Add Habit</h3>
+          <button class="modal-close-btn" onclick="app.habits.closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Habit Name</label>
+            <input type="text" id="habitModalName" class="form-input" placeholder="e.g. Morning Meditation, 5km Run, Deep Work 2h, Read 20 pages">
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select id="habitModalCategory" class="form-input">
+                <option value="Mind">Mind</option>
+                <option value="Body">Body</option>
+                <option value="Craft">Craft / Career</option>
+                <option value="Discipline">Discipline</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Target Frequency</label>
+              <select id="habitModalFrequency" class="form-input">
+                <option value="daily">Every Day (7x / week)</option>
+                <option value="weekdays">Weekdays (Mon-Fri)</option>
+                <option value="3x">3 Times / Week</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="app.habits.closeModal()">Cancel</button>
+          <button id="saveHabitBtn" class="btn btn-dark">Save Habit</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
