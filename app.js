@@ -177,8 +177,19 @@ const DEFAULT_STATE = {
 class PlanLifeApp {
   constructor() {
     this.STORAGE_KEY = 'planlife_workspace_state_v1';
+    this.instanceId = 'widget-' + Math.random().toString(36).substring(2, 9);
     this.state = this.loadState();
     
+    // Parse URL Query Parameters for Widget Mode & Notion Embeds
+    const params = new URLSearchParams(window.location.search);
+    this.widgetMode = (params.get('widget') || '').toLowerCase();
+    this.themeOverride = (params.get('theme') || '').toLowerCase();
+    this.noBg = params.get('nobg') === 'true' || params.get('transparent') === 'true';
+    const urlDate = params.get('date');
+    if (urlDate && /^\d{4}-\d{2}-\d{2}$/.test(urlDate)) {
+      this.state.selectedDate = urlDate;
+    }
+
     // Active drag selection state for circular clock
     this.clockDrag = {
       isDragging: false,
@@ -199,6 +210,9 @@ class PlanLifeApp {
     this.habits = new HabitsController(this);
     this.checklist = new ChecklistController(this);
     this.focusCtrl = new FocusController(this);
+
+    // Cross-widget real-time sync channel
+    this.setupCrossWidgetSync();
 
     this.init();
   }
@@ -221,11 +235,74 @@ class PlanLifeApp {
     } catch (e) {
       console.error('Error saving state to localStorage', e);
     }
-    this.renderDashboard();
+    
+    // Broadcast state update to all other embedded Notion widgets in real time
+    if (this.syncChannel) {
+      try {
+        this.syncChannel.postMessage({
+          type: 'STATE_UPDATED',
+          sender: this.instanceId,
+          timestamp: Date.now()
+        });
+      } catch (err) {
+        console.warn('BroadcastChannel error', err);
+      }
+    }
+
+    this.refreshActiveViews();
+  }
+
+  setupCrossWidgetSync() {
+    // 1. BroadcastChannel API for instant iframe-to-iframe communication
+    if (typeof BroadcastChannel !== 'undefined') {
+      try {
+        this.syncChannel = new BroadcastChannel('planlife_notion_sync');
+        this.syncChannel.onmessage = (event) => {
+          if (event.data && event.data.type === 'STATE_UPDATED' && event.data.sender !== this.instanceId) {
+            this.handleExternalStateUpdate();
+          }
+        };
+      } catch (e) {
+        console.warn('BroadcastChannel not supported', e);
+      }
+    }
+
+    // 2. Storage event fallback for cross-tab or cross-window sync
+    window.addEventListener('storage', (e) => {
+      if (e.key === this.STORAGE_KEY) {
+        this.handleExternalStateUpdate();
+      }
+    });
+  }
+
+  handleExternalStateUpdate() {
+    const newState = this.loadState();
+    this.state = newState;
+    this.refreshActiveViews();
+  }
+
+  refreshActiveViews() {
+    if (this.widgetMode) {
+      this.renderWidgetView(this.widgetMode);
+    } else {
+      this.renderDashboard();
+      this.planner.render();
+      this.finance.render();
+      this.goals.render();
+      this.habits.render();
+      this.checklist.render();
+      this.focusCtrl.render();
+    }
   }
 
   init() {
-    this.applyTheme(this.state.theme);
+    // Determine active theme (URL override takes precedence, then saved state)
+    let activeTheme = this.themeOverride || this.state.theme || 'light';
+    this.applyTheme(activeTheme);
+    if (this.noBg) {
+      document.body.classList.add('theme-transparent');
+    }
+
     this.bindGlobalEvents();
 
     // Set today's date picker to state date
@@ -242,8 +319,13 @@ class PlanLifeApp {
     this.checklist.init();
     this.focusCtrl.init();
 
-    // Render executive dashboard
-    this.renderDashboard();
+    // If Widget Mode active, initialize dedicated widget layout
+    if (this.widgetMode) {
+      this.setupWidgetMode(this.widgetMode);
+    } else {
+      // Render standard executive dashboard
+      this.renderDashboard();
+    }
 
     // Live clock ticker every 30 seconds
     setInterval(() => {
@@ -253,14 +335,76 @@ class PlanLifeApp {
 
   applyTheme(theme) {
     this.state.theme = theme;
+    document.body.classList.remove('theme-light', 'theme-dark', 'theme-transparent');
     if (theme === 'dark') {
-      document.body.classList.remove('theme-light');
       document.body.classList.add('theme-dark');
-      document.querySelector('.theme-icon').textContent = '☀️';
+      const icon = document.querySelector('.theme-icon');
+      if (icon) icon.textContent = '☀️';
+    } else if (theme === 'transparent') {
+      document.body.classList.add('theme-transparent');
+      // If user prefers dark system theme, also add dark mode contrast
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('theme-dark');
+      }
     } else {
-      document.body.classList.remove('theme-dark');
       document.body.classList.add('theme-light');
-      document.querySelector('.theme-icon').textContent = '🌙';
+      const icon = document.querySelector('.theme-icon');
+      if (icon) icon.textContent = '🌙';
+    }
+  }
+
+  setupWidgetMode(widgetName) {
+    document.body.classList.add('is-widget');
+    document.body.classList.add(`widget-${widgetName}`);
+    document.documentElement.classList.add('is-widget');
+
+    // Route to appropriate tab and trigger view render
+    this.renderWidgetView(widgetName);
+  }
+
+  renderWidgetView(widgetName) {
+    switch (widgetName) {
+      case 'clock':
+        this.switchTab('dayplanner');
+        this.planner.render();
+        break;
+      case 'schedule':
+        this.switchTab('dayplanner');
+        this.planner.render();
+        break;
+      case 'planner':
+        this.switchTab('dayplanner');
+        this.planner.render();
+        break;
+      case 'kpis':
+      case 'kpi':
+        this.switchTab('dashboard');
+        this.renderDashboard();
+        break;
+      case 'habits':
+        this.switchTab('habits');
+        this.habits.render();
+        break;
+      case 'finance':
+        this.switchTab('finance');
+        this.finance.render();
+        break;
+      case 'goals':
+        this.switchTab('goals');
+        this.goals.render();
+        break;
+      case 'tasks':
+      case 'checklist':
+        this.switchTab('checklist');
+        this.checklist.render();
+        break;
+      case 'focus':
+        this.switchTab('focus');
+        this.focusCtrl.render();
+        break;
+      default:
+        this.switchTab('dashboard');
+        this.renderDashboard();
     }
   }
 

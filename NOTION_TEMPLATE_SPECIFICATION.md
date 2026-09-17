@@ -191,14 +191,33 @@ let(
 
 ---
 
-## Part 3: How to Embed the Interactive 24-Hour Circular Clock in Notion
+## Part 3: Embedding Modular Widgets in Notion
 
-Because Notion does not natively support interactive SVG/Canvas drag-and-drop 24-hour circular clocks with live rotating hands and audio/visual snapping:
+Instead of embedding the entire monolithic desktop dashboard into a single box (which creates duplicate navbars and scrollbars), use **modular standalone widgets** tailored to Notion layouts:
 
-1. **Local Access**: Open `e:\PLANLIFE\index.html` in your browser.
-2. **Embed in Notion**:
-   - Host `index.html`, `styles.css`, and `app.js` using free, 1-click GitHub Pages, Vercel, or Netlify.
-   - In your Notion page, type `/embed` and press Enter.
-   - Paste the URL of your hosted PlanLife dashboard.
-   - Resize the embed container to full width.
-   - The interactive 24-Hour Circular Day Planner, Goal Cards, Finance Surplus Calculator, and Habit Matrix will render directly inside Notion!
+### 🧩 Widget Embed Hub
+Open `widgets/index.html` to preview all widgets in real time, toggle **Notion Dark Mode** (`#191919`), **Notion Light Mode**, or **Transparent Canvas**, and copy 1-click embed URLs.
+
+### 📐 Recommended Notion Page Layout
+
+```
+Notion Page (e.g. PlanLife OS or PANDA_LIFE)
+├── 📊 [Executive KPI Strip Widget] (/embed index.html?widget=kpis&theme=dark)
+│
+├── 2-Column Section (/2):
+│   ├── Left Column (50%):  🕒 [24h Circular Clock Widget] (/embed index.html?widget=clock&theme=dark)
+│   └── Right Column (50%): 📋 [Day Schedule Blocks Widget] (/embed index.html?widget=schedule&theme=dark)
+│
+├── 3-Column Section (/3):
+│   ├── Col 1: 🔥 [Habit Streak Tracker] (/embed index.html?widget=habits&theme=dark)
+│   ├── Col 2: 🎯 [Strategic Goals Ring] (/embed index.html?widget=goals&theme=dark)
+│   └── Col 3: 💰 [Finance Runway Engine] (/embed index.html?widget=finance&theme=dark)
+│
+└── Full-Width Section:
+    ├── ✅ [Master Checklist Widget] (/embed index.html?widget=checklist&theme=dark)
+    └── ⚡ [Daily Focus Top 3 & Brain Dump] (/embed index.html?widget=focus&theme=dark)
+```
+
+### ⚡ Real-Time Live Sync Across All Widgets
+All embedded widgets communicate via `BroadcastChannel('planlife_notion_sync')` and the browser `storage` API. When you complete a block or habit in one widget, every other widget embedded on your Notion page updates in real time without refreshing.
+

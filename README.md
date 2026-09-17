@@ -59,12 +59,34 @@ Simply double-click or open `index.html` in any web browser (Chrome, Edge, Safar
 All data is saved automatically in your browser's `localStorage` and persists between visits.
 You can use the **Backup** and **Restore** buttons in the navbar to export and import your data as JSON.
 
-### Option 2: Embed Inside Notion
-1. Host the folder on GitHub Pages, Vercel, or Netlify (all free with 1 click).
-2. Inside any Notion page, type `/embed` and press Enter.
-3. Paste the URL of your hosted PlanLife app.
-4. Expand the embed block to full width.
-5. Enjoy the interactive 24-hour circular day planner directly inside your Notion workspace!
+### Option 2: Embed Modular Widgets Inside Notion (Recommended)
+
+Instead of embedding the entire monolithic desktop app into a single iframe, PlanLife provides **dedicated, distraction-free micro-widgets** designed to look like native Notion components:
+
+#### 🧩 Notion Widget Hub & Embed Link Generator
+Open **`widgets/index.html`** in your browser to test all widgets, switch between **Notion Dark**, **Notion Light**, or **Transparent**, and copy 1-click Notion embed links!
+
+#### 🔗 Direct Widget Embed URLs
+
+| Widget | Purpose | Direct Parameter URL | Pretty File Shortcut | Recommended Notion Sizing |
+| :--- | :--- | :--- | :--- | :--- |
+| 🕒 **24h Circular Clock** | Isolated circular dial, live hand, center time | `index.html?widget=clock&theme=dark` | `widgets/clock.html` | Height: `450px` \| 1/2 Column or Full |
+| 📋 **Day Schedule Blocks** | Active timeline blocks with checkoff & quick add | `index.html?widget=schedule&theme=dark` | `widgets/schedule.html` | Height: `460px` \| 1/2 Column or Full |
+| 📊 **Executive KPI Strip** | Single-line command bar (Surplus, Time, Habits, Tasks) | `index.html?widget=kpis&theme=dark` | `widgets/kpis.html` | Height: `150px` \| Full Width Banner |
+| 🔥 **Habit Streak Tracker** | 7-day Mon-Sun check-in grid with fire streaks | `index.html?widget=habits&theme=dark` | `widgets/habits.html` | Height: `420px` \| Full or 2-Column |
+| 💰 **Finance Surplus Engine** | Net Surplus badge, bank balances, loans & runway | `index.html?widget=finance&theme=dark` | `widgets/finance.html` | Height: `500px` \| Full Width |
+| 🎯 **Strategic Goals** | Circular progress rings, step milestones & links | `index.html?widget=goals&theme=dark` | `widgets/goals.html` | Height: `450px` \| Full or 2-Column |
+| ✅ **Master Checklist** | Quick task capture with P1/P2/P3 priority badges | `index.html?widget=checklist&theme=dark` | `widgets/checklist.html` | Height: `420px` \| 1/2 Column or Full |
+| ⚡ **Daily Focus Top 3** | Top 3 high-leverage outcomes & Brain Dump notepad | `index.html?widget=focus&theme=dark` | `widgets/focus.html` | Height: `400px` \| Full Width |
+| 📅 **Complete Day Planner** | Responsive Clock + Schedule side-by-side | `index.html?widget=planner&theme=dark` | `widgets/planner.html` | Height: `550px` \| Full Width |
+
+#### ⚡ Real-Time Cross-Widget Synchronization
+All widgets embedded across your Notion pages share the same `localStorage` and synchronize in real time via `BroadcastChannel`. When you check off a block on the Clock or Schedule, the KPI strip and Dashboard widgets update instantly without refreshing the page!
+
+#### 🎨 Theme Parameters
+Add `&theme=dark` for Notion Dark Mode (`#191919`), `&theme=light` for Notion Light Mode (`#ffffff`), or `&theme=transparent` so the widget seamlessly floats on top of whatever background your Notion page or callout block has.
+
+---
 
 ### Option 3: Build as Native Notion Databases
 Refer to `NOTION_TEMPLATE_SPECIFICATION.md` for complete database schemas, Notion Formulas 2.0 formulas, and page layouts.

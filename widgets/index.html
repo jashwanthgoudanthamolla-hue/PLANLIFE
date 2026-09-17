@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlanLife — Modular Notion Widgets & Embed Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    body {
+      background-color: var(--bg-app);
+      color: var(--text-primary);
+      padding: 32px 24px;
+      font-family: var(--font-sans);
+    }
+    .hub-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .hub-header {
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 24px;
+    }
+    .hub-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: var(--bg-surface-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+    .hub-title {
+      font-family: var(--font-serif);
+      font-size: 38px;
+      font-weight: 400;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+    .hub-subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      max-width: 750px;
+      line-height: 1.6;
+    }
+    .guide-banner {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 32px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+    .guide-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-full);
+      background: var(--accent-primary);
+      color: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .step-text h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .step-text p {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+    .theme-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+    }
+    .theme-picker-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .theme-picker-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-right: 6px;
+    }
+    .theme-btn {
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface-secondary);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .theme-btn.active {
+      background: var(--accent-primary);
+      color: var(--bg-surface);
+      border-color: var(--accent-primary);
+    }
+    .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--accent-green);
+      font-weight: 500;
+    }
+    .sync-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      animation: pulseDot 2s infinite ease-in-out;
+    }
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.4); opacity: 1; }
+    }
+    .widget-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 24px;
+    }
+    .widget-hub-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .widget-hub-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+    .card-top {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .widget-identity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .widget-icon {
+      font-size: 24px;
+    }
+    .widget-name {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .widget-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .sizing-pill {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      padding: 3px 8px;
+      background: var(--bg-surface-tertiary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    .preview-frame-container {
+      background: var(--bg-surface-secondary);
+      border-bottom: 1px solid var(--border-color);
+      position: relative;
+      overflow: hidden;
+    }
+    .preview-iframe {
+      width: 100%;
+      border: none;
+      display: block;
+    }
+    .card-bottom {
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: var(--bg-surface);
+    }
+    .url-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .url-input {
+      flex: 1;
+      background: var(--bg-surface-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      outline: none;
+    }
+    .url-input:focus {
+      border-color: var(--accent-primary);
+      color: var(--text-primary);
+    }
+    .action-btn-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-copy-embed {
+      flex: 1;
+      padding: 8px 14px;
+      background: var(--accent-primary);
+      color: var(--bg-surface);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: opacity 0.15s ease;
+    }
+    .btn-copy-embed:hover {
+      opacity: 0.9;
+    }
+    .btn-external {
+      padding: 8px 12px;
+      background: var(--bg-surface-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 12px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #10b981;
+      color: #ffffff;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 13px;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toast-msg.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body class="theme-dark">
+  <div class="hub-container">
+    
+    <!-- Top Header -->
+    <header class="hub-header">
+      <div class="hub-badge">⚡ Notion Modular Engine</div>
+      <h1 class="hub-title">PlanLife Modular Notion Widgets</h1>
+      <p class="hub-subtitle">
+        Every aspect of the PlanLife workspace has been decoupled into individual, standalone micro-widgets. 
+        Choose your theme, copy the embed link, and paste directly into any Notion page. All widgets share data and stay synchronized in real time!
+      </p>
+    </header>
+
+    <!-- 3-Step Notion Guide -->
+    <div class="guide-banner">
+      <div class="guide-step">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <h4>Choose Notion Theme</h4>
+          <p>Select Notion Dark (recommended for dark workspaces), Notion Light, or Transparent.</p>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <h4>Copy Embed Link</h4>
+          <p>Click "Copy Notion URL" on any widget below. The link is automatically configured.</p>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <h4>Paste in Notion</h4>
+          <p>In your Notion page, type <code>/embed</code>, press Enter, paste the URL, and resize cleanly!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Theme Toolbar & Live Sync Status -->
+    <div class="theme-toolbar">
+      <div class="theme-picker-group">
+        <span class="theme-picker-label">Select Embed Theme:</span>
+        <button class="theme-btn active" data-theme="dark" onclick="switchEmbedTheme('dark')">
+          <span>🌑</span> Notion Dark (#191919)
+        </button>
+        <button class="theme-btn" data-theme="light" onclick="switchEmbedTheme('light')">
+          <span>☀️</span> Notion Light (#ffffff)
+        </button>
+        <button class="theme-btn" data-theme="transparent" onclick="switchEmbedTheme('transparent')">
+          <span>🪟</span> Transparent Canvas
+        </button>
+      </div>
+
+      <div class="sync-badge">
+        <span class="sync-dot"></span>
+        <span>Cross-Widget Live Sync: Active</span>
+      </div>
+    </div>
+
+    <!-- Widget Cards Grid -->
+    <div class="widget-grid" id="widgetGrid">
+      
+      <!-- 1. 24-HOUR CIRCULAR CLOCK -->
+      <div class="widget-hub-card" data-widget-key="clock">
+        <div class="card-top">
+          <div class="widget-identity">
+            <span class="widget-icon">🕒</span>
+            <div>
+              <div class="widget-name">24-Hour Circular Clock</div>
+              <div class="widget-desc">Interactive circular 24h dial, live needle & center time</div>
+            </div>
+          </div>
+          <span class="sizing-pill">H: 450px | Col / Full</span>
+        </div>
+        <div class="preview-frame-container" style="height: 380px;">
+          <iframe class="preview-iframe" id="frame-clock" src="../index.html?widget=clock&theme=dark" style="height: 100%;"></iframe>
+        </div>
+        <div class="card-bottom">
+          <div class="url-input-wrap">
+            <input type="text" readonly class="url-input" id="url-clock">
+          </div>
+          <div class="action-btn-row">
+            <button class="btn-copy-embed" onclick="copyWidgetUrl('clock')">
+              <span>📋 Copy Notion URL</span>
+            </button>
+            <a class="btn-external" id="ext-clock" target="_blank" title="Open in new tab">↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. DAY SCHEDULE & TIME BLOCKS -->
+      <div class="widget-hub-card" data-widget-key="schedule">
+        <div class="card-top">
+          <div class="widget-identity">
+            <span class="widget-icon">📋</span>
+            <div>
+              <div class="widget-name">Day Schedule & Time Blocks</div>
+              <div class="widget-desc">Active timeline blocks with checkoff, quick add & rollover</div>
+            </div>
+          </div>
+          <span class="sizing-pill">H: 460px | Col / Full</span>
+        </div>
+        <div class="preview-frame-container" style="height: 380px;">
+          <iframe class="preview-iframe" id="frame-schedule" src="../index.html?widget=schedule&theme=dark" style="height: 100%;"></iframe>
+        </div>
+        <div class="card-bottom">
+          <div class="url-input-wrap">
+            <input type="text" readonly class="url-input" id="url-schedule">
+          </div>
+          <div class="action-btn-row">
+            <button class="btn-copy-embed" onclick="copyWidgetUrl('schedule')">
+              <span>📋 Copy Notion URL</span>
+            </button>
+            <a class="btn-external" id="ext-schedule" target="_blank" title="Open in new tab">↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. EXECUTIVE KPI STRIP -->
+      <div class="widget-hub-card" data-widget-key="kpis" style="grid-column: 1 / -1;">
+        <div class="card-top">
+          <div class="widget-identity">
+            <span class="widget-icon">📊</span>
+            <div>
+              <div class="widget-name">Executive KPI Metric Strip</div>
+              <div class="widget-desc">Single-line command bar: Net Surplus, Scheduled Time, Habits Done, Pending Tasks</div>
+            </div>
+          </div>
+          <span class="sizing-pill">H: 150px | Full Width</span>
+        </div>
+        <div class="preview-frame-container" style="height: 150px;">
+          <iframe class="preview-iframe" id="frame-kpis" src="../index.html?widget=kpis&theme=dark" style="height: 100%;"></iframe>
+        </div>
+        <div class="card-bottom">
+          <div class="url-input-wrap">
+            <input type="text" readonly class="url-input" id="url-kpis">
+          </div>
+          <div class="action-btn-row">
+            <button class="btn-copy-embed" onclick="copyWidgetUrl('kpis')">
+              <span>📋 Copy Notion URL</span>
+            </button>
+            <a class="btn-external" id="ext-kpis" target="_blank" title="Open in new tab">↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. HABIT STREAK MULTIPLIER -->
+      <div class="widget-hub-card" data-widget-key="habits">
+        <div class="card-top">
+          <div class="widget-identity">
+            <span class="widget-icon">🔥</span>
+            <div>
+              <div class="widget-name">Habit Streak Multiplier</div>
+              <div class="widget-desc">7-day Mon-Sun check-in grid with fire badges & completion rate</div>
+            </div>
+          </div>
+          <span class="sizing-pill">H: 420px | Col / Full</span>
+        </div>
+        <div class="preview-frame-container" style="height: 380px;">
+          <iframe class="preview-iframe" id="frame-habits" src="../index.html?widget=habits&theme=dark" style="height: 100%;"></iframe>
+        </div>
+        <div class="card-bottom">
+          <div class="url-input-wrap">
+            <input type="text" readonly class="url-input" id="url-habits">
+          </div>
+          <div class="action-btn-row">
+            <button class="btn-copy-embed" onclick="copyWidgetUrl('habits')">
+              <span>📋 Copy Notion URL</span>
+            </button>
+            <a class="btn-external" id="ext-habits" target="_blank" title="Open in new tab">↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. FINANCE CASH FLOW & RUNWAY -->
+      <div class="widget-hub-card" data-widget-key="finance">
+        <div class="card-top">
+          <div class="widget-identity">
+            <span class="widget-icon">💰</span>
+            <div>
+              <div class="widget-name">Finance Runway & Surplus Engine</div>
+              <div class="widget-desc">Healthy surplus badge, bank balances, loan EMIs, cards & runway</div>
+            </div>
+          </div>
+          <span class="sizing-pill">H: 500px | Full Width</span>
+        </div>
+        <div class="preview-frame-container" style="height: 380px;">
+          <iframe class="preview-iframe" id="frame-finance" src="../index.html?widget=finance&theme=dark" style="height: 100%;"></iframe>
+        </div>
+        <div class="card-bottom">
+          <div class="url-input-wrap">
+            <input type="text" readonly class="url-input" id="url-finance">
+          </div>
+          <div class="action-btn-row">
+            <button class="btn-copy-embed" onclick="copyWidgetUrl('finance')">
+              <span>📋 Copy Notion URL</span>
+            </button>
+            <a class="btn-external" id="ext-finance" target="_blank" title="Open in new tab">↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. STRATEGIC GOALS & MILESTONES -->
+      <div class="widget-hub-card" data-widget-key="goals">
+        <div class="card-top">
+          <div class="widget-identity">
+            <span class="widget-icon">🎯</span>
+            <div>
+              <div class="widget-name">Strategic Goals & Milestones</div>
+              <div class="widget-desc">Circular progress rings, step trackers, deadlines & attachments</div>
+            </div>
+          </div>
+          <span class="sizing-pill">H: 450px | Col / Full</span>
+        </div>
+        <div class="preview-frame-container" style="height: 380px;">
+          <iframe class="preview-iframe" id="frame-goals" src="../index.html?widget=goals&theme=dark" style="height: 100%;"></iframe>
+        </div>
+        <div class="card-bottom">
+          <div class="url-input-wrap">
+            <input type="text" readonly class="url-input" id="url-goals">
+          </div>
+          <div class="action-btn-row">
+            <button class="btn-copy-embed" onclick="copyWidgetUrl('goals')">
+              <span>📋 Copy Notion URL</span>
+            </button>
+            <a class="btn-external" id="ext-goals" target="_blank" title="Open in new tab">↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. MASTER CHECKLIST & TASKS -->
+      <div class="widget-hub-card" data-widget-key="checklist">
+        <div class="card-top">
+          <div class="widget-identity">
+            <span class="widget-icon">✅</span>
+            <div>
+              <div class="widget-name">Master Checklist & Tasks</div>
+              <div class="widget-desc">Quick task capture with P1/P2/P3 priority badges & filters</div>
+            </div>
+          </div>
+          <span class="sizing-pill">H: 420px | Col / Full</span>
+        </div>
+        <div class="preview-frame-container" style="height: 380px;">
+          <iframe class="preview-iframe" id="frame-checklist" src="../index.html?widget=checklist&theme=dark" style="height: 100%;"></iframe>
+        </div>
+        <div class="card-bottom">
+          <div class="url-input-wrap">
+            <input type="text" readonly class="url-input" id="url-checklist">
+          </div>
+          <div class="action-btn-row">
+            <button class="btn-copy-embed" onclick="copyWidgetUrl('checklist')">
+              <span>📋 Copy Notion URL</span>
+            </button>
+            <a class="btn-external" id="ext-checklist" target="_blank" title="Open in new tab">↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. DAILY FOCUS & BRAIN DUMP -->
+      <div class="widget-hub-card" data-widget-key="focus">
+        <div class="card-top">
+          <div class="widget-identity">
+            <span class="widget-icon">⚡</span>
+            <div>
+              <div class="widget-name">Daily Focus & Brain Dump</div>
+              <div class="widget-desc">Non-Negotiable Top 3 leverage outcomes & frictionless notes</div>
+            </div>
+          </div>
+          <span class="sizing-pill">H: 420px | Full Width</span>
+        </div>
+        <div class="preview-frame-container" style="height: 380px;">
+          <iframe class="preview-iframe" id="frame-focus" src="../index.html?widget=focus&theme=dark" style="height: 100%;"></iframe>
+        </div>
+        <div class="card-bottom">
+          <div class="url-input-wrap">
+            <input type="text" readonly class="url-input" id="url-focus">
+          </div>
+          <div class="action-btn-row">
+            <button class="btn-copy-embed" onclick="copyWidgetUrl('focus')">
+              <span>📋 Copy Notion URL</span>
+            </button>
+            <a class="btn-external" id="ext-focus" target="_blank" title="Open in new tab">↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9. COMBINED DAY PLANNER (CLOCK + SCHEDULE) -->
+      <div class="widget-hub-card" data-widget-key="planner" style="grid-column: 1 / -1;">
+        <div class="card-top">
+          <div class="widget-identity">
+            <span class="widget-icon">📅</span>
+            <div>
+              <div class="widget-name">Complete Day Planner (Clock + Schedule)</div>
+              <div class="widget-desc">Clean 2-column layout combining both clock & schedule list without website chrome</div>
+            </div>
+          </div>
+          <span class="sizing-pill">H: 550px | Full Width</span>
+        </div>
+        <div class="preview-frame-container" style="height: 480px;">
+          <iframe class="preview-iframe" id="frame-planner" src="../index.html?widget=planner&theme=dark" style="height: 100%;"></iframe>
+        </div>
+        <div class="card-bottom">
+          <div class="url-input-wrap">
+            <input type="text" readonly class="url-input" id="url-planner">
+          </div>
+          <div class="action-btn-row">
+            <button class="btn-copy-embed" onclick="copyWidgetUrl('planner')">
+              <span>📋 Copy Notion URL</span>
+            </button>
+            <a class="btn-external" id="ext-planner" target="_blank" title="Open in new tab">↗</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast-msg">
+    <span>✅</span>
+    <span id="toastText">Notion Embed Link copied to clipboard!</span>
+  </div>
+
+  <script>
+    let currentTheme = 'dark';
+    const widgetKeys = ['clock', 'schedule', 'kpis', 'habits', 'finance', 'goals', 'checklist', 'focus', 'planner'];
+
+    function getBaseUrl() {
+      const loc = window.location;
+      // Normalizes URL whether served from file:// or http(s)://
+      let href = loc.href.split('?')[0];
+      let path = href.replace(/\/widgets\/index\.html$/i, '/index.html')
+                     .replace(/\/widgets\/?$/i, '/index.html');
+      if (!path.endsWith('/index.html')) {
+        path = path.substring(0, path.lastIndexOf('/')) + '/index.html';
+      }
+      return path;
+    }
+
+    function updateWidgetUrls() {
+      const base = getBaseUrl();
+      widgetKeys.forEach(key => {
+        const fullUrl = `${base}?widget=${key}&theme=${currentTheme}`;
+        const input = document.getElementById(`url-${key}`);
+        const ext = document.getElementById(`ext-${key}`);
+        const frame = document.getElementById(`frame-${key}`);
+        
+        if (input) input.value = fullUrl;
+        if (ext) ext.href = fullUrl;
+        if (frame) frame.src = `../index.html?widget=${key}&theme=${currentTheme}`;
+      });
+    }
+
+    function switchEmbedTheme(theme) {
+      currentTheme = theme;
+      document.querySelectorAll('.theme-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-theme') === theme);
+      });
+      
+      // Update Hub preview page theme
+      document.body.className = theme === 'light' ? 'theme-light' : 'theme-dark';
+
+      updateWidgetUrls();
+      showToast(`Updated embed theme to: ${theme.toUpperCase()}`);
+    }
+
+    function copyWidgetUrl(key) {
+      const input = document.getElementById(`url-${key}`);
+      if (input) {
+        input.select();
+        navigator.clipboard.writeText(input.value).then(() => {
+          showToast(`📋 Copied ${key.toUpperCase()} Notion embed link!`);
+        }).catch(() => {
+          document.execCommand('copy');
+          showToast(`📋 Copied ${key.toUpperCase()} Notion embed link!`);
+        });
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toastText');
+      if (toast && text) {
+        text.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 2500);
+      }
+    }
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      updateWidgetUrls();
+    });
+  </script>
+</body>
+</html>

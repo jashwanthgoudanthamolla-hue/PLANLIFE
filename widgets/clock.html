@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>PlanLife — 24-Hour Circular Clock Widget</title>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('theme')) params.set('theme', 'dark');
+    params.set('widget', 'clock');
+    window.location.replace('../index.html?' + params.toString());
+  </script>
+</head>
+<body style="background:#191919;margin:0;"></body>
+</html>

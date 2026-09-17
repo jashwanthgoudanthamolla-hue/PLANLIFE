@@ -54,12 +54,12 @@
   --font-mono: 'JetBrains Mono', monospace;
 }
 
-/* Dark Mode (Notion Sleek Graphite) */
+/* Dark Mode (Notion Sleek Graphite #191919) */
 body.theme-dark {
-  --bg-app: #141414;
-  --bg-surface: #1e1e1e;
-  --bg-surface-secondary: #252525;
-  --bg-surface-tertiary: #2a2a2a;
+  --bg-app: #191919;
+  --bg-surface: #202020;
+  --bg-surface-secondary: #262626;
+  --bg-surface-tertiary: #2d2d2d;
   --bg-surface-elevated: #282828;
   --border-color: #333333;
   --border-subtle: #292929;
@@ -72,6 +72,24 @@ body.theme-dark {
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Transparent Theme (Seamless Notion Background Embedding) */
+body.theme-transparent {
+  --bg-app: transparent !important;
+  background-color: transparent !important;
+}
+
+body.theme-transparent .dash-card,
+body.theme-transparent .clock-card,
+body.theme-transparent .schedule-card,
+body.theme-transparent .habit-streak-card,
+body.theme-transparent .goal-card,
+body.theme-transparent .checklist-card,
+body.theme-transparent .focus-card,
+body.theme-transparent .finance-card,
+body.theme-transparent .kpi-card {
+  background-color: var(--bg-surface);
 }
 
 /* Base Reset & Setup */
@@ -2122,3 +2140,268 @@ body.theme-dark .streak-count-badge {
 /* Utilities */
 .mt-3 { margin-top: 12px; }
 .mt-4 { margin-top: 20px; }
+
+/* ==========================================================================
+   MODULAR NOTION WIDGET MODE SYSTEM
+   ========================================================================== */
+
+html.is-widget,
+body.is-widget {
+  min-height: 100% !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background-color: var(--bg-app);
+}
+
+body.is-widget.theme-transparent {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+/* Hide website navigation bar and outer desktop margins */
+body.is-widget .notion-navbar {
+  display: none !important;
+}
+
+body.is-widget .app-container {
+  max-width: 100% !important;
+  min-height: auto !important;
+  margin: 0 !important;
+  padding: 10px !important;
+}
+
+body.is-widget .main-content {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Hide desktop headers in widget mode */
+body.is-widget .page-header,
+body.is-widget .dayplanner-header-wrap {
+  display: none !important;
+}
+
+/* Subtle Notion-friendly scrollbar */
+body.is-widget::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+body.is-widget::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 4px;
+}
+body.is-widget::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   1. 🕒 WIDGET: 24-Hour Circular Clock Dial (widget=clock)
+   -------------------------------------------------------------------------- */
+body.widget-clock #tab-dayplanner {
+  display: block !important;
+}
+
+body.widget-clock .planner-layout-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+}
+
+body.widget-clock .schedule-column {
+  display: none !important;
+}
+
+body.widget-clock .clock-column {
+  width: 100% !important;
+  max-width: 440px !important;
+  margin: 0 auto !important;
+}
+
+body.widget-clock .clock-card {
+  padding: 14px !important;
+  box-shadow: none !important;
+  border-radius: var(--radius-lg);
+  background-color: var(--bg-surface);
+}
+
+body.widget-clock .planner-controls-bar {
+  margin-bottom: 10px !important;
+  justify-content: center !important;
+}
+
+body.widget-clock .planner-actions {
+  display: none !important;
+}
+
+body.widget-clock .clock-svg-container {
+  max-width: 380px;
+  max-height: 380px;
+  margin: 0 auto;
+}
+
+body.widget-clock .clock-categories-breakdown {
+  margin-top: 12px;
+  padding-top: 10px;
+}
+
+/* --------------------------------------------------------------------------
+   2. 📋 WIDGET: Day Schedule & Time Blocks (widget=schedule)
+   -------------------------------------------------------------------------- */
+body.widget-schedule #tab-dayplanner {
+  display: block !important;
+}
+
+body.widget-schedule .clock-column {
+  display: none !important;
+}
+
+body.widget-schedule .planner-layout-grid {
+  display: block !important;
+}
+
+body.widget-schedule .schedule-column {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+}
+
+body.widget-schedule .schedule-card {
+  padding: 16px !important;
+  box-shadow: none !important;
+  border-radius: var(--radius-lg);
+}
+
+/* --------------------------------------------------------------------------
+   3. 📅 WIDGET: Day Planner (Clock + Schedule) (widget=planner)
+   -------------------------------------------------------------------------- */
+body.widget-planner #tab-dayplanner {
+  display: block !important;
+}
+
+body.widget-planner .planner-layout-grid {
+  display: grid !important;
+  grid-template-columns: minmax(320px, 420px) 1fr !important;
+  gap: 16px !important;
+}
+
+@media (max-width: 768px) {
+  body.widget-planner .planner-layout-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. 📊 WIDGET: Executive KPI Summary Strip (widget=kpis or widget=kpi)
+   -------------------------------------------------------------------------- */
+body.widget-kpis #tab-dashboard,
+body.widget-kpi #tab-dashboard {
+  display: block !important;
+}
+
+body.widget-kpis .dash-split-grid,
+body.widget-kpi .dash-split-grid,
+body.widget-kpis #tab-dashboard > .dash-card.mt-4,
+body.widget-kpi #tab-dashboard > .dash-card.mt-4 {
+  display: none !important;
+}
+
+body.widget-kpis .kpi-grid,
+body.widget-kpi .kpi-grid {
+  margin-bottom: 0 !important;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+  gap: 12px !important;
+}
+
+body.widget-kpis .kpi-card,
+body.widget-kpi .kpi-card {
+  padding: 14px 16px !important;
+  box-shadow: none !important;
+  border-radius: var(--radius-md);
+}
+
+/* --------------------------------------------------------------------------
+   5. 🔥 WIDGET: Habit Streak Multiplier (widget=habits)
+   -------------------------------------------------------------------------- */
+body.widget-habits #tab-habits {
+  display: block !important;
+}
+
+body.widget-habits .habits-layout-grid {
+  display: block !important;
+}
+
+body.widget-habits .habits-stats-column {
+  margin-top: 16px;
+}
+
+body.widget-habits .habit-streak-card {
+  box-shadow: none !important;
+  border-radius: var(--radius-lg);
+}
+
+/* --------------------------------------------------------------------------
+   6. 💰 WIDGET: Finance Surplus & Cash Flow (widget=finance)
+   -------------------------------------------------------------------------- */
+body.widget-finance #tab-finance {
+  display: block !important;
+}
+
+body.widget-finance .finance-surplus-hero {
+  margin-bottom: 14px !important;
+}
+
+body.widget-finance .finance-card {
+  box-shadow: none !important;
+  border-radius: var(--radius-lg);
+}
+
+/* --------------------------------------------------------------------------
+   7. 🎯 WIDGET: Strategic Goals & Milestones (widget=goals)
+   -------------------------------------------------------------------------- */
+body.widget-goals #tab-goals {
+  display: block !important;
+}
+
+body.widget-goals .goals-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 14px !important;
+}
+
+body.widget-goals .goal-card {
+  box-shadow: none !important;
+  border-radius: var(--radius-lg);
+}
+
+/* --------------------------------------------------------------------------
+   8. ✅ WIDGET: Checklist & Master Tasks (widget=checklist or widget=tasks)
+   -------------------------------------------------------------------------- */
+body.widget-checklist #tab-checklist,
+body.widget-tasks #tab-checklist {
+  display: block !important;
+}
+
+body.widget-checklist .checklist-card,
+body.widget-tasks .checklist-card {
+  box-shadow: none !important;
+  border-radius: var(--radius-lg);
+}
+
+/* --------------------------------------------------------------------------
+   9. ⚡ WIDGET: Daily Focus Top 3 & Brain Dump (widget=focus)
+   -------------------------------------------------------------------------- */
+body.widget-focus #tab-focus {
+  display: block !important;
+}
+
+body.widget-focus .focus-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 14px !important;
+}
+
+body.widget-focus .focus-card {
+  box-shadow: none !important;
+  border-radius: var(--radius-lg);
+}
