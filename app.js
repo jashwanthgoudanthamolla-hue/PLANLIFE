@@ -23,43 +23,43 @@ const DEFAULT_STATE = {
     '2026-09-17': []
   },
 
-  // 2. FINANCE MANAGER DATA
+  // 2. FINANCE MANAGER DATA (INR ₹)
   finance: {
     // i. Available Bank Balances
     banks: [
-      { id: 'bk-1', name: 'Primary Checking', type: 'Operating Cash', institution: 'JPMorgan Chase', balance: 8450.00, updated: 'Today' },
-      { id: 'bk-2', name: 'High Yield Savings', type: 'Emergency Reserve', institution: 'Ally Bank (4.25%)', balance: 18200.00, updated: 'Yesterday' },
-      { id: 'bk-3', name: 'Brokerage Cash Account', type: 'Investment Cash', institution: 'Vanguard Cash Plus', balance: 4850.00, updated: 'Sep 14' }
+      { id: 'bk-1', name: 'Primary Salary Account', type: 'Operating Cash', institution: 'HDFC Bank', balance: 84500.00, updated: 'Today' },
+      { id: 'bk-2', name: 'High Yield Savings', type: 'Emergency Reserve', institution: 'SBI Bank (7.1%)', balance: 182000.00, updated: 'Yesterday' },
+      { id: 'bk-3', name: 'Brokerage Liquid Fund', type: 'Investment Cash', institution: 'Zerodha Cash', balance: 48500.00, updated: 'Sep 14' }
     ],
     // ii. Loans Due
     loans: [
-      { id: 'ln-1', name: 'Car Loan EMI', lender: 'Toyota Financial', emi: 480.00, dueDate: '2026-09-25', remaining: 11500.00, status: 'Active' },
-      { id: 'ln-2', name: 'Executive Education Loan', lender: 'Sallie Mae', emi: 320.00, dueDate: '2026-10-02', remaining: 7800.00, status: 'Active' }
+      { id: 'ln-1', name: 'Car Loan EMI', lender: 'HDFC Bank', emi: 18500.00, dueDate: '2026-09-25', remaining: 450000.00, status: 'Active' },
+      { id: 'ln-2', name: 'Education Loan', lender: 'SBI Education', emi: 12000.00, dueDate: '2026-10-02', remaining: 280000.00, status: 'Active' }
     ],
     // iii. Credit Cards Due
     cards: [
-      { id: 'cc-1', name: 'Amex Platinum', balance: 2150.00, minDue: 2150.00, dueDate: '2026-09-28', limit: 15000, status: 'Pending' },
-      { id: 'cc-2', name: 'Chase Sapphire Reserve', balance: 1420.00, minDue: 150.00, dueDate: '2026-10-05', limit: 20000, status: 'Pending' },
-      { id: 'cc-3', name: 'Apple Card', balance: 340.00, minDue: 35.00, dueDate: '2026-09-30', limit: 8000, status: 'Pending' }
+      { id: 'cc-1', name: 'HDFC Regalia Gold', balance: 21500.00, minDue: 2150.00, dueDate: '2026-09-28', limit: 300000, status: 'Pending' },
+      { id: 'cc-2', name: 'ICICI Sapphiro Card', balance: 14200.00, minDue: 1500.00, dueDate: '2026-10-05', limit: 250000, status: 'Pending' },
+      { id: 'cc-3', name: 'SBI Cashback Card', balance: 3400.00, minDue: 350.00, dueDate: '2026-09-30', limit: 150000, status: 'Pending' }
     ],
     // iv. Expected Inflows
     inflows: [
-      { id: 'inf-1', source: 'Corporate Salary Deposit', category: 'Salary', amount: 6500.00, expectedDate: '2026-09-30', probability: '100%', status: 'Confirmed' },
-      { id: 'inf-2', source: 'Product Consulting Retainer', category: 'Freelance', amount: 2200.00, expectedDate: '2026-10-01', probability: '95%', status: 'Invoiced' },
-      { id: 'inf-3', source: 'Quarterly ETF Dividends', category: 'Investment', amount: 450.00, expectedDate: '2026-10-15', probability: '90%', status: 'Projected' }
+      { id: 'inf-1', source: 'Corporate Salary Deposit', category: 'Salary', amount: 165000.00, expectedDate: '2026-09-30', probability: '100%', status: 'Confirmed' },
+      { id: 'inf-2', source: 'Consulting Retainer', category: 'Freelance', amount: 45000.00, expectedDate: '2026-10-01', probability: '95%', status: 'Invoiced' },
+      { id: 'inf-3', source: 'Quarterly Mutual Fund Returns', category: 'Investment', amount: 8500.00, expectedDate: '2026-10-15', probability: '90%', status: 'Projected' }
     ],
     // v. Future Expenses
     expenses: [
-      { id: 'exp-1', title: 'Luxury Apartment Rent', category: 'Housing', amount: 2600.00, dueDate: '2026-10-01', recurrence: 'Monthly', status: 'Upcoming' },
-      { id: 'exp-2', title: 'Health & Dental Insurance', category: 'Health', amount: 380.00, dueDate: '2026-10-05', recurrence: 'Monthly', status: 'Upcoming' },
-      { id: 'exp-3', title: 'SaaS Software & AI Stack', category: 'Business', amount: 195.00, dueDate: '2026-09-24', recurrence: 'Monthly', status: 'Upcoming' },
-      { id: 'exp-4', title: 'Electric & Fiber Internet', category: 'Utilities', amount: 165.00, dueDate: '2026-09-27', recurrence: 'Monthly', status: 'Upcoming' }
+      { id: 'exp-1', title: 'Apartment Rent & Maintenance', category: 'Housing', amount: 35000.00, dueDate: '2026-10-01', recurrence: 'Monthly', status: 'Upcoming' },
+      { id: 'exp-2', title: 'Health & Term Insurance', category: 'Health', amount: 4200.00, dueDate: '2026-10-05', recurrence: 'Monthly', status: 'Upcoming' },
+      { id: 'exp-3', title: 'SaaS Software & AI Stack', category: 'Business', amount: 3500.00, dueDate: '2026-09-24', recurrence: 'Monthly', status: 'Upcoming' },
+      { id: 'exp-4', title: 'Electricity & Fiber Broadband', category: 'Utilities', amount: 2800.00, dueDate: '2026-09-27', recurrence: 'Monthly', status: 'Upcoming' }
     ],
     // vii. Things to Buy / Wishlist
     wishlist: [
-      { id: 'wb-1', item: 'Herman Miller Embody Chair', priority: 'High', cost: 1695.00, category: 'Need / Ergonomics', targetDate: '2026-10-15' },
-      { id: 'wb-2', item: 'Studio Display 27-inch 5K', priority: 'Medium', cost: 1599.00, category: 'Want / Setup', targetDate: '2026-11-01' },
-      { id: 'wb-3', item: 'Sony WH-1000XM5 ANC Headphones', priority: 'Low', cost: 398.00, category: 'Productivity', targetDate: '2026-12-01' }
+      { id: 'wb-1', item: 'Herman Miller Ergonomic Chair', priority: 'High', cost: 95000.00, category: 'Need / Ergonomics', targetDate: '2026-10-15' },
+      { id: 'wb-2', item: 'Studio 4K Monitor Setup', priority: 'Medium', cost: 42000.00, category: 'Want / Setup', targetDate: '2026-11-01' },
+      { id: 'wb-3', item: 'Sony WH-1000XM5 ANC Headphones', priority: 'Low', cost: 26990.00, category: 'Productivity', targetDate: '2026-12-01' }
     ]
   },
 
@@ -503,7 +503,7 @@ class PlanLifeApp {
     const kpiRunway = document.getElementById('kpiRunwayText');
 
     if (kpiSurplus) {
-      kpiSurplus.textContent = (finSummary.netSurplus >= 0 ? '+$' : '-$') + Math.abs(finSummary.netSurplus).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      kpiSurplus.textContent = (finSummary.netSurplus >= 0 ? '+₹' : '-₹') + Math.abs(finSummary.netSurplus).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       if (finSummary.netSurplus >= 0) {
         kpiSurplus.classList.remove('text-danger');
         kpiSurplus.classList.add('text-success');
@@ -633,15 +633,15 @@ class PlanLifeApp {
       dashFinMini.innerHTML = `
         <div class="fin-mini-row">
           <span class="fin-mini-lbl">Liquid Bank Balance</span>
-          <span class="fin-mini-val">$${finSummary.totalBanks.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+          <span class="fin-mini-val">₹${finSummary.totalBanks.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
         </div>
         <div class="fin-mini-row">
           <span class="fin-mini-lbl">Scheduled Loans & Credit Cards</span>
-          <span class="fin-mini-val text-danger">−$${(finSummary.totalLoans + finSummary.totalCards).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+          <span class="fin-mini-val text-danger">−₹${(finSummary.totalLoans + finSummary.totalCards).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
         </div>
         <div class="fin-mini-row">
           <span class="fin-mini-lbl">Expected Income</span>
-          <span class="fin-mini-val text-success">+$${finSummary.totalInflows.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+          <span class="fin-mini-val text-success">+₹${finSummary.totalInflows.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
         </div>
       `;
     }
@@ -1247,18 +1247,18 @@ class FinanceController {
     const bannerFig = document.getElementById('bannerSurplusFigure');
     const bannerExp = document.getElementById('bannerSurplusExplanation');
     if (bannerFig) {
-      bannerFig.textContent = (summary.netSurplus >= 0 ? '+$' : '-$') + Math.abs(summary.netSurplus).toLocaleString('en-US', { minimumFractionDigits: 2 });
+      bannerFig.textContent = (summary.netSurplus >= 0 ? '+₹' : '-₹') + Math.abs(summary.netSurplus).toLocaleString('en-IN', { minimumFractionDigits: 2 });
       bannerFig.className = 'surplus-large-figure' + (summary.netSurplus < 0 ? ' deficit' : '');
     }
     if (bannerExp) {
-      bannerExp.textContent = `Total Bank Cash ($${summary.totalBanks.toLocaleString()}) + Inflows ($${summary.totalInflows.toLocaleString()}) − Liabilities & Future Outflows ($${summary.totalOutflows.toLocaleString()})`;
+      bannerExp.textContent = `Total Bank Cash (₹${summary.totalBanks.toLocaleString('en-IN')}) + Inflows (₹${summary.totalInflows.toLocaleString('en-IN')}) − Liabilities & Future Outflows (₹${summary.totalOutflows.toLocaleString('en-IN')})`;
     }
 
     // Hero Stat Pills
-    document.getElementById('statBankTotal').textContent = `$${summary.totalBanks.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-    document.getElementById('statInflowsTotal').textContent = `+$${summary.totalInflows.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-    document.getElementById('statOutflowsTotal').textContent = `−$${summary.totalOutflows.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-    document.getElementById('statWishlistTotal').textContent = `$${summary.totalWishlist.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    document.getElementById('statBankTotal').textContent = `₹${summary.totalBanks.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+    document.getElementById('statInflowsTotal').textContent = `+₹${summary.totalInflows.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+    document.getElementById('statOutflowsTotal').textContent = `−₹${summary.totalOutflows.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+    document.getElementById('statWishlistTotal').textContent = `₹${summary.totalWishlist.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 
     // Subtab Count Badges
     document.getElementById('countBanks').textContent = this.app.state.finance.banks.length;
@@ -1285,7 +1285,7 @@ class FinanceController {
         <td><strong>${b.name}</strong></td>
         <td><span class="kpi-badge badge-neutral">${b.type}</span></td>
         <td>${b.institution}</td>
-        <td class="font-mono"><strong>$${Number(b.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong></td>
+        <td class="font-mono"><strong>₹${Number(b.balance).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
         <td>${b.updated}</td>
         <td class="text-right">
           <button class="block-action-icon text-danger" onclick="app.finance.deleteItem('banks', '${b.id}')">🗑️</button>
@@ -1301,9 +1301,9 @@ class FinanceController {
       <tr>
         <td><strong>${l.name}</strong></td>
         <td>${l.lender}</td>
-        <td class="font-mono text-danger"><strong>$${Number(l.emi).toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong> / mo</td>
+        <td class="font-mono text-danger"><strong>₹${Number(l.emi).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong> / mo</td>
         <td class="font-mono">${l.dueDate}</td>
-        <td class="font-mono">$${Number(l.remaining).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+        <td class="font-mono">₹${Number(l.remaining).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
         <td><span class="kpi-badge badge-warning">${l.status}</span></td>
         <td class="text-right">
           <button class="block-action-icon text-danger" onclick="app.finance.deleteItem('loans', '${l.id}')">🗑️</button>
@@ -1320,11 +1320,11 @@ class FinanceController {
       return `
         <tr>
           <td><strong>${c.name}</strong></td>
-          <td class="font-mono text-danger"><strong>$${Number(c.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong></td>
-          <td class="font-mono">$${Number(c.minDue).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+          <td class="font-mono text-danger"><strong>₹${Number(c.balance).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
+          <td class="font-mono">₹${Number(c.minDue).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
           <td class="font-mono">${c.dueDate}</td>
           <td>
-            <div style="font-size: 11px; margin-bottom: 2px;">${utilPct}% ($${c.limit.toLocaleString()} Limit)</div>
+            <div style="font-size: 11px; margin-bottom: 2px;">${utilPct}% (₹${c.limit.toLocaleString('en-IN')} Limit)</div>
             <div class="mini-progress-track">
               <div class="mini-progress-fill" style="width: ${utilPct}%; background-color: ${utilPct > 30 ? '#ef4444' : '#10b981'};"></div>
             </div>
@@ -1345,7 +1345,7 @@ class FinanceController {
       <tr>
         <td><strong>${inf.source}</strong></td>
         <td><span class="kpi-badge badge-info">${inf.category}</span></td>
-        <td class="font-mono text-success"><strong>+$${Number(inf.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong></td>
+        <td class="font-mono text-success"><strong>+₹${Number(inf.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
         <td class="font-mono">${inf.expectedDate}</td>
         <td><span class="kpi-badge badge-success">${inf.probability}</span></td>
         <td>${inf.status}</td>
@@ -1363,7 +1363,7 @@ class FinanceController {
       <tr>
         <td><strong>${exp.title}</strong></td>
         <td><span class="kpi-badge badge-neutral">${exp.category}</span></td>
-        <td class="font-mono text-danger"><strong>$${Number(exp.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong></td>
+        <td class="font-mono text-danger"><strong>₹${Number(exp.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
         <td class="font-mono">${exp.dueDate}</td>
         <td>${exp.recurrence}</td>
         <td><span class="kpi-badge badge-warning">${exp.status}</span></td>
@@ -1383,7 +1383,7 @@ class FinanceController {
         <tr>
           <td><strong>${w.item}</strong></td>
           <td><span class="priority-tag ${w.priority === 'High' ? 'priority-high' : 'priority-medium'}">${w.priority}</span></td>
-          <td class="font-mono"><strong>$${Number(w.cost).toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong></td>
+          <td class="font-mono"><strong>₹${Number(w.cost).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
           <td>${w.category}</td>
           <td class="font-mono">${w.targetDate}</td>
           <td>
@@ -1418,11 +1418,11 @@ class FinanceController {
         </div>
         <div class="form-group">
           <label class="form-label">Bank Institution</label>
-          <input type="text" id="fin_bank_inst" class="form-input" placeholder="e.g. Ally Bank, Fidelity">
+          <input type="text" id="fin_bank_inst" class="form-input" placeholder="e.g. HDFC Bank, SBI">
         </div>
         <div class="form-group">
-          <label class="form-label">Available Balance ($)</label>
-          <input type="number" id="fin_bank_balance" class="form-input" step="0.01" placeholder="5000.00">
+          <label class="form-label">Available Balance (₹)</label>
+          <input type="number" id="fin_bank_balance" class="form-input" step="1" placeholder="50000">
         </div>
       `;
     } else if (type === 'loan') {
@@ -1430,16 +1430,16 @@ class FinanceController {
       body.innerHTML = `
         <div class="form-group">
           <label class="form-label">Loan Name</label>
-          <input type="text" id="fin_loan_name" class="form-input" placeholder="e.g. Car Loan, Student Debt">
+          <input type="text" id="fin_loan_name" class="form-input" placeholder="e.g. Car Loan, Education Loan">
         </div>
         <div class="form-group">
           <label class="form-label">Lender</label>
-          <input type="text" id="fin_loan_lender" class="form-input" placeholder="e.g. Chase Auto, SoFi">
+          <input type="text" id="fin_loan_lender" class="form-input" placeholder="e.g. HDFC Bank, SBI">
         </div>
         <div class="form-row-2">
           <div class="form-group">
-            <label class="form-label">Monthly EMI ($)</label>
-            <input type="number" id="fin_loan_emi" class="form-input" step="0.01" placeholder="450.00">
+            <label class="form-label">Monthly EMI (₹)</label>
+            <input type="number" id="fin_loan_emi" class="form-input" step="1" placeholder="15000">
           </div>
           <div class="form-group">
             <label class="form-label">Next Due Date</label>
@@ -1447,8 +1447,8 @@ class FinanceController {
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Total Principal Remaining ($)</label>
-          <input type="number" id="fin_loan_rem" class="form-input" step="0.01" placeholder="12000.00">
+          <label class="form-label">Total Principal Remaining (₹)</label>
+          <input type="number" id="fin_loan_rem" class="form-input" step="1" placeholder="350000">
         </div>
       `;
     } else if (type === 'card') {
@@ -1456,16 +1456,16 @@ class FinanceController {
       body.innerHTML = `
         <div class="form-group">
           <label class="form-label">Card Name</label>
-          <input type="text" id="fin_card_name" class="form-input" placeholder="e.g. Amex Gold, Chase Freedom">
+          <input type="text" id="fin_card_name" class="form-input" placeholder="e.g. HDFC Regalia, ICICI Sapphiro">
         </div>
         <div class="form-row-2">
           <div class="form-group">
-            <label class="form-label">Statement Balance ($)</label>
-            <input type="number" id="fin_card_bal" class="form-input" step="0.01" placeholder="1250.00">
+            <label class="form-label">Statement Balance (₹)</label>
+            <input type="number" id="fin_card_bal" class="form-input" step="1" placeholder="15000">
           </div>
           <div class="form-group">
-            <label class="form-label">Minimum Due ($)</label>
-            <input type="number" id="fin_card_min" class="form-input" step="0.01" placeholder="100.00">
+            <label class="form-label">Minimum Due (₹)</label>
+            <input type="number" id="fin_card_min" class="form-input" step="1" placeholder="1500">
           </div>
         </div>
         <div class="form-row-2">
@@ -1474,8 +1474,8 @@ class FinanceController {
             <input type="date" id="fin_card_date" class="form-input">
           </div>
           <div class="form-group">
-            <label class="form-label">Credit Limit ($)</label>
-            <input type="number" id="fin_card_limit" class="form-input" step="100" placeholder="10000">
+            <label class="form-label">Credit Limit (₹)</label>
+            <input type="number" id="fin_card_limit" class="form-input" step="1000" placeholder="200000">
           </div>
         </div>
       `;
@@ -1492,8 +1492,8 @@ class FinanceController {
             <input type="text" id="fin_inflow_cat" class="form-input" placeholder="e.g. Salary, Freelance">
           </div>
           <div class="form-group">
-            <label class="form-label">Amount ($)</label>
-            <input type="number" id="fin_inflow_amt" class="form-input" step="0.01" placeholder="3500.00">
+            <label class="form-label">Amount (₹)</label>
+            <input type="number" id="fin_inflow_amt" class="form-input" step="1" placeholder="75000">
           </div>
         </div>
         <div class="form-group">
@@ -1510,8 +1510,8 @@ class FinanceController {
         </div>
         <div class="form-row-2">
           <div class="form-group">
-            <label class="form-label">Amount ($)</label>
-            <input type="number" id="fin_exp_amt" class="form-input" step="0.01" placeholder="1200.00">
+            <label class="form-label">Amount (₹)</label>
+            <input type="number" id="fin_exp_amt" class="form-input" step="1" placeholder="25000">
           </div>
           <div class="form-group">
             <label class="form-label">Due Date</label>
@@ -1524,12 +1524,12 @@ class FinanceController {
       body.innerHTML = `
         <div class="form-group">
           <label class="form-label">Item Name</label>
-          <input type="text" id="fin_wish_name" class="form-input" placeholder="e.g. Herman Miller Chair, MacBook Pro">
+          <input type="text" id="fin_wish_name" class="form-input" placeholder="e.g. Ergonomic Chair, MacBook Pro">
         </div>
         <div class="form-row-2">
           <div class="form-group">
-            <label class="form-label">Estimated Cost ($)</label>
-            <input type="number" id="fin_wish_cost" class="form-input" step="0.01" placeholder="1400.00">
+            <label class="form-label">Estimated Cost (₹)</label>
+            <input type="number" id="fin_wish_cost" class="form-input" step="1" placeholder="45000">
           </div>
           <div class="form-group">
             <label class="form-label">Priority</label>

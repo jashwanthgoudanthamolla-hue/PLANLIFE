@@ -30,41 +30,41 @@ The finance system tracks liquid bank accounts, debt obligations, future cash fl
 #### A. Database: `Accounts & Liquid Cash`
 | Property Name | Property Type | Description / Options |
 | :--- | :--- | :--- |
-| **Account Name** | Title | e.g. *JPMorgan Chase Checking*, *Ally HYSA* |
-| **Institution** | Select | `Chase`, `Ally`, `Vanguard`, `Fidelity`, `Cash` |
-| **Account Type** | Select | `Operating Checking`, `Emergency Reserve`, `Investment Cash` |
-| **Balance** | Number (Currency: USD) | e.g. `$8,450.00` |
+| **Account Name** | Title | e.g. *HDFC Salary Checking*, *SBI Savings* |
+| **Institution** | Select | `HDFC Bank`, `SBI`, `ICICI Bank`, `Zerodha`, `Cash` |
+| **Account Type** | Select | `Operating Salary`, `Emergency Reserve`, `Investment Cash` |
+| **Balance** | Number (Currency: INR) | e.g. `₹84,500.00` |
 | **Is Liquid?** | Checkbox | `true` |
 | **Last Reconciled** | Date | Date of statement reconciliation |
 
 #### B. Database: `Loans & Debt Obligations`
 | Property Name | Property Type | Description / Options |
 | :--- | :--- | :--- |
-| **Loan Name** | Title | e.g. *Toyota Auto Loan EMI*, *Education Loan* |
-| **Lender / Bank** | Text | Lender institution |
-| **Monthly EMI** | Number (Currency) | Monthly payment obligation (e.g. `$480.00`) |
+| **Loan Name** | Title | e.g. *Car Loan EMI*, *Education Loan* |
+| **Lender / Bank** | Text | Lender institution (e.g. `HDFC Bank`, `SBI`) |
+| **Monthly EMI** | Number (Currency: INR) | Monthly payment obligation (e.g. `₹18,500.00`) |
 | **Next Due Date** | Date | Monthly due date |
-| **Remaining Principal** | Number (Currency) | Remaining payoff balance |
+| **Remaining Principal** | Number (Currency: INR) | Remaining payoff balance (e.g. `₹4,50,000.00`) |
 | **Status** | Status | `Active`, `Paid Off`, `Deferred` |
 | **Due in Days** | Formula (2.0) | `dateBetween(prop("Next Due Date"), now(), "days")` |
 
 #### C. Database: `Credit Cards`
 | Property Name | Property Type | Description / Options |
 | :--- | :--- | :--- |
-| **Card Name** | Title | e.g. *Amex Platinum*, *Chase Sapphire* |
-| **Statement Balance** | Number (Currency) | Amount due this cycle (e.g. `$2,150.00`) |
-| **Minimum Due** | Number (Currency) | Minimum monthly payment required |
+| **Card Name** | Title | e.g. *HDFC Regalia Gold*, *ICICI Sapphiro* |
+| **Statement Balance** | Number (Currency: INR) | Amount due this cycle (e.g. `₹21,500.00`) |
+| **Minimum Due** | Number (Currency: INR) | Minimum monthly payment required |
 | **Payment Due Date** | Date | Due date |
-| **Credit Limit** | Number (Currency) | Total credit line (e.g. `$15,000`) |
+| **Credit Limit** | Number (Currency: INR) | Total credit line (e.g. `₹3,00,000`) |
 | **Utilization %** | Formula (2.0) | `round((prop("Statement Balance") / prop("Credit Limit")) * 100) + "%"` |
 | **Autopay Configured?**| Checkbox | `true` |
 
 #### D. Database: `Expected Inflows`
 | Property Name | Property Type | Description / Options |
 | :--- | :--- | :--- |
-| **Inflow Source** | Title | e.g. *Bi-weekly Salary*, *Consulting Retainer* |
+| **Inflow Source** | Title | e.g. *Monthly Salary*, *Consulting Retainer* |
 | **Category** | Select | `Salary`, `Freelance`, `Dividends`, `Bonus`, `Refund` |
-| **Expected Amount** | Number (Currency) | e.g. `$6,500.00` |
+| **Expected Amount** | Number (Currency: INR) | e.g. `₹1,65,000.00` |
 | **Expected Date** | Date | Projected arrival date |
 | **Status** | Status | `Projected`, `Invoiced`, `Received` |
 | **Probability** | Select | `100% Guaranteed`, `90% Probable`, `50% Speculative` |
@@ -74,7 +74,7 @@ The finance system tracks liquid bank accounts, debt obligations, future cash fl
 | :--- | :--- | :--- |
 | **Expense Item** | Title | e.g. *Apartment Rent*, *Health Insurance*, *AI Stack* |
 | **Category** | Select | `Housing`, `Health`, `Utilities`, `Software`, `Tax` |
-| **Amount Due** | Number (Currency) | e.g. `$2,600.00` |
+| **Amount Due** | Number (Currency: INR) | e.g. `₹35,000.00` |
 | **Due Date** | Date | Payment due date |
 | **Recurrence** | Select | `Monthly`, `Quarterly`, `Annual`, `One-time` |
 | **Status** | Status | `Upcoming`, `Scheduled`, `Paid` |
@@ -82,11 +82,11 @@ The finance system tracks liquid bank accounts, debt obligations, future cash fl
 #### F. Database: `Things to Buy / Wishlist`
 | Property Name | Property Type | Description / Options |
 | :--- | :--- | :--- |
-| **Item Name** | Title | e.g. *Herman Miller Embody Chair* |
-| **Estimated Cost** | Number (Currency) | e.g. `$1,695.00` |
+| **Item Name** | Title | e.g. *Herman Miller Ergonomic Chair* |
+| **Estimated Cost** | Number (Currency: INR) | e.g. `₹95,000.00` |
 | **Priority** | Select | `🔴 High (Need)`, `🟡 Medium (Value)`, `🟢 Low (Want)` |
 | **Target Buy Date** | Date | Planned purchase date |
-| **Affordability** | Formula (2.0) | `if(prop("Estimated Cost") <= 1500, "✅ Safe from Surplus", "⏳ Needs Allocation")` |
+| **Affordability** | Formula (2.0) | `if(prop("Estimated Cost") <= 50000, "✅ Safe from Surplus", "⏳ Needs Allocation")` |
 
 #### G. Master Cash Flow Rollup & Surplus Formula:
 In a centralized dashboard page block or summary relation:
@@ -96,14 +96,15 @@ $$\text{Net Cash Surplus} = \text{Total Liquid Cash} + \text{Expected Inflows} -
 ```js
 let(
   surplus, prop("Total Bank Balances") + prop("Expected Inflows") - prop("Total Outflows"),
-  if(surplus >= 5000, 
-    "🟢 Healthy Surplus (+$" + surplus.format() + ")",
+  if(surplus >= 50000, 
+    "🟢 Healthy Surplus (+₹" + surplus.format() + ")",
     if(surplus >= 0, 
-      "🟡 Tight Buffer (+$" + surplus.format() + ")", 
-      "🔴 Deficit Alert (-$" + abs(surplus).format() + ")"
+      "🟡 Tight Buffer (+₹" + surplus.format() + ")", 
+      "🔴 Deficit Alert (-₹" + abs(surplus).format() + ")"
     )
   )
 )
+```
 ```
 
 ---
