@@ -366,19 +366,19 @@
     <!-- Widget Cards Grid -->
     <div class="widget-grid" id="widgetGrid">
       
-      <!-- 1. 24-HOUR CIRCULAR CLOCK (SIDE-BY-SIDE) -->
-      <div class="widget-hub-card" data-widget-key="clock">
+      <!-- 1. 24-HOUR CIRCULAR CLOCK + HOURS BY CATEGORY (SIDE-BY-SIDE) -->
+      <div class="widget-hub-card" data-widget-key="clock" style="grid-column: 1 / -1;">
         <div class="card-top">
           <div class="widget-identity">
             <span class="widget-icon">🕒</span>
             <div>
-              <div class="widget-name">24-Hour Clock (Side-by-Side)</div>
-              <div class="widget-desc">Pure circular dial on left + Category breakdown on right (no box)</div>
+              <div class="widget-name">24-Hour Circular Clock & Category Hours</div>
+              <div class="widget-desc">Pure floating circular 24h dial with Hours by Category side-by-side (no box container)</div>
             </div>
           </div>
-          <span class="sizing-pill">H: 440px | Full / Wide</span>
+          <span class="sizing-pill">H: 420px | 2-Col / Full</span>
         </div>
-        <div class="preview-frame-container" style="height: 380px;">
+        <div class="preview-frame-container" style="height: 420px;">
           <iframe class="preview-iframe" id="frame-clock" src="../index.html?widget=clock&theme=dark" style="height: 100%;"></iframe>
         </div>
         <div class="card-bottom">
@@ -390,34 +390,6 @@
               <span>📋 Copy Notion URL</span>
             </button>
             <a class="btn-external" id="ext-clock" target="_blank" title="Open in new tab">↗</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2. PURE CIRCULAR DIAL ONLY (NO BOX, NO BARS) -->
-      <div class="widget-hub-card" data-widget-key="dial">
-        <div class="card-top">
-          <div class="widget-identity">
-            <span class="widget-icon">🔘</span>
-            <div>
-              <div class="widget-name">Pure Circular Clock Dial Only</div>
-              <div class="widget-desc">Only the round dial face, live needle & center time (no box, no breakdown)</div>
-            </div>
-          </div>
-          <span class="sizing-pill">H: 420px | Col / Full</span>
-        </div>
-        <div class="preview-frame-container" style="height: 380px;">
-          <iframe class="preview-iframe" id="frame-dial" src="../index.html?widget=dial&theme=dark" style="height: 100%;"></iframe>
-        </div>
-        <div class="card-bottom">
-          <div class="url-input-wrap">
-            <input type="text" readonly class="url-input" id="url-dial">
-          </div>
-          <div class="action-btn-row">
-            <button class="btn-copy-embed" onclick="copyWidgetUrl('dial')">
-              <span>📋 Copy Notion URL</span>
-            </button>
-            <a class="btn-external" id="ext-dial" target="_blank" title="Open in new tab">↗</a>
           </div>
         </div>
       </div>
@@ -657,7 +629,7 @@
 
   <script>
     let currentTheme = 'dark';
-    const widgetKeys = ['clock', 'dial', 'schedule', 'kpis', 'habits', 'finance', 'goals', 'checklist', 'focus', 'planner'];
+    const widgetKeys = ['clock', 'schedule', 'kpis', 'habits', 'finance', 'goals', 'checklist', 'focus', 'planner'];
 
     function getBaseUrl() {
       const loc = window.location;

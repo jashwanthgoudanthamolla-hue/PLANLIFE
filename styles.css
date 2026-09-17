@@ -789,8 +789,8 @@ body.theme-dark .planner-date-field {
 
 .clock-card {
   background: transparent !important;
-  border-radius: 0;
-  padding: 0;
+  border-radius: var(--radius-full);
+  padding: 0 !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -799,10 +799,11 @@ body.theme-dark .planner-date-field {
 }
 
 .clock-svg-container {
-  width: 440px;
-  height: 440px;
+  width: 420px;
+  height: 420px;
   position: relative;
   user-select: none;
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.45));
 }
 
 .clock-svg {
@@ -817,10 +818,8 @@ body.theme-dark .planner-date-field {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 38%;
-  height: 38%;
-  max-width: 170px;
-  max-height: 170px;
+  width: 170px;
+  height: 170px;
   background: radial-gradient(circle at 50% 50%, #111a2e 0%, #090e1a 100%);
   border-radius: var(--radius-full);
   border: 1px solid #1e293b;
@@ -2198,40 +2197,43 @@ body.is-widget::-webkit-scrollbar-track {
 }
 
 /* --------------------------------------------------------------------------
-   1. 🕒 WIDGET: 24-Hour Circular Clock Dial (widget=clock)
+   1. 🕒 WIDGET: 24-Hour Circular Clock Dial & Hours by Category (Side-by-Side)
    -------------------------------------------------------------------------- */
 body.widget-clock #tab-dayplanner,
-body.widget-dial #tab-dayplanner {
+body.widget-clockdial #tab-dayplanner {
   display: block !important;
 }
 
 body.widget-clock .planner-layout-grid,
-body.widget-dial .planner-layout-grid {
-  display: block !important;
+body.widget-clockdial .planner-layout-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 16px !important;
   width: 100% !important;
-  max-width: 900px !important;
-  margin: 0 auto !important;
 }
 
 body.widget-clock .schedule-column,
-body.widget-dial .schedule-column {
+body.widget-clockdial .schedule-column {
   display: none !important;
 }
 
 body.widget-clock .clock-column {
   width: 100% !important;
-  max-width: 900px !important;
+  max-width: 860px !important;
   margin: 0 auto !important;
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 32px !important;
+  gap: 28px !important;
   flex-wrap: wrap !important;
 }
 
+/* Pure circle clock, zero rectangular box */
 body.widget-clock .clock-card,
-body.widget-dial .clock-card {
+body.widget-clockdial .clock-card {
   flex: 0 0 auto !important;
   background: transparent !important;
   border: none !important;
@@ -2239,43 +2241,51 @@ body.widget-dial .clock-card {
   padding: 0 !important;
 }
 
-body.widget-clock .planner-controls-bar,
-body.widget-dial .planner-controls-bar {
-  margin-bottom: 16px !important;
-  justify-content: center !important;
-}
-
-body.widget-clock .planner-actions,
-body.widget-dial .planner-actions {
-  display: none !important;
-}
-
 body.widget-clock .clock-svg-container,
-body.widget-dial .clock-svg-container {
-  width: 360px !important;
-  height: 360px !important;
-  max-width: 100% !important;
-  margin: 0 auto;
+body.widget-clockdial .clock-svg-container {
+  width: 380px !important;
+  height: 380px !important;
+  max-width: 380px !important;
+  max-height: 380px !important;
+  margin: 0 auto !important;
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.45)) !important;
 }
 
+/* Hours by Category sitting side-by-side with the clock */
 body.widget-clock .category-breakdown-card {
   flex: 1 1 280px !important;
   max-width: 380px !important;
-  margin: 0 !important;
-  box-shadow: none !important;
-  border-radius: var(--radius-lg);
+  min-width: 250px !important;
+  background-color: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 20px 22px !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 
-/* Pure Circle Dial Only (?widget=dial or &nobars=true) */
-body.widget-dial .category-breakdown-card,
-body.widget-clock.hide-breakdown .category-breakdown-card {
+body.widget-clock .planner-controls-bar,
+body.widget-clockdial .planner-controls-bar {
+  margin-bottom: 8px !important;
+  justify-content: center !important;
+  width: 100% !important;
+  max-width: 860px !important;
+}
+
+body.widget-clock .planner-actions,
+body.widget-clockdial .planner-actions {
   display: none !important;
 }
 
-body.widget-dial .clock-column {
-  display: flex !important;
+/* Support pure circle dial only mode via &nobrk=true or widget=clockdial */
+body.widget-clockdial .category-breakdown-card,
+body.hide-breakdown .category-breakdown-card {
+  display: none !important;
+}
+
+body.widget-clockdial .clock-column,
+body.hide-breakdown .clock-column {
+  max-width: 440px !important;
   justify-content: center !important;
-  width: 100% !important;
 }
 
 /* --------------------------------------------------------------------------
