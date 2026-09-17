@@ -185,6 +185,7 @@ class PlanLifeApp {
     this.widgetMode = (params.get('widget') || '').toLowerCase();
     this.themeOverride = (params.get('theme') || '').toLowerCase();
     this.noBg = params.get('nobg') === 'true' || params.get('transparent') === 'true';
+    this.hideBreakdown = params.get('nobars') === 'true' || params.get('breakdown') === 'false';
     const urlDate = params.get('date');
     if (urlDate && /^\d{4}-\d{2}-\d{2}$/.test(urlDate)) {
       this.state.selectedDate = urlDate;
@@ -357,6 +358,9 @@ class PlanLifeApp {
     document.body.classList.add('is-widget');
     document.body.classList.add(`widget-${widgetName}`);
     document.documentElement.classList.add('is-widget');
+    if (this.hideBreakdown) {
+      document.body.classList.add('hide-breakdown');
+    }
 
     // Route to appropriate tab and trigger view render
     this.renderWidgetView(widgetName);
@@ -365,6 +369,7 @@ class PlanLifeApp {
   renderWidgetView(widgetName) {
     switch (widgetName) {
       case 'clock':
+      case 'dial':
         this.switchTab('dayplanner');
         this.planner.render();
         break;
