@@ -439,11 +439,22 @@
 
         <!-- Master Financial Surplus / Deficit Engine Banner -->
         <div class="finance-hero-banner" id="financeHeroBanner">
-          <div class="hero-surplus-content">
-            <div class="surplus-tagline">PROJECTED NET SURPLUS / DEFICIT</div>
-            <div class="surplus-large-figure" id="bannerSurplusFigure">+₹1,24,500.00</div>
-            <div class="surplus-explanation" id="bannerSurplusExplanation">
-              Total Bank Cash (₹3,15,000) + Inflows (₹2,18,500) − Liabilities & Future Outflows (₹94,000)
+          <div class="hero-top-row">
+            <div class="hero-surplus-content">
+              <div class="surplus-tagline">PROJECTED NET SURPLUS / DEFICIT</div>
+              <div class="surplus-large-figure" id="bannerSurplusFigure">+₹1,24,500.00</div>
+              <div class="surplus-explanation" id="bannerSurplusExplanation">
+                Total Bank Cash (₹3,15,000) + Inflows (₹2,18,500) − Liabilities & Future Outflows (₹94,000)
+              </div>
+            </div>
+            <div class="hero-actions-top-right">
+              <button id="copyAiFinancePromptBtn" class="ai-copy-btn" title="Copy complete financial status & due dates as AI prompt for advice">
+                <span class="ai-copy-icon">✨</span>
+                <span class="ai-copy-text">Copy for AI Advisor</span>
+              </button>
+              <button id="previewAiPromptBtn" class="ai-preview-btn" title="Preview complete AI financial advisory prompt">
+                <span>👁️</span>
+              </button>
             </div>
           </div>
           <div class="hero-stats-row">
@@ -1052,11 +1063,33 @@
           <button class="btn btn-outline" onclick="app.habits.closeModal()">Cancel</button>
           <button id="saveHabitBtn" class="btn btn-dark">Save Habit</button>
         </div>
+    <!-- Modal 6: AI Financial Advisor Prompt Preview & Copy Modal -->
+    <div id="aiPromptModal" class="modal-backdrop">
+      <div class="modal-card modal-lg">
+        <div class="modal-header">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 18px;">✨</span>
+            <h3 class="modal-title">AI Financial Advisor Prompt</h3>
+          </div>
+          <button class="modal-close-btn" onclick="app.finance.closePromptModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">
+            This complete snapshot describes your exact financial status (bank balances, debt EMIs, credit cards, upcoming inflows, expenses, and due dates). Paste this prompt directly into <strong>ChatGPT</strong>, <strong>Claude</strong>, or <strong>Gemini</strong> to receive personalized financial planning advice.
+          </p>
+          <textarea id="aiPromptModalTextarea" class="form-textarea font-mono" rows="13" readonly style="font-size: 11.5px; line-height: 1.5; background: var(--bg-surface-secondary);"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="app.finance.closePromptModal()">Close</button>
+          <button id="modalCopyPromptBtn" class="btn btn-dark" onclick="app.finance.copyFromModal()">
+            <span id="modalCopyBtnIcon">📋</span> <span id="modalCopyBtnText">Copy Prompt to Clipboard</span>
+          </button>
+        </div>
       </div>
     </div>
 
   </div>
 
-  <script src="app.js?v=2.7.0"></script>
+  <script src="app.js?v=2.8.0"></script>
 </body>
 </html>

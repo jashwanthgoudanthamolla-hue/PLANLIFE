@@ -1388,6 +1388,16 @@ class FinanceController {
     document.getElementById('saveFinanceItemBtn')?.addEventListener('click', () => {
       this.saveItemFromModal();
     });
+
+    // Copy AI Financial Advisory Prompt Button
+    document.getElementById('copyAiFinancePromptBtn')?.addEventListener('click', () => {
+      this.copyAiFinancialPrompt();
+    });
+
+    // Preview AI Financial Prompt Button
+    document.getElementById('previewAiPromptBtn')?.addEventListener('click', () => {
+      this.openPromptModal();
+    });
   }
 
   calculateNetSurplus() {
@@ -1792,6 +1802,258 @@ class FinanceController {
       this.app.saveState();
       this.render();
       this.app.showToast('Financial item deleted', 'danger');
+    }
+  }
+
+  generateAiFinancialPrompt() {
+    const summary = this.calculateNetSurplus();
+    const fin = this.app.state.finance;
+    const currency = '₹';
+    const today = new Date();
+    const todayStr = today.toLocaleDateString('en-IN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    const formatMoney = (val) => {
+      const num = Number(val || 0);
+      return currency + num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+
+    const getDaysRemainingText = (dateStr) => {
+      if (!dateStr) return '';
+      try {
+        const target = new Date(dateStr);
+        if (isNaN(target.getTime())) return '';
+        const tZero = new Date();
+        tZero.setHours(0, 0, 0, 0);
+        target.setHours(0, 0, 0, 0);
+        const diffDays = Math.round((target - tZero) / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) return `[OVERDUE by ${Math.abs(diffDays)}d!]`;
+        if (diffDays === 0) return `[DUE TODAY!]`;
+        if (diffDays === 1) return `[Due tomorrow!]`;
+        return `[Due in ${diffDays}d]`;
+      } catch (e) {
+        return '';
+      }
+    };
+
+    let p = `========================================================================\n`;
+    p += `PERSONAL FINANCIAL PORTFOLIO & CASH FLOW SNAPSHOT (AI ADVISOR PROMPT)\n`;
+    p += `Date of Analysis: ${todayStr}\n`;
+    p += `========================================================================\n\n`;
+
+    // 1. Executive Summary
+    p += `### 1. EXECUTIVE CASH FLOW & LIQUIDITY SNAPSHOT\n`;
+    p += `- Net Projected Cash Surplus / Deficit: ${summary.netSurplus >= 0 ? '+' : '-'}${formatMoney(Math.abs(summary.netSurplus))} (${summary.netSurplus >= 0 ? 'Surplus' : 'Deficit'})\n`;
+    p += `- Liquid Bank Cash: ${formatMoney(summary.totalBanks)} (across ${fin.banks.length} accounts)\n`;
+    p += `- Expected Cash Inflows: +${formatMoney(summary.totalInflows)} (across ${fin.inflows.length} scheduled sources)\n`;
+    p += `- Total Liabilities & Outflows Due: -${formatMoney(summary.totalOutflows)} (Loans EMI + Credit Cards + Future Expenses)\n`;
+    p += `- Wishlist / Planned Capital Outlays: ${formatMoney(summary.totalWishlist)} (across ${fin.wishlist.length} items)\n`;
+    p += `- Estimated Monthly Fixed Burn: ${formatMoney(summary.totalLoans + summary.totalExpenses)} / month\n`;
+    p += `- Cash Runway Buffer: ${summary.runwayMonths > 50 ? 'Over 24 months (>2 years)' : summary.runwayMonths.toFixed(1) + ' months of liquidity'}\n\n`;
+
+    // 2. Bank Accounts
+    p += `### 2. LIQUID BANK & CASH RESERVES (${fin.banks.length} Accounts)\n`;
+    if (!fin.banks || fin.banks.length === 0) {
+      p += `- None recorded.\n`;
+    } else {
+      fin.banks.forEach((b, i) => {
+        p += `${i + 1}. ${b.name}: ${formatMoney(b.balance)} | Type: ${b.type || 'Operating'} | Institution: ${b.institution || 'Bank'} | Last Updated: ${b.updated || 'Recent'}\n`;
+      });
+      p += `-> Total Liquid Bank Cash: ${formatMoney(summary.totalBanks)}\n`;
+    }
+    p += `\n`;
+
+    // 3. Loans Due
+    p += `### 3. ACTIVE LOANS & EMI DEBT OBLIGATIONS (${fin.loans.length} Loans)\n`;
+    if (!fin.loans || fin.loans.length === 0) {
+      p += `- No active loans or EMIs recorded.\n`;
+    } else {
+      fin.loans.forEach((l, i) => {
+        const dueTag = getDaysRemainingText(l.dueDate);
+        p += `${i + 1}. ${l.name}: Monthly EMI ${formatMoney(l.emi)} | Next Due Date: ${l.dueDate || 'N/A'} ${dueTag} | Remaining Principal: ${formatMoney(l.remaining)} | Lender: ${l.lender || 'N/A'} | Status: ${l.status || 'Active'}\n`;
+      });
+      p += `-> Total Monthly EMI Outflow: ${formatMoney(summary.totalLoans)}\n`;
+      const totalRemainingDebt = fin.loans.reduce((acc, x) => acc + Number(x.remaining || 0), 0);
+      p += `-> Total Remaining Debt Principal: ${formatMoney(totalRemainingDebt)}\n`;
+    }
+    p += `\n`;
+
+    // 4. Credit Cards Due
+    p += `### 4. CREDIT CARDS DUE & OUTSTANDING BALANCES (${fin.cards.length} Cards)\n`;
+    if (!fin.cards || fin.cards.length === 0) {
+      p += `- No credit card dues recorded.\n`;
+    } else {
+      fin.cards.forEach((c, i) => {
+        const util = c.limit > 0 ? Math.round((c.balance / c.limit) * 100) : 0;
+        const dueTag = getDaysRemainingText(c.dueDate);
+        p += `${i + 1}. ${c.name}: Total Statement Due ${formatMoney(c.balance)} | Min Due: ${formatMoney(c.minDue)} | Payment Due Date: ${c.dueDate || 'N/A'} ${dueTag} | Credit Limit: ${formatMoney(c.limit)} (${util}% Utilized) | Status: ${c.status || 'Pending'}\n`;
+      });
+      p += `-> Total Credit Card Statement Balance Due: ${formatMoney(summary.totalCards)}\n`;
+      const totalMinDue = fin.cards.reduce((acc, x) => acc + Number(x.minDue || 0), 0);
+      p += `-> Total Minimum Due: ${formatMoney(totalMinDue)}\n`;
+    }
+    p += `\n`;
+
+    // 5. Expected Inflows
+    p += `### 5. EXPECTED CASH INFLOWS / UPCOMING INCOME (${fin.inflows.length} Sources)\n`;
+    if (!fin.inflows || fin.inflows.length === 0) {
+      p += `- No upcoming cash inflows recorded.\n`;
+    } else {
+      fin.inflows.forEach((inf, i) => {
+        const dueTag = getDaysRemainingText(inf.expectedDate);
+        p += `${i + 1}. ${inf.source}: +${formatMoney(inf.amount)} | Expected Date: ${inf.expectedDate || 'N/A'} ${dueTag} | Category: ${inf.category || 'Income'} | Probability: ${inf.probability || '100%'} | Status: ${inf.status || 'Confirmed'}\n`;
+      });
+      p += `-> Total Expected Inflow: +${formatMoney(summary.totalInflows)}\n`;
+    }
+    p += `\n`;
+
+    // 6. Future Expenses
+    p += `### 6. UPCOMING FIXED & FUTURE EXPENSES (${fin.expenses.length} Expenses)\n`;
+    if (!fin.expenses || fin.expenses.length === 0) {
+      p += `- No future expenses recorded.\n`;
+    } else {
+      fin.expenses.forEach((exp, i) => {
+        const dueTag = getDaysRemainingText(exp.dueDate);
+        p += `${i + 1}. ${exp.title}: ${formatMoney(exp.amount)} | Due Date: ${exp.dueDate || 'N/A'} ${dueTag} | Category: ${exp.category || 'General'} | Recurrence: ${exp.recurrence || 'Monthly'} | Status: ${exp.status || 'Upcoming'}\n`;
+      });
+      p += `-> Total Upcoming Expenses: ${formatMoney(summary.totalExpenses)}\n`;
+    }
+    p += `\n`;
+
+    // 7. Things to Buy / Wishlist
+    p += `### 7. THINGS TO BUY & CAPITAL ALLOCATIONS (${fin.wishlist.length} Items)\n`;
+    if (!fin.wishlist || fin.wishlist.length === 0) {
+      p += `- Wishlist is empty.\n`;
+    } else {
+      fin.wishlist.forEach((w, i) => {
+        const canAfford = summary.netSurplus >= w.cost;
+        const dueTag = getDaysRemainingText(w.targetDate);
+        p += `${i + 1}. ${w.item}: Cost ${formatMoney(w.cost)} | Priority: ${w.priority || 'Medium'} | Category: ${w.category || 'Wishlist'} | Target Date: ${w.targetDate || 'N/A'} ${dueTag} | Affordability: ${canAfford ? 'Covered by Current Surplus' : 'Exceeds Safe Surplus Buffer'}\n`;
+      });
+      p += `-> Total Wishlist Cost: ${formatMoney(summary.totalWishlist)}\n`;
+    }
+    p += `\n`;
+
+    // 8. Advisory Instructions
+    p += `========================================================================\n`;
+    p += `FINANCIAL ADVISORY PROMPT INSTRUCTIONS FOR AI\n`;
+    p += `========================================================================\n`;
+    p += `You are an elite Certified Financial Planner (CFP) and cash flow strategist. Based on my comprehensive financial data, liquid bank balances, upcoming cash inflows, debt EMIs, credit card statement dues, and due dates above:\n\n`;
+    p += `1. **Bill Payment Sequencing & Cash Flow Strategy**: What exact sequence should I follow to pay my credit cards, loan EMIs, and bills around their due dates so that I never incur interest or late penalties while preventing cash crunches before inflows arrive?\n`;
+    p += `2. **Liquidity & Buffer Risk Assessment**: Review my liquid bank cash against upcoming liabilities. Are there any days or dates in the upcoming cycle where I might face a temporary liquidity crunch?\n`;
+    p += `3. **Wishlist Capital Allocation**: Given my projected net surplus and runway, should I execute any purchases from my wishlist now, or should I defer them? What specific financial milestone should I hit before purchasing?\n`;
+    p += `4. **Actionable 30-90 Day Optimization**: Provide 3-4 high-impact, prioritized steps (such as credit card utilization optimization, emergency fund strengthening, or high-interest payoff strategies) to improve my financial health.\n`;
+    p += `========================================================================\n`;
+
+    return p;
+  }
+
+  copyAiFinancialPrompt() {
+    const promptText = this.generateAiFinancialPrompt();
+    const btn = document.getElementById('copyAiFinancePromptBtn');
+
+    const handleSuccess = () => {
+      if (btn) {
+        btn.classList.add('copied');
+        btn.innerHTML = `<span class="ai-copy-icon">✓</span><span class="ai-copy-text">Copied for AI!</span>`;
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = `<span class="ai-copy-icon">✨</span><span class="ai-copy-text">Copy for AI Advisor</span>`;
+        }, 2500);
+      }
+      this.app.showToast('✨ Financial prompt copied! Paste into ChatGPT, Claude, or Gemini for advice.', 'success');
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(promptText)
+        .then(() => {
+          handleSuccess();
+        })
+        .catch(() => {
+          this.fallbackCopyText(promptText, handleSuccess);
+        });
+    } else {
+      this.fallbackCopyText(promptText, handleSuccess);
+    }
+  }
+
+  fallbackCopyText(text, onSuccess) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    textarea.style.top = '0';
+    textarea.setAttribute('readonly', '');
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+        onSuccess();
+      } else {
+        this.openPromptModal(text);
+      }
+    } catch (err) {
+      this.openPromptModal(text);
+    }
+    document.body.removeChild(textarea);
+  }
+
+  openPromptModal(prefilledText = null) {
+    const text = prefilledText || this.generateAiFinancialPrompt();
+    const modal = document.getElementById('aiPromptModal');
+    const textarea = document.getElementById('aiPromptModalTextarea');
+    if (textarea) {
+      textarea.value = text;
+      textarea.focus();
+      textarea.select();
+    }
+    if (modal) {
+      modal.classList.add('active');
+    }
+  }
+
+  closePromptModal() {
+    document.getElementById('aiPromptModal')?.classList.remove('active');
+  }
+
+  copyFromModal() {
+    const textarea = document.getElementById('aiPromptModalTextarea');
+    const text = textarea ? textarea.value : this.generateAiFinancialPrompt();
+    const btnText = document.getElementById('modalCopyBtnText');
+    const btnIcon = document.getElementById('modalCopyBtnIcon');
+
+    const handleSuccess = () => {
+      if (btnText) btnText.textContent = '✓ Copied to Clipboard!';
+      if (btnIcon) btnIcon.textContent = '✓';
+      setTimeout(() => {
+        if (btnText) btnText.textContent = 'Copy Prompt to Clipboard';
+        if (btnIcon) btnIcon.textContent = '📋';
+      }, 2200);
+      this.app.showToast('✨ Copied to clipboard! Ready to paste into AI.', 'success');
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(handleSuccess).catch(() => {
+        if (textarea) {
+          textarea.focus();
+          textarea.select();
+          document.execCommand('copy');
+          handleSuccess();
+        }
+      });
+    } else {
+      if (textarea) {
+        textarea.focus();
+        textarea.select();
+        document.execCommand('copy');
+        handleSuccess();
+      }
     }
   }
 }
