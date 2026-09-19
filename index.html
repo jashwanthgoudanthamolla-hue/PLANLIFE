@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2.7.0">
+  <link rel="stylesheet" href="styles.css?v=2.8.0">
   <script>
     (function() {
       try {
@@ -432,9 +432,7 @@
       <!-- ========================================================================= -->
       <section id="tab-finance" class="tab-view">
         <div class="page-header">
-          <div class="header-pretitle">WEALTH & CASH FLOW CONTROL</div>
           <h1 class="page-title serif-title">Finance Manager</h1>
-          <p class="page-subtitle">Real-time balances, scheduled debt obligations, future cash flows, and intelligent surplus/deficit projection.</p>
         </div>
 
         <!-- Master Financial Surplus / Deficit Engine Banner -->
@@ -640,9 +638,7 @@
       <section id="tab-goals" class="tab-view">
         <div class="page-header-flex">
           <div>
-            <div class="header-pretitle">OUTCOME ROADMAP & EXECUTION</div>
             <h1 class="page-title serif-title">Strategic Goals</h1>
-            <p class="page-subtitle">Track multi-step milestones, strategic notes, and critical project attachments.</p>
           </div>
           <button id="addNewGoalBtn" class="btn btn-dark">
             <span class="btn-icon">+</span> Create New Goal
@@ -660,11 +656,7 @@
       <!-- ========================================================================= -->
       <section id="tab-habits" class="tab-view">
         <div class="page-header-flex">
-          <div>
-            <div class="header-pretitle">DISCIPLINE & REPETITION ENGINE</div>
-            <h1 class="page-title serif-title">Habit Streak Counter</h1>
-            <p class="page-subtitle">Build compounding momentum with daily check-ins, active streak multipliers, and weekly history.</p>
-          </div>
+          <h1 class="page-title serif-title">Habit Streak Counter</h1>
           <button id="addNewHabitBtn" class="btn btn-dark">
             <span class="btn-icon">+</span> Add New Habit
           </button>
@@ -677,7 +669,7 @@
             <span class="h-stat-label">Done Today</span>
           </div>
           <div class="h-stat-box">
-            <span class="h-stat-number font-fire" id="habitsActiveStreaks">0 🔥</span>
+            <span class="h-stat-number font-fire" id="habitsActiveStreaks">0 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;color:#f97316;"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span>
             <span class="h-stat-label">Active Streaks</span>
           </div>
           <div class="h-stat-box">
@@ -685,7 +677,7 @@
             <span class="h-stat-label">Weekly Consistency</span>
           </div>
           <div class="h-stat-box">
-            <span class="h-stat-number font-gold" id="habitsAllTimeBest">0d 🏆</span>
+            <span class="h-stat-number font-gold" id="habitsAllTimeBest">0d <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;color:#eab308;"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></span>
             <span class="h-stat-label">Best Record</span>
           </div>
         </div>
@@ -701,27 +693,23 @@
       <!-- ========================================================================= -->
       <section id="tab-checklist" class="tab-view">
         <div class="page-header-flex">
-          <div>
-            <div class="header-pretitle">ACTIONABLE EXECUTION</div>
-            <h1 class="page-title serif-title">Checklist & Tasks</h1>
-            <p class="page-subtitle">Prioritized task management with subtasks, due dates, tags, and zero cognitive load.</p>
-          </div>
+          <h1 class="page-title serif-title">Checklist &amp; Tasks</h1>
         </div>
 
         <!-- Quick Add Task Bar -->
         <div class="task-quick-add-bar">
           <input type="text" id="quickTaskTitle" class="quick-task-input" placeholder="+ Add a new task... (Press Enter to save)">
           <select id="quickTaskPriority" class="task-select">
-            <option value="high">🔴 P1 High</option>
-            <option value="medium" selected>🟡 P2 Medium</option>
-            <option value="low">🟢 P3 Low</option>
+            <option value="high">P1 — High</option>
+            <option value="medium" selected>P2 — Medium</option>
+            <option value="low">P3 — Low</option>
           </select>
           <select id="quickTaskTag" class="task-select">
-            <option value="Work">💼 Work</option>
-            <option value="Personal">🏠 Personal</option>
-            <option value="Finance">💰 Finance</option>
-            <option value="Health">🧘 Health</option>
-            <option value="Learning">📚 Learning</option>
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Finance">Finance</option>
+            <option value="Health">Health</option>
+            <option value="Learning">Learning</option>
           </select>
           <input type="date" id="quickTaskDate" class="task-date-input">
           <button id="quickTaskSubmitBtn" class="btn btn-dark">Add Task</button>
@@ -754,20 +742,15 @@
       <!-- ========================================================================= -->
       <section id="tab-focus" class="tab-view">
         <div class="page-header">
-          <div class="header-pretitle">THE ESSENTIAL OPERATING SYSTEM</div>
-          <h1 class="page-title serif-title">Daily Focus & Time Audit</h1>
-          <p class="page-subtitle">Eliminate distraction with your non-negotiable Top 3, frictionless brain dump, and end-of-day reflection.</p>
+          <h1 class="page-title serif-title">Daily Focus &amp; Time Audit</h1>
         </div>
 
         <div class="focus-grid">
           <!-- Top 3 Non-Negotiable Priorities -->
           <div class="focus-card">
             <div class="focus-card-header">
-              <span class="focus-icon">🎯</span>
-              <div>
-                <h3 class="focus-title">Top 3 Non-Negotiable Priorities Today</h3>
-                <p class="focus-sub">If you only achieve these 3 items today, your day was a total win.</p>
-              </div>
+              <span class="focus-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
+              <h3 class="focus-title">Top 3 Non-Negotiable Priorities Today</h3>
             </div>
             <div class="top3-inputs-wrap">
               <div class="top3-item-row">
@@ -786,27 +769,16 @@
                 <input type="checkbox" id="top3_3_check" class="top3-check">
               </div>
             </div>
-            <div class="top3-actions">
-              <button id="saveTop3Btn" class="btn btn-dark btn-sm">Save Daily Top 3</button>
-            </div>
           </div>
 
           <!-- Quick Brain Dump Capture -->
           <div class="focus-card">
             <div class="focus-card-header">
-              <span class="focus-icon">🧠</span>
-              <div>
-                <h3 class="focus-title">Frictionless Brain Dump</h3>
-                <p class="focus-sub">Dump mental loops and fleeting thoughts. Convert to task or schedule with 1 click.</p>
-              </div>
+              <span class="focus-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/><circle cx="12" cy="12" r="10"/></svg></span>
+              <h3 class="focus-title">Frictionless Brain Dump</h3>
             </div>
             <div class="brain-dump-input-box">
               <textarea id="brainDumpText" class="brain-dump-textarea" placeholder="Type anything on your mind... Ideas, errands, reminders, notes"></textarea>
-              <div class="brain-dump-btn-row">
-                <button id="dumpToTaskBtn" class="btn btn-sm btn-subtle">+ Send to Checklist</button>
-                <button id="dumpToBlockBtn" class="btn btn-sm btn-subtle">+ Send to Day Planner</button>
-                <button id="saveDumpNotesBtn" class="btn btn-sm btn-dark">Save to Daily Notes</button>
-              </div>
             </div>
           </div>
         </div>
@@ -814,15 +786,12 @@
         <!-- End of Day Review & Energy Audit -->
         <div class="focus-card mt-4">
           <div class="focus-card-header">
-            <span class="focus-icon">🌙</span>
-            <div>
-              <h3 class="focus-title">Evening Review & Energy Audit</h3>
-              <p class="focus-sub">Close out the day with intentional reflection and clean up leftover commitments.</p>
-            </div>
+            <span class="focus-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+            <h3 class="focus-title">Evening Review &amp; Energy Audit</h3>
           </div>
           <div class="evening-review-grid">
             <div class="review-col">
-              <label class="review-label">Energy & Focus Level Today (1 to 10)</label>
+              <label class="review-label">Energy &amp; Focus Level Today (1 to 10)</label>
               <input type="range" id="dailyEnergyRating" min="1" max="10" value="8" class="energy-slider">
               <div class="slider-val-readout"><span id="energyValText">8</span> / 10</div>
             </div>
@@ -945,19 +914,19 @@
           <!-- Switcher Tabs: Upload File vs Web Link -->
           <div class="attach-modal-tabs">
             <button type="button" class="attach-tab-btn active" id="tabBtnUpload" onclick="app.goals.switchAttachTab('upload')">
-              📁 Upload File
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Upload File
             </button>
             <button type="button" class="attach-tab-btn" id="tabBtnLink" onclick="app.goals.switchAttachTab('link')">
-              🔗 Web / Notion Link
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Web / Notion Link
             </button>
           </div>
 
           <!-- Tab Content 1: Upload File -->
           <div id="tabContentUpload" class="attach-tab-pane active">
             <div class="file-drop-area" id="fileDropArea" onclick="document.getElementById('modalFileInput').click()">
-              <div class="drop-icon">📁</div>
+              <div class="drop-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg></div>
               <div class="drop-main-text">Click to choose a file from your device</div>
-              <div class="drop-sub-text">or drag & drop (PDF, Word, Excel, Images, Notes, Code — up to 4MB)</div>
+              <div class="drop-sub-text">or drag &amp; drop (PDF, Word, Excel, Images, Notes, Code — up to 4MB)</div>
               <input type="file" id="modalFileInput" style="display:none;" onchange="app.goals.handleModalFileSelect(this)">
             </div>
             

@@ -381,7 +381,7 @@ class PlanLifeApp {
       document.body.appendChild(toast);
     }
     toast.className = `planlife-toast toast-${type} visible`;
-    const icon = type === 'danger' ? '🗑️' : type === 'success' ? '✓' : type === 'warning' ? '⚠️' : 'ℹ️';
+    const icon = type === 'danger' ? '—' : type === 'success' ? '✓' : type === 'warning' ? '!' : 'i';
     toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
     clearTimeout(this._toastTimeout);
     this._toastTimeout = setTimeout(() => {
@@ -404,7 +404,7 @@ class PlanLifeApp {
         }
       });
       const icon = document.querySelector('.theme-icon');
-      if (icon) icon.textContent = '☀️';
+      if (icon) icon.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
     } else if (theme === 'transparent') {
       targets.forEach(el => {
         if (el) {
@@ -423,7 +423,7 @@ class PlanLifeApp {
         }
       });
       const icon = document.querySelector('.theme-icon');
-      if (icon) icon.textContent = '🌙';
+      if (icon) icon.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
     }
   }
 
@@ -1080,11 +1080,11 @@ class DayPlannerController {
     if (blocks.length === 0) {
       listContainer.innerHTML = `
         <div class="schedule-empty-state">
-          <div class="empty-icon">📅</div>
+          <div class="empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
           <div class="empty-text" style="margin-bottom: 12px;">No schedule blocks for this date.</div>
           <div style="display: inline-flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
             <button type="button" class="btn btn-sm btn-dark" onclick="app.planner.openModal()">+ Add Block</button>
-            <button type="button" class="btn btn-sm btn-pill" onclick="app.planner.replicateYesterday()">⚡ Replicate Previous</button>
+            <button type="button" class="btn btn-sm btn-pill" onclick="app.planner.replicateYesterday()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Replicate Previous</button>
           </div>
         </div>
       `;
@@ -1103,8 +1103,8 @@ class DayPlannerController {
         </div>
         <div class="block-right">
           <span class="block-cat-pill" style="background-color: ${b.color}20; color: ${b.color};">${b.category}</span>
-          <button type="button" class="block-action-icon" title="Edit Block" onclick="event.stopPropagation(); app.planner.openModal('${b.id}')">✏️</button>
-          <button type="button" class="block-action-icon text-danger" title="Delete Block" onclick="event.stopPropagation(); app.planner.deleteBlock('${b.id}')">🗑️</button>
+          <button type="button" class="block-action-icon" title="Edit Block" onclick="event.stopPropagation(); app.planner.openModal('${b.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button type="button" class="block-action-icon text-danger" title="Delete Block" onclick="event.stopPropagation(); app.planner.deleteBlock('${b.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </div>
       </div>
     `).join('');
@@ -1353,7 +1353,7 @@ class DayPlannerController {
     this.app.state.schedule[today].sort((a, b) => a.start.localeCompare(b.start));
     this.app.saveState();
     this.render();
-    this.app.showToast(`⚡ Replicated ${addedCount} block(s) from ${sourceDate}!`, 'success');
+    this.app.showToast(`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Replicated ${addedCount} block(s) from ${sourceDate}!`, 'success');
   }
 }
 
@@ -1476,7 +1476,7 @@ class FinanceController {
         <td class="font-mono"><strong>₹${Number(b.balance).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
         <td>${b.updated}</td>
         <td class="text-right">
-          <button type="button" class="block-action-icon text-danger" title="Delete Account" onclick="event.stopPropagation(); app.finance.deleteItem('banks', '${b.id}')">🗑️</button>
+          <button type="button" class="block-action-icon text-danger" title="Delete Account" onclick="event.stopPropagation(); app.finance.deleteItem('banks', '${b.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </td>
       </tr>
     `).join('');
@@ -1494,7 +1494,7 @@ class FinanceController {
         <td class="font-mono">₹${Number(l.remaining).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
         <td><span class="kpi-badge badge-warning">${l.status}</span></td>
         <td class="text-right">
-          <button type="button" class="block-action-icon text-danger" title="Delete Loan" onclick="event.stopPropagation(); app.finance.deleteItem('loans', '${l.id}')">🗑️</button>
+          <button type="button" class="block-action-icon text-danger" title="Delete Loan" onclick="event.stopPropagation(); app.finance.deleteItem('loans', '${l.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </td>
       </tr>
     `).join('');
@@ -1519,7 +1519,7 @@ class FinanceController {
           </td>
           <td><span class="kpi-badge badge-neutral">${c.status}</span></td>
           <td class="text-right">
-            <button type="button" class="block-action-icon text-danger" title="Delete Card" onclick="event.stopPropagation(); app.finance.deleteItem('cards', '${c.id}')">🗑️</button>
+            <button type="button" class="block-action-icon text-danger" title="Delete Card" onclick="event.stopPropagation(); app.finance.deleteItem('cards', '${c.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
           </td>
         </tr>
       `;
@@ -1538,7 +1538,7 @@ class FinanceController {
         <td><span class="kpi-badge badge-success">${inf.probability}</span></td>
         <td>${inf.status}</td>
         <td class="text-right">
-          <button type="button" class="block-action-icon text-danger" title="Delete Inflow" onclick="event.stopPropagation(); app.finance.deleteItem('inflows', '${inf.id}')">🗑️</button>
+          <button type="button" class="block-action-icon text-danger" title="Delete Inflow" onclick="event.stopPropagation(); app.finance.deleteItem('inflows', '${inf.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </td>
       </tr>
     `).join('');
@@ -1556,7 +1556,7 @@ class FinanceController {
         <td>${exp.recurrence}</td>
         <td><span class="kpi-badge badge-warning">${exp.status}</span></td>
         <td class="text-right">
-          <button type="button" class="block-action-icon text-danger" title="Delete Expense" onclick="event.stopPropagation(); app.finance.deleteItem('expenses', '${exp.id}')">🗑️</button>
+          <button type="button" class="block-action-icon text-danger" title="Delete Expense" onclick="event.stopPropagation(); app.finance.deleteItem('expenses', '${exp.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </td>
       </tr>
     `).join('');
@@ -1580,7 +1580,7 @@ class FinanceController {
             </span>
           </td>
           <td class="text-right">
-            <button type="button" class="block-action-icon text-danger" title="Delete Item" onclick="event.stopPropagation(); app.finance.deleteItem('wishlist', '${w.id}')">🗑️</button>
+            <button type="button" class="block-action-icon text-danger" title="Delete Item" onclick="event.stopPropagation(); app.finance.deleteItem('wishlist', '${w.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
           </td>
         </tr>
       `;
@@ -1962,10 +1962,10 @@ class FinanceController {
         btn.innerHTML = `<span class="ai-copy-icon">✓</span><span class="ai-copy-text">Copied for AI!</span>`;
         setTimeout(() => {
           btn.classList.remove('copied');
-          btn.innerHTML = `<span class="ai-copy-icon">✨</span><span class="ai-copy-text">Copy for AI Advisor</span>`;
+          btn.innerHTML = `<span class="ai-copy-icon"></span><span class="ai-copy-text">Copy for AI Advisor</span>`;
         }, 2500);
       }
-      this.app.showToast('✨ Financial prompt copied! Paste into ChatGPT, Claude, or Gemini for advice.', 'success');
+      this.app.showToast(' Financial prompt copied! Paste into ChatGPT, Claude, or Gemini for advice.', 'success');
     };
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -2033,9 +2033,9 @@ class FinanceController {
       if (btnIcon) btnIcon.textContent = '✓';
       setTimeout(() => {
         if (btnText) btnText.textContent = 'Copy Prompt to Clipboard';
-        if (btnIcon) btnIcon.textContent = '📋';
+        if (btnIcon) btnIcon.textContent = '';
       }, 2200);
-      this.app.showToast('✨ Copied to clipboard! Ready to paste into AI.', 'success');
+      this.app.showToast(' Copied to clipboard! Ready to paste into AI.', 'success');
     };
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -2138,8 +2138,8 @@ class GoalsController {
               <h2 class="goal-card-title">${g.title}</h2>
             </div>
             <div class="goal-actions-group">
-              <button type="button" class="goal-icon-btn" title="Edit Goal" onclick="event.stopPropagation(); app.goals.openModal('${g.id}')">✏️</button>
-              <button type="button" class="goal-icon-btn text-danger" title="Delete Goal" onclick="event.stopPropagation(); app.goals.deleteGoal('${g.id}')">🗑️</button>
+              <button type="button" class="goal-icon-btn" title="Edit Goal" onclick="event.stopPropagation(); app.goals.openModal('${g.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+              <button type="button" class="goal-icon-btn text-danger" title="Delete Goal" onclick="event.stopPropagation(); app.goals.deleteGoal('${g.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
             </div>
           </div>
 
@@ -2171,7 +2171,7 @@ class GoalsController {
           <div class="goal-inner-card">
             <div class="goal-inner-header">
               <div class="goal-inner-title-wrap">
-                <span>📝</span>
+                <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
                 <span>NOTES & STRATEGY</span>
               </div>
               <button class="btn btn-pill btn-sm" onclick="app.goals.openModal('${g.id}')">Edit</button>
@@ -2185,13 +2185,13 @@ class GoalsController {
           <div class="goal-inner-card">
             <div class="goal-inner-header">
               <div class="goal-inner-title-wrap">
-                <span>📎</span>
+                <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></span>
                 <span>DOCS & ATTACHMENTS</span>
                 <span class="kpi-badge badge-neutral" style="font-size:10px;">${(g.attachments || []).length}</span>
               </div>
               <div class="goal-inner-actions">
                 <label class="btn btn-pill btn-sm btn-upload-direct" title="Quick 1-click upload from your computer">
-                  📁 Upload File
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg> Upload File
                   <input type="file" style="display:none;" onchange="app.goals.handleDirectUpload('${g.id}', this)">
                 </label>
                 <button class="btn btn-pill btn-sm" onclick="app.goals.openAttachModal('${g.id}')">+ Link / More</button>
@@ -2199,7 +2199,7 @@ class GoalsController {
             </div>
             <div class="goal-docs-list">
               ${(!g.attachments || g.attachments.length === 0) ? `
-                <div class="doc-empty-msg">No documents attached yet. Click <strong>📁 Upload File</strong> to attach any file from your computer or <strong>+ Link</strong> for Notion / web docs.</div>
+                <div class="doc-empty-msg">No documents attached yet. Click <strong><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg> Upload File</strong> to attach any file from your computer or <strong>+ Link</strong> for Notion / web docs.</div>
               ` : g.attachments.map((att, attIdx) => {
                 const badgeClass = `doc-badge-${(att.type || 'link').toLowerCase()}`;
                 const isData = att.url && att.url.startsWith('data:');
@@ -2643,13 +2643,13 @@ class GoalsController {
 
     // 1. Check for empty or dummy placeholder '#'
     if (!att.url || att.url === '#' || att.url.trim() === '') {
-      this.app.showToast(`"${att.title}" is a demo placeholder. Click "📁 Upload" or "+ Link" to attach your real files.`, 'info');
+      this.app.showToast(`"${att.title}" is a demo placeholder. Click ""Upload" or "+ Link" to attach your real files.`, 'info');
       return;
     }
 
     // 2. Check for prohibited local file path
     if (att.url.startsWith('file:///')) {
-      this.app.showToast('Browser security blocks direct file:// paths. Please use "📁 Upload File" to attach files directly!', 'warning');
+      this.app.showToast('Browser security blocks direct file:// paths. Please use "<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg> Upload File" to attach files directly!', 'warning');
       return;
     }
 
@@ -2824,9 +2824,9 @@ class HabitsController {
             <span class="habit-category-pill">${h.category} • ${h.frequency}</span>
           </div>
           <div class="habit-streak-display">
-            <span class="streak-count-badge" title="Active Streak">🔥 ${h.currentStreak}d</span>
+            <span class="streak-count-badge" title="Active Streak"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#f97316"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> ${h.currentStreak}d</span>
             <span style="font-size: 11px; color: var(--text-muted);">Best: ${h.bestStreak}d</span>
-            <button type="button" class="block-action-icon text-danger" title="Delete Habit" onclick="event.stopPropagation(); app.habits.deleteHabit('${h.id}')">🗑️</button>
+            <button type="button" class="block-action-icon text-danger" title="Delete Habit" onclick="event.stopPropagation(); app.habits.deleteHabit('${h.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
           </div>
         </div>
 
@@ -2860,9 +2860,9 @@ class HabitsController {
 
     const weeklyRate = total > 0 ? Math.round((totalChecks / (total * 7)) * 100) : 0;
     document.getElementById('habitsTodayDone').textContent = `${doneToday} / ${total}`;
-    document.getElementById('habitsActiveStreaks').textContent = `${this.app.state.habits.reduce((acc, x) => acc + (x.currentStreak > 0 ? 1 : 0), 0)} 🔥`;
+    document.getElementById('habitsActiveStreaks').innerHTML = `${this.app.state.habits.reduce((acc, x) => acc + (x.currentStreak > 0 ? 1 : 0), 0)} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;color:#f97316"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`;
     document.getElementById('habitsWeeklyRate').textContent = `${weeklyRate}%`;
-    document.getElementById('habitsAllTimeBest').textContent = `${maxBest}d 🏆`;
+    document.getElementById('habitsAllTimeBest').innerHTML = `${maxBest}d <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;color:#eab308"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`;
   }
 
   toggleDay(habitId, day) {
@@ -3009,7 +3009,7 @@ class ChecklistController {
           <span class="priority-tag priority-${t.priority}">${t.priority.toUpperCase()}</span>
           <span class="task-tag-badge">#${t.tag}</span>
           <span class="task-due-date">${t.dueDate}</span>
-          <button type="button" class="block-action-icon text-danger" title="Delete Task" onclick="event.stopPropagation(); app.checklist.deleteTask('${t.id}')">🗑️</button>
+          <button type="button" class="block-action-icon text-danger" title="Delete Task" onclick="event.stopPropagation(); app.checklist.deleteTask('${t.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </div>
       </div>
     `).join('');
@@ -3036,34 +3036,27 @@ class FocusController {
   }
 
   bindEvents() {
-    // Save Daily Top 3
-    document.getElementById('saveTop3Btn')?.addEventListener('click', () => {
-      this.app.state.focus.top3[0].text = document.getElementById('top3_1').value;
-      this.app.state.focus.top3[0].done = document.getElementById('top3_1_check').checked;
-      this.app.state.focus.top3[1].text = document.getElementById('top3_2').value;
-      this.app.state.focus.top3[1].done = document.getElementById('top3_2_check').checked;
-      this.app.state.focus.top3[2].text = document.getElementById('top3_3').value;
-      this.app.state.focus.top3[2].done = document.getElementById('top3_3_check').checked;
+    // Auto-save Top 3 on every keystroke / checkbox toggle
+    const saveTop3 = () => {
+      this.app.state.focus.top3[0].text = document.getElementById('top3_1')?.value || '';
+      this.app.state.focus.top3[0].done = !!document.getElementById('top3_1_check')?.checked;
+      this.app.state.focus.top3[1].text = document.getElementById('top3_2')?.value || '';
+      this.app.state.focus.top3[1].done = !!document.getElementById('top3_2_check')?.checked;
+      this.app.state.focus.top3[2].text = document.getElementById('top3_3')?.value || '';
+      this.app.state.focus.top3[2].done = !!document.getElementById('top3_3_check')?.checked;
       this.app.saveState();
-      this.app.showToast('Top 3 non-negotiables saved!', 'success');
+    };
+    ['top3_1', 'top3_2', 'top3_3'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', saveTop3);
+    });
+    ['top3_1_check', 'top3_2_check', 'top3_3_check'].forEach(id => {
+      document.getElementById(id)?.addEventListener('change', saveTop3);
     });
 
-    // Send Brain Dump to Task
-    document.getElementById('dumpToTaskBtn')?.addEventListener('click', () => {
-      const text = document.getElementById('brainDumpText').value.trim();
-      if (!text) return;
-      this.app.checklist.addTask(text);
-      document.getElementById('brainDumpText').value = '';
-      this.app.showToast('Sent to Checklist!', 'success');
-    });
-
-    // Send Brain Dump to Block
-    document.getElementById('dumpToBlockBtn')?.addEventListener('click', () => {
-      const text = document.getElementById('brainDumpText').value.trim();
-      if (!text) return;
-      this.app.planner.openModal(null, '14:00', '15:00');
-      document.getElementById('modalBlockTitle').value = text;
-      document.getElementById('brainDumpText').value = '';
+    // Auto-save Brain Dump on every keystroke
+    document.getElementById('brainDumpText')?.addEventListener('input', () => {
+      this.app.state.focus.brainDump = document.getElementById('brainDumpText').value;
+      this.app.saveState();
     });
 
     // Energy Slider readout
