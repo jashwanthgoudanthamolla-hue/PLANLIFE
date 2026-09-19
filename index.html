@@ -804,32 +804,74 @@
     <div id="attachmentModal" class="modal-backdrop">
       <div class="modal-card">
         <div class="modal-header">
-          <h3 class="modal-title">Attach Doc / File Link</h3>
+          <h3 class="modal-title">Attach Document or Link</h3>
           <button class="modal-close-btn" onclick="app.goals.closeAttachModal()">&times;</button>
         </div>
         <div class="modal-body">
-          <div class="form-group">
-            <label class="form-label">Document Title</label>
-            <input type="text" id="attachDocTitle" class="form-input" placeholder="e.g. Design Specs PDF, Schema Spreadsheet, Research Paper">
+          <!-- Switcher Tabs: Upload File vs Web Link -->
+          <div class="attach-modal-tabs">
+            <button type="button" class="attach-tab-btn active" id="tabBtnUpload" onclick="app.goals.switchAttachTab('upload')">
+              📁 Upload File
+            </button>
+            <button type="button" class="attach-tab-btn" id="tabBtnLink" onclick="app.goals.switchAttachTab('link')">
+              🔗 Web / Notion Link
+            </button>
           </div>
-          <div class="form-group">
-            <label class="form-label">URL or File Path</label>
-            <input type="text" id="attachDocUrl" class="form-input" placeholder="https://notion.so/... or file:///path/to/doc">
+
+          <!-- Tab Content 1: Upload File -->
+          <div id="tabContentUpload" class="attach-tab-pane active">
+            <div class="file-drop-area" id="fileDropArea" onclick="document.getElementById('modalFileInput').click()">
+              <div class="drop-icon">📁</div>
+              <div class="drop-main-text">Click to choose a file from your device</div>
+              <div class="drop-sub-text">or drag & drop (PDF, Word, Excel, Images, Notes, Code — up to 4MB)</div>
+              <input type="file" id="modalFileInput" style="display:none;" onchange="app.goals.handleModalFileSelect(this)">
+            </div>
+            
+            <div id="modalFilePreview" class="modal-file-preview" style="display:none;">
+              <div class="preview-left">
+                <span class="preview-type-badge" id="previewBadge">FILE</span>
+                <div class="preview-details">
+                  <div class="preview-filename" id="previewFilename"></div>
+                  <div class="preview-filesize" id="previewFilesize"></div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-pill btn-sm" onclick="app.goals.clearModalFile()">Change</button>
+            </div>
+
+            <div class="form-group" style="margin-top: 14px;">
+              <label class="form-label">Document Name <span class="form-label-sub">(Auto-filled from file)</span></label>
+              <input type="text" id="attachModalFileTitle" class="form-input" placeholder="e.g. Project Roadmap">
+            </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Document Type</label>
-            <select id="attachDocType" class="form-input">
-              <option value="PDF">PDF Document</option>
-              <option value="Sheet">Spreadsheet / Excel</option>
-              <option value="Notion">Notion Page / Doc</option>
-              <option value="Figma">Figma / Design</option>
-              <option value="Link">Web Link / Reference</option>
-            </select>
+
+          <!-- Tab Content 2: Web / Notion Link -->
+          <div id="tabContentLink" class="attach-tab-pane" style="display:none;">
+            <div class="form-group">
+              <label class="form-label">URL or Link</label>
+              <input type="text" id="attachModalUrl" class="form-input" placeholder="https://notion.so/... or https://drive.google.com/..." oninput="app.goals.handleUrlInput(this.value)">
+              <div class="form-hint">Paste any Notion page, Google Drive doc, Figma file, or website link.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Title <span class="form-label-sub">(Auto-detected if left empty)</span></label>
+              <input type="text" id="attachModalLinkTitle" class="form-input" placeholder="e.g. Notion Product Specs">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Document Type</label>
+              <select id="attachModalLinkType" class="form-input">
+                <option value="Notion">Notion Page / Doc</option>
+                <option value="PDF">PDF Document</option>
+                <option value="Sheet">Spreadsheet / Excel</option>
+                <option value="Doc">Word Document / Docs</option>
+                <option value="Figma">Figma / Design</option>
+                <option value="Code">Code / GitHub</option>
+                <option value="Link">Web Link / Resource</option>
+              </select>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-outline" onclick="app.goals.closeAttachModal()">Cancel</button>
-          <button id="saveAttachmentBtn" class="btn btn-dark">Attach Document</button>
+          <button id="saveAttachmentBtn" class="btn btn-dark" onclick="app.goals.saveAttachment()">Attach Document</button>
         </div>
       </div>
     </div>

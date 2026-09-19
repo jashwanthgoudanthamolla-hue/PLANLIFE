@@ -93,8 +93,8 @@ const DEFAULT_STATE = {
         'Finalize Gumroad & Product Hunt launch assets'
       ],
       attachments: [
-        { id: 'att-1', title: 'Product Hunt Launch Checklist.pdf', type: 'PDF', url: '#' },
-        { id: 'att-2', title: 'PlanLife Beta Feedback Sheet', type: 'Sheet', url: '#' }
+        { id: 'att-1', title: 'Product Hunt Launch Checklist (Notion)', type: 'Notion', url: 'https://www.notion.so' },
+        { id: 'att-2', title: 'PlanLife Beta Feedback Sheet (Google Sheets)', type: 'Sheet', url: 'https://docs.google.com/spreadsheets' }
       ],
       milestones: [
         { id: 'm-2', text: 'Publish interactive landing page', done: true },
@@ -1737,6 +1737,8 @@ class FinanceController {
 class GoalsController {
   constructor(app) {
     this.app = app;
+    this.currentAttachTab = 'upload';
+    this.selectedModalFile = null;
   }
 
   init() {
@@ -1753,9 +1755,30 @@ class GoalsController {
       this.saveGoalFromModal();
     });
 
-    document.getElementById('saveAttachmentBtn')?.addEventListener('click', () => {
-      this.saveAttachment();
-    });
+    // Drag-and-drop support for modal file drop area
+    const dropArea = document.getElementById('fileDropArea');
+    if (dropArea) {
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropArea.classList.add('dragover');
+        });
+      });
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropArea.classList.remove('dragover');
+        });
+      });
+      dropArea.addEventListener('drop', (e) => {
+        const files = e.dataTransfer?.files;
+        if (files && files.length > 0) {
+          this.processFileForModal(files[0]);
+        }
+      });
+    }
   }
 
   render() {
@@ -1835,22 +1858,43 @@ class GoalsController {
               <div class="goal-inner-title-wrap">
                 <span>📎</span>
                 <span>DOCS & ATTACHMENTS</span>
-                <span class="kpi-badge badge-neutral" style="font-size:10px;">${g.attachments.length}</span>
+                <span class="kpi-badge badge-neutral" style="font-size:10px;">${(g.attachments || []).length}</span>
               </div>
-              <button class="btn btn-pill btn-sm" onclick="app.goals.openAttachModal('${g.id}')">+ Attach Doc / File</button>
+              <div class="goal-inner-actions">
+                <label class="btn btn-pill btn-sm btn-upload-direct" title="Quick 1-click upload from your computer">
+                  📁 Upload File
+                  <input type="file" style="display:none;" onchange="app.goals.handleDirectUpload('${g.id}', this)">
+                </label>
+                <button class="btn btn-pill btn-sm" onclick="app.goals.openAttachModal('${g.id}')">+ Link / More</button>
+              </div>
             </div>
             <div class="goal-docs-list">
-              ${g.attachments.length === 0 ? `
-                <div class="doc-empty-msg">No documents attached yet. Attach study materials, PDFs, spreadsheets, or docs.</div>
-              ` : g.attachments.map((att, attIdx) => `
-                <div class="goal-doc-item">
-                  <div class="doc-info">
-                    <span class="doc-type-badge">${att.type}</span>
-                    <a href="${att.url}" target="_blank" style="text-decoration:none; color:inherit;">${att.title}</a>
+              ${(!g.attachments || g.attachments.length === 0) ? `
+                <div class="doc-empty-msg">No documents attached yet. Click <strong>📁 Upload File</strong> to attach any file from your computer or <strong>+ Link</strong> for Notion / web docs.</div>
+              ` : g.attachments.map((att, attIdx) => {
+                const badgeClass = `doc-badge-${(att.type || 'link').toLowerCase()}`;
+                const isData = att.url && att.url.startsWith('data:');
+                return `
+                  <div class="goal-doc-item" onclick="app.goals.openAttachment('${g.id}', ${attIdx})" title="Click to open ${att.title}">
+                    <div class="doc-info">
+                      <span class="doc-type-badge ${badgeClass}">${att.type || 'Doc'}</span>
+                      <span class="doc-title-text" title="${att.title}">${att.title}</span>
+                      ${att.size ? `<span class="doc-size-tag">${app.goals.formatBytes(att.size)}</span>` : ''}
+                    </div>
+                    <div class="doc-actions" onclick="event.stopPropagation()">
+                      <button type="button" class="doc-action-btn" title="Open Document" onclick="app.goals.openAttachment('${g.id}', ${attIdx})">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                      </button>
+                      ${isData ? `
+                        <button type="button" class="doc-action-btn" title="Download to Computer" onclick="app.goals.downloadAttachment('${g.id}', ${attIdx}, event)">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        </button>
+                      ` : ''}
+                      <button type="button" class="doc-action-btn text-danger" title="Remove Attachment" onclick="app.goals.deleteAttachment('${g.id}', ${attIdx})">✕</button>
+                    </div>
                   </div>
-                  <button type="button" class="block-action-icon text-danger" title="Remove Attachment" onclick="event.stopPropagation(); app.goals.deleteAttachment('${g.id}', ${attIdx})">✕</button>
-                </div>
-              `).join('')}
+                `;
+              }).join('')}
             </div>
           </div>
 
@@ -1982,33 +2026,393 @@ class GoalsController {
     this.app.showToast('Goal card deleted', 'danger');
   }
 
+  // ---------------------------------------------------------------------------
+  // Attachment Management & File Handling
+  // ---------------------------------------------------------------------------
+
+  detectFileType(fileName, mimeType = '') {
+    const ext = (fileName.split('.').pop() || '').toLowerCase();
+    if (['pdf'].includes(ext) || mimeType.includes('pdf')) return 'PDF';
+    if (['xlsx', 'xls', 'csv', 'tsv', 'numbers'].includes(ext) || mimeType.includes('spreadsheet') || mimeType.includes('excel')) return 'Sheet';
+    if (['doc', 'docx', 'txt', 'rtf', 'odt', 'pages', 'md'].includes(ext) || mimeType.includes('word') || mimeType.includes('document')) return 'Doc';
+    if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp'].includes(ext) || mimeType.includes('image')) return 'Image';
+    if (['zip', 'rar', '7z', 'tar', 'gz'].includes(ext) || mimeType.includes('zip') || mimeType.includes('compressed')) return 'Archive';
+    if (['js', 'ts', 'html', 'css', 'py', 'json', 'sql', 'sh', 'cpp', 'java'].includes(ext)) return 'Code';
+    return 'File';
+  }
+
+  detectUrlType(url) {
+    const u = (url || '').toLowerCase();
+    if (u.includes('notion.so') || u.includes('notion.site')) return 'Notion';
+    if (u.includes('docs.google.com/spreadsheets') || u.includes('airtable.com')) return 'Sheet';
+    if (u.includes('docs.google.com/document')) return 'Doc';
+    if (u.includes('figma.com')) return 'Figma';
+    if (u.includes('github.com') || u.includes('gitlab.com')) return 'Code';
+    if (u.endsWith('.pdf')) return 'PDF';
+    if (u.includes('drive.google.com') || u.includes('dropbox.com') || u.includes('onedrive.live.com')) return 'Drive';
+    return 'Link';
+  }
+
+  autoTitleFromUrl(url) {
+    try {
+      let clean = (url || '').trim();
+      if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+        clean = 'https://' + clean;
+      }
+      const parsed = new URL(clean);
+      if (parsed.hostname.includes('notion.so') || parsed.hostname.includes('notion.site')) {
+        const parts = parsed.pathname.split('-').filter(Boolean);
+        return parts.length > 0 ? parts.slice(0, -1).join(' ') || 'Notion Page' : 'Notion Page';
+      }
+      if (parsed.hostname.includes('figma.com')) return 'Figma Design';
+      if (parsed.hostname.includes('drive.google.com')) return 'Google Drive File';
+      if (parsed.hostname.includes('docs.google.com')) {
+        if (parsed.pathname.includes('spreadsheets')) return 'Google Spreadsheet';
+        if (parsed.pathname.includes('document')) return 'Google Document';
+        return 'Google Doc';
+      }
+      if (parsed.hostname.includes('github.com')) {
+        const segs = parsed.pathname.split('/').filter(Boolean);
+        return segs.length >= 2 ? `${segs[0]}/${segs[1]} (GitHub)` : 'GitHub Repository';
+      }
+      return parsed.hostname.replace(/^www\./, '') + (parsed.pathname.length > 1 && parsed.pathname !== '/' ? parsed.pathname.slice(0, 20) : '');
+    } catch (e) {
+      return 'Web Reference';
+    }
+  }
+
+  formatBytes(bytes) {
+    if (!bytes || isNaN(bytes)) return '';
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  handleDirectUpload(goalId, inputEl) {
+    const file = inputEl.files?.[0];
+    if (!file) return;
+
+    const maxSize = 4 * 1024 * 1024;
+    if (file.size > maxSize) {
+      this.app.showToast(`File is too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Limit is 4MB for widget storage. Please use a cloud link instead.`, 'warning');
+      inputEl.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      const type = this.detectFileType(file.name, file.type);
+      const goal = this.app.state.goals.find(g => g.id === goalId);
+      if (goal) {
+        if (!goal.attachments) goal.attachments = [];
+        goal.attachments.push({
+          id: 'att-' + Date.now(),
+          title: file.name,
+          fileName: file.name,
+          url: dataUrl,
+          type: type,
+          size: file.size,
+          uploadedAt: new Date().toISOString()
+        });
+        this.app.saveState();
+        this.render();
+        this.app.showToast(`Attached "${file.name}" (${this.formatBytes(file.size)})`, 'success');
+      }
+    };
+    reader.onerror = () => {
+      this.app.showToast('Failed to read selected file.', 'danger');
+    };
+    reader.readAsDataURL(file);
+    inputEl.value = '';
+  }
+
+  processFileForModal(file) {
+    if (!file) return;
+    const maxSize = 4 * 1024 * 1024;
+    if (file.size > maxSize) {
+      this.app.showToast(`File (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds 4MB widget storage limit. Please paste a cloud link instead.`, 'warning');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      const type = this.detectFileType(file.name, file.type);
+      this.selectedModalFile = {
+        name: file.name,
+        size: file.size,
+        type: type,
+        dataUrl: dataUrl
+      };
+
+      const dropArea = document.getElementById('fileDropArea');
+      const previewArea = document.getElementById('modalFilePreview');
+      const filenameEl = document.getElementById('previewFilename');
+      const filesizeEl = document.getElementById('previewFilesize');
+      const badgeEl = document.getElementById('previewBadge');
+      const titleInput = document.getElementById('attachModalFileTitle');
+
+      if (dropArea) dropArea.style.display = 'none';
+      if (previewArea) previewArea.style.display = 'flex';
+      if (filenameEl) filenameEl.textContent = file.name;
+      if (filesizeEl) filesizeEl.textContent = this.formatBytes(file.size);
+      if (badgeEl) {
+        badgeEl.textContent = type;
+        badgeEl.className = `preview-type-badge doc-badge-${type.toLowerCase()}`;
+      }
+      if (titleInput && (!titleInput.value || titleInput.value.trim() === '')) {
+        titleInput.value = file.name;
+      }
+    };
+    reader.onerror = () => {
+      this.app.showToast('Could not read the selected file.', 'danger');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  handleModalFileSelect(inputEl) {
+    if (inputEl.files && inputEl.files[0]) {
+      this.processFileForModal(inputEl.files[0]);
+    }
+  }
+
+  clearModalFile() {
+    this.selectedModalFile = null;
+    const fileInput = document.getElementById('modalFileInput');
+    if (fileInput) fileInput.value = '';
+    const dropArea = document.getElementById('fileDropArea');
+    const previewArea = document.getElementById('modalFilePreview');
+    const titleInput = document.getElementById('attachModalFileTitle');
+    if (dropArea) dropArea.style.display = 'block';
+    if (previewArea) previewArea.style.display = 'none';
+    if (titleInput) titleInput.value = '';
+  }
+
+  handleUrlInput(val) {
+    const url = (val || '').trim();
+    if (!url) return;
+    const titleInput = document.getElementById('attachModalLinkTitle');
+    const typeSelect = document.getElementById('attachModalLinkType');
+    const detectedType = this.detectUrlType(url);
+    if (typeSelect) {
+      typeSelect.value = detectedType;
+    }
+    if (titleInput && (!titleInput.value || titleInput.dataset.autofilled === 'true')) {
+      titleInput.value = this.autoTitleFromUrl(url);
+      titleInput.dataset.autofilled = 'true';
+    }
+  }
+
+  switchAttachTab(tab) {
+    this.currentAttachTab = tab;
+    const tabBtnUpload = document.getElementById('tabBtnUpload');
+    const tabBtnLink = document.getElementById('tabBtnLink');
+    const tabContentUpload = document.getElementById('tabContentUpload');
+    const tabContentLink = document.getElementById('tabContentLink');
+    const saveBtn = document.getElementById('saveAttachmentBtn');
+
+    if (tab === 'upload') {
+      tabBtnUpload?.classList.add('active');
+      tabBtnLink?.classList.remove('active');
+      if (tabContentUpload) tabContentUpload.style.display = 'block';
+      if (tabContentLink) tabContentLink.style.display = 'none';
+      if (saveBtn) saveBtn.textContent = 'Attach File';
+    } else {
+      tabBtnLink?.classList.add('active');
+      tabBtnUpload?.classList.remove('active');
+      if (tabContentLink) tabContentLink.style.display = 'block';
+      if (tabContentUpload) tabContentUpload.style.display = 'none';
+      if (saveBtn) saveBtn.textContent = 'Attach Link';
+    }
+  }
+
   openAttachModal(goalId) {
     this.app.activeGoalId = goalId;
+    this.clearModalFile();
+    const urlInput = document.getElementById('attachModalUrl');
+    const linkTitle = document.getElementById('attachModalLinkTitle');
+    if (urlInput) urlInput.value = '';
+    if (linkTitle) {
+      linkTitle.value = '';
+      delete linkTitle.dataset.autofilled;
+    }
+    this.switchAttachTab('upload');
     document.getElementById('attachmentModal')?.classList.add('active');
   }
 
   closeAttachModal() {
     document.getElementById('attachmentModal')?.classList.remove('active');
+    this.clearModalFile();
   }
 
   saveAttachment() {
-    const title = document.getElementById('attachDocTitle').value.trim();
-    const url = document.getElementById('attachDocUrl').value.trim() || '#';
-    const type = document.getElementById('attachDocType').value;
-
-    if (!title) {
-      this.app.showToast('Attachment title is required', 'warning');
+    const goal = this.app.state.goals.find(g => g.id === this.app.activeGoalId);
+    if (!goal) {
+      this.app.showToast('No active goal selected', 'danger');
       return;
     }
+    if (!goal.attachments) goal.attachments = [];
 
-    const goal = this.app.state.goals.find(g => g.id === this.app.activeGoalId);
-    if (goal) {
-      goal.attachments.push({ id: 'att-' + Date.now(), title, url, type });
+    if (this.currentAttachTab === 'upload') {
+      if (!this.selectedModalFile) {
+        this.app.showToast('Please choose a file or switch to Paste Link', 'warning');
+        return;
+      }
+      const titleInput = document.getElementById('attachModalFileTitle');
+      const title = (titleInput?.value.trim()) || this.selectedModalFile.name;
+
+      goal.attachments.push({
+        id: 'att-' + Date.now(),
+        title: title,
+        fileName: this.selectedModalFile.name,
+        url: this.selectedModalFile.dataUrl,
+        type: this.selectedModalFile.type,
+        size: this.selectedModalFile.size,
+        uploadedAt: new Date().toISOString()
+      });
+
       this.closeAttachModal();
       this.app.saveState();
       this.render();
-      this.app.showToast('Attachment added', 'success');
+      this.app.showToast(`Attached "${title}" successfully`, 'success');
+    } else {
+      const urlInput = document.getElementById('attachModalUrl');
+      let url = (urlInput?.value || '').trim();
+      if (!url) {
+        this.app.showToast('Please enter a URL or link', 'warning');
+        return;
+      }
+      if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('data:') && !url.startsWith('blob:')) {
+        url = 'https://' + url;
+      }
+
+      const titleInput = document.getElementById('attachModalLinkTitle');
+      const typeSelect = document.getElementById('attachModalLinkType');
+      const title = (titleInput?.value.trim()) || this.autoTitleFromUrl(url);
+      const type = typeSelect?.value || this.detectUrlType(url);
+
+      goal.attachments.push({
+        id: 'att-' + Date.now(),
+        title: title,
+        url: url,
+        type: type,
+        uploadedAt: new Date().toISOString()
+      });
+
+      this.closeAttachModal();
+      this.app.saveState();
+      this.render();
+      this.app.showToast(`Attached "${title}" successfully`, 'success');
     }
+  }
+
+  openAttachment(goalId, attIndex) {
+    const goal = this.app.state.goals.find(g => g.id === goalId);
+    if (!goal || !goal.attachments || !goal.attachments[attIndex]) return;
+    const att = goal.attachments[attIndex];
+
+    // 1. Check for empty or dummy placeholder '#'
+    if (!att.url || att.url === '#' || att.url.trim() === '') {
+      this.app.showToast(`"${att.title}" is a demo placeholder. Click "📁 Upload" or "+ Link" to attach your real files.`, 'info');
+      return;
+    }
+
+    // 2. Check for prohibited local file path
+    if (att.url.startsWith('file:///')) {
+      this.app.showToast('Browser security blocks direct file:// paths. Please use "📁 Upload File" to attach files directly!', 'warning');
+      return;
+    }
+
+    // 3. Data URL (Local uploaded file)
+    if (att.url.startsWith('data:')) {
+      try {
+        const parts = att.url.split(',');
+        const mime = parts[0].match(/:(.*?);/)?.[1] || 'application/octet-stream';
+        const bstr = atob(parts[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const blob = new Blob([u8arr], { type: mime });
+        const blobUrl = URL.createObjectURL(blob);
+
+        if (mime.includes('pdf') || mime.startsWith('image/') || mime.includes('text/plain')) {
+          const newWin = window.open(blobUrl, '_blank');
+          if (!newWin || newWin.closed || typeof newWin.closed === 'undefined') {
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = att.fileName || att.title;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            this.app.showToast(`Downloaded "${att.title}"`, 'success');
+          }
+        } else {
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = att.fileName || att.title;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          this.app.showToast(`Downloaded "${att.title}"`, 'success');
+        }
+
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+        return;
+      } catch (err) {
+        console.error('Failed to open Data URL as Blob:', err);
+        const a = document.createElement('a');
+        a.href = att.url;
+        a.download = att.fileName || att.title;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        return;
+      }
+    }
+
+    // 4. Web URL (Notion, Google Drive, Figma, websites)
+    let cleanUrl = att.url.trim();
+    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+      cleanUrl = 'https://' + cleanUrl;
+    }
+
+    try {
+      const win = window.open(cleanUrl, '_blank', 'noopener,noreferrer');
+      if (!win) {
+        const a = document.createElement('a');
+        a.href = cleanUrl;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    } catch (e) {
+      window.location.href = cleanUrl;
+    }
+  }
+
+  downloadAttachment(goalId, attIndex, event) {
+    if (event) event.stopPropagation();
+    const goal = this.app.state.goals.find(g => g.id === goalId);
+    if (!goal || !goal.attachments || !goal.attachments[attIndex]) return;
+    const att = goal.attachments[attIndex];
+
+    if (!att.url || att.url === '#') {
+      this.app.showToast('No file content to download for this item.', 'info');
+      return;
+    }
+
+    const a = document.createElement('a');
+    a.href = att.url;
+    a.download = att.fileName || att.title;
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   deleteAttachment(goalId, attIndex) {
