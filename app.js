@@ -177,6 +177,9 @@ const DEFAULT_STATE = {
 class PlanLifeApp {
   constructor() {
     window.app = this;
+    if (typeof app !== 'undefined') {
+      try { app = this; } catch (e) {}
+    }
     this.STORAGE_KEY = 'planlife_workspace_state_v1';
     this.instanceId = 'widget-' + Math.random().toString(36).substring(2, 9);
     this.state = this.loadState();
@@ -312,12 +315,12 @@ class PlanLifeApp {
       this.renderWidgetView(this.widgetMode);
     } else {
       this.renderDashboard();
-      this.planner.render();
-      this.finance.render();
-      this.goals.render();
-      this.habits.render();
-      this.checklist.render();
-      this.focusCtrl.render();
+      try { this.planner?.render(); } catch (e) {}
+      try { this.finance?.render(); } catch (e) {}
+      try { this.goals?.render(); } catch (e) {}
+      try { this.habits?.render(); } catch (e) {}
+      try { this.checklist?.render(); } catch (e) {}
+      try { this.focusCtrl?.render(); } catch (e) {}
     }
   }
 
@@ -337,19 +340,20 @@ class PlanLifeApp {
       dateInput.value = this.state.selectedDate;
     }
 
-    // Initialize all tabs
-    this.planner.init();
-    this.finance.init();
-    this.goals.init();
-    this.habits.init();
-    this.checklist.init();
-    this.focusCtrl.init();
+    // Initialize all tabs safely so an issue in one module never breaks widget loading
+    try { this.planner.init(); } catch (e) { console.error('Planner init error', e); }
+    try { this.finance.init(); } catch (e) { console.error('Finance init error', e); }
+    try { this.goals.init(); } catch (e) { console.error('Goals init error', e); }
+    try { this.habits.init(); } catch (e) { console.error('Habits init error', e); }
+    try { this.checklist.init(); } catch (e) { console.error('Checklist init error', e); }
+    try { this.focusCtrl.init(); } catch (e) { console.error('Focus init error', e); }
 
     // If Widget Mode active, initialize dedicated widget layout
     if (this.widgetMode) {
       this.setupWidgetMode(this.widgetMode);
     } else {
       // Render standard executive dashboard
+      this.switchTab('dashboard');
       this.renderDashboard();
     }
 
@@ -424,6 +428,10 @@ class PlanLifeApp {
   }
 
   setupWidgetMode(widgetName) {
+    const knownWidgets = ['widget-clock', 'widget-clockdial', 'widget-schedule', 'widget-planner', 'widget-kpi', 'widget-kpis', 'widget-habits', 'widget-finance', 'widget-goals', 'widget-checklist', 'widget-tasks', 'widget-focus', 'widget-dashboard'];
+    document.body.classList.remove(...knownWidgets);
+    document.documentElement.classList.remove(...knownWidgets);
+
     document.body.classList.add('is-widget', `widget-${widgetName}`);
     document.documentElement.classList.add('is-widget', `widget-${widgetName}`);
 
@@ -441,6 +449,9 @@ class PlanLifeApp {
       document.body.classList.add('hide-breakdown');
     }
 
+    // Strictly deactivate all tabs before activating the widget's dedicated tab
+    document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+
     // Route to appropriate tab and trigger view render
     this.renderWidgetView(widgetName);
   }
@@ -450,46 +461,46 @@ class PlanLifeApp {
       case 'clock':
       case 'clockdial':
         this.switchTab('dayplanner');
-        this.planner.render();
+        try { this.planner.render(); } catch (e) {}
         break;
       case 'schedule':
         this.switchTab('dayplanner');
-        this.planner.render();
+        try { this.planner.render(); } catch (e) {}
         break;
       case 'planner':
         this.switchTab('dayplanner');
-        this.planner.render();
+        try { this.planner.render(); } catch (e) {}
         break;
       case 'kpis':
       case 'kpi':
       case 'dashboard':
         this.switchTab('dashboard');
-        this.renderDashboard();
+        try { this.renderDashboard(); } catch (e) {}
         break;
       case 'habits':
         this.switchTab('habits');
-        this.habits.render();
+        try { this.habits.render(); } catch (e) {}
         break;
       case 'finance':
         this.switchTab('finance');
-        this.finance.render();
+        try { this.finance.render(); } catch (e) {}
         break;
       case 'goals':
         this.switchTab('goals');
-        this.goals.render();
+        try { this.goals.render(); } catch (e) {}
         break;
       case 'tasks':
       case 'checklist':
         this.switchTab('checklist');
-        this.checklist.render();
+        try { this.checklist.render(); } catch (e) {}
         break;
       case 'focus':
         this.switchTab('focus');
-        this.focusCtrl.render();
+        try { this.focusCtrl.render(); } catch (e) {}
         break;
       default:
         this.switchTab('dashboard');
-        this.renderDashboard();
+        try { this.renderDashboard(); } catch (e) {}
     }
   }
 
@@ -1918,7 +1929,7 @@ class GoalsController {
                     <div class="doc-info">
                       <span class="doc-type-badge ${badgeClass}">${att.type || 'Doc'}</span>
                       <span class="doc-title-text" title="${att.title}">${att.title}</span>
-                      ${att.size ? `<span class="doc-size-tag">${app.goals.formatBytes(att.size)}</span>` : ''}
+                      ${att.size ? `<span class="doc-size-tag">${this.formatBytes(att.size)}</span>` : ''}
                     </div>
                     <div class="doc-actions" onclick="event.stopPropagation()">
                       <button type="button" class="doc-action-btn" title="Open Document" onclick="app.goals.openAttachment('${g.id}', ${attIdx})">
@@ -2738,6 +2749,10 @@ class FocusController {
 
   init() {
     this.bindEvents();
+    this.render();
+  }
+
+  render() {
     this.loadFocusData();
   }
 

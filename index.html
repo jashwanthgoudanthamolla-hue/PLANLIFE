@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
   <title>PlanLife — Executive Notion Planning Dashboard</title>
   <!-- Google Fonts: Inter for UI & Instrument Serif / Newsreader for Notion-styled serif headers -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -76,13 +77,48 @@
     .is-iframe .dayplanner-header-wrap {
       display: none !important;
     }
+    /* Complete tab isolation: strictly hide all tabs by default in widget mode */
+    .is-widget .tab-view,
+    .is-iframe .tab-view,
+    html.is-widget .tab-view,
+    body.is-widget .tab-view {
+      display: none !important;
+    }
+    /* Explicitly activate only the target tab for each specific widget */
+    .widget-clock #tab-dayplanner,
+    .widget-clockdial #tab-dayplanner,
+    .widget-schedule #tab-dayplanner,
+    .widget-planner #tab-dayplanner,
+    .widget-kpi #tab-dashboard,
+    .widget-kpis #tab-dashboard,
+    .widget-habits #tab-habits,
+    .widget-finance #tab-finance,
+    .widget-goals #tab-goals,
+    .widget-checklist #tab-checklist,
+    .widget-tasks #tab-checklist,
+    .widget-focus #tab-focus {
+      display: flex !important;
+    }
+    /* Strictly prevent #tab-dashboard from EVER rendering in other widgets */
+    .widget-clock #tab-dashboard,
+    .widget-clockdial #tab-dashboard,
+    .widget-schedule #tab-dashboard,
+    .widget-planner #tab-dashboard,
+    .widget-habits #tab-dashboard,
+    .widget-finance #tab-dashboard,
+    .widget-goals #tab-dashboard,
+    .widget-checklist #tab-dashboard,
+    .widget-tasks #tab-dashboard,
+    .widget-focus #tab-dashboard {
+      display: none !important;
+    }
     .is-widget,
     .is-iframe,
     html.is-widget,
     body.is-widget,
     html.is-iframe,
     body.is-iframe {
-      overflow-x: hidden !important;
+      overflow: hidden !important;
       scrollbar-width: none !important;
     }
     .is-widget::-webkit-scrollbar,
@@ -167,7 +203,13 @@
       <!-- ========================================================================= -->
       <!-- TAB 1: EXECUTIVE SUMMARIZED DASHBOARD -->
       <!-- ========================================================================= -->
-      <section id="tab-dashboard" class="tab-view active">
+      <section id="tab-dashboard" class="tab-view">
+      <script>
+        // Only mark dashboard active if not running in an isolated widget mode
+        if (!document.documentElement.classList.contains('is-widget') && !document.documentElement.classList.contains('is-iframe')) {
+          document.getElementById('tab-dashboard').classList.add('active');
+        }
+      </script>
         <div class="page-header">
           <div class="header-pretitle" id="dashGreetingDate">WEDNESDAY, SEPTEMBER 16, 2026</div>
           <h1 class="page-title serif-title">Executive Command Center</h1>

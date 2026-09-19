@@ -57,7 +57,10 @@
 /* Dark Mode (Notion Sleek Graphite #191919) */
 :root.theme-dark,
 html.theme-dark,
-body.theme-dark {
+body.theme-dark,
+.is-widget,
+.is-iframe {
+  color-scheme: dark !important;
   --bg-app: #191919 !important;
   --bg-surface: #202020;
   --bg-surface-secondary: #262626;
@@ -75,6 +78,26 @@ body.theme-dark {
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
   background-color: #191919 !important;
+}
+
+/* Global Notion-Style Dark Scrollbar Rules */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #333333 transparent;
+}
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #333333;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #444444;
 }
 
 /* Transparent Theme (Seamless Notion Background Embedding) */
@@ -2567,19 +2590,42 @@ body.is-widget .tab-view,
 .is-iframe .tab-view,
 html.is-iframe .tab-view,
 body.is-iframe .tab-view {
+  display: none !important;
   min-height: 0 !important;
 }
 
-.is-widget .tab-view.active,
-html.is-widget .tab-view.active,
-body.is-widget .tab-view.active,
-.is-iframe .tab-view.active,
-html.is-iframe .tab-view.active,
-body.is-iframe .tab-view.active {
-  flex: 1 1 auto !important;
-  display: flex !important;
-  flex-direction: column !important;
-  min-height: 0 !important;
+/* Explicitly prevent #tab-dashboard from EVER rendering in other widgets */
+.widget-clock #tab-dashboard,
+.widget-clockdial #tab-dashboard,
+.widget-schedule #tab-dashboard,
+.widget-planner #tab-dashboard,
+.widget-habits #tab-dashboard,
+.widget-finance #tab-dashboard,
+.widget-goals #tab-dashboard,
+.widget-checklist #tab-dashboard,
+.widget-tasks #tab-dashboard,
+.widget-focus #tab-dashboard,
+html.widget-clock #tab-dashboard,
+html.widget-clockdial #tab-dashboard,
+html.widget-schedule #tab-dashboard,
+html.widget-planner #tab-dashboard,
+html.widget-habits #tab-dashboard,
+html.widget-finance #tab-dashboard,
+html.widget-goals #tab-dashboard,
+html.widget-checklist #tab-dashboard,
+html.widget-tasks #tab-dashboard,
+html.widget-focus #tab-dashboard,
+body.widget-clock #tab-dashboard,
+body.widget-clockdial #tab-dashboard,
+body.widget-schedule #tab-dashboard,
+body.widget-planner #tab-dashboard,
+body.widget-habits #tab-dashboard,
+body.widget-finance #tab-dashboard,
+body.widget-goals #tab-dashboard,
+body.widget-checklist #tab-dashboard,
+body.widget-tasks #tab-dashboard,
+body.widget-focus #tab-dashboard {
+  display: none !important;
 }
 
 /* Hide desktop headers in widget mode */
@@ -2599,12 +2645,29 @@ body.is-iframe .dayplanner-header-wrap {
 }
 
 /* Complete scrollbar elimination on outer iframe containers */
+.is-widget,
+.is-iframe,
+html.is-widget,
+body.is-widget,
+html.is-iframe,
+body.is-iframe,
+.is-widget .app-container,
+.is-iframe .app-container {
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
 .is-widget::-webkit-scrollbar,
 html.is-widget::-webkit-scrollbar,
 body.is-widget::-webkit-scrollbar,
 .is-iframe::-webkit-scrollbar,
 html.is-iframe::-webkit-scrollbar,
-body.is-iframe::-webkit-scrollbar {
+body.is-iframe::-webkit-scrollbar,
+.is-widget .app-container::-webkit-scrollbar,
+.is-iframe .app-container::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
@@ -2638,12 +2701,13 @@ body.widget-clockdial .planner-layout-grid {
   flex-direction: row !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 24px !important;
+  gap: 16px !important;
   width: 100% !important;
   max-width: 100% !important;
   margin: 0 auto !important;
   flex: 1 1 auto !important;
-  flex-wrap: wrap !important;
+  flex-wrap: nowrap !important;
+  overflow: hidden !important;
 }
 
 .widget-clock .schedule-column,
@@ -2662,14 +2726,15 @@ html.widget-clockdial .clock-column,
 body.widget-clock .clock-column,
 body.widget-clockdial .clock-column {
   width: 100% !important;
-  max-width: 860px !important;
+  max-width: 100% !important;
   margin: 0 auto !important;
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 28px !important;
-  flex-wrap: wrap !important;
+  gap: 16px !important;
+  flex-wrap: nowrap !important;
+  overflow: hidden !important;
 }
 
 /* Pure circle clock, zero rectangular box */
@@ -2692,26 +2757,29 @@ html.widget-clock .clock-svg-container,
 html.widget-clockdial .clock-svg-container,
 body.widget-clock .clock-svg-container,
 body.widget-clockdial .clock-svg-container {
-  width: 380px !important;
-  height: 380px !important;
-  max-width: 380px !important;
-  max-height: 380px !important;
+  width: min(280px, 42vw) !important;
+  height: min(280px, 42vw) !important;
+  max-width: 320px !important;
+  max-height: 320px !important;
   margin: 0 auto !important;
   filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.45)) !important;
+  flex: 0 0 auto !important;
 }
 
 /* Hours by Category sitting side-by-side with the clock */
 .widget-clock .category-breakdown-card,
 html.widget-clock .category-breakdown-card,
 body.widget-clock .category-breakdown-card {
-  flex: 1 1 280px !important;
-  max-width: 380px !important;
-  min-width: 250px !important;
+  flex: 1 1 180px !important;
+  max-width: 260px !important;
+  min-width: 140px !important;
   background-color: var(--bg-surface) !important;
   border: 1px solid var(--border-color) !important;
   border-radius: var(--radius-lg) !important;
-  padding: 20px 22px !important;
+  padding: 12px 14px !important;
   box-shadow: var(--shadow-sm) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 .widget-clock .planner-controls-bar,
@@ -2760,7 +2828,9 @@ body.widget-schedule #tab-dayplanner {
   display: flex !important;
   flex-direction: column !important;
   flex: 1 1 auto !important;
-  min-height: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
 }
 
 .widget-schedule .clock-column,
@@ -2772,13 +2842,14 @@ body.widget-schedule .clock-column {
 .widget-schedule .planner-controls-bar,
 html.widget-schedule .planner-controls-bar,
 body.widget-schedule .planner-controls-bar {
-  margin-bottom: 12px !important;
+  margin-bottom: 10px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   gap: 12px !important;
   width: 100% !important;
   flex-wrap: nowrap !important;
+  flex-shrink: 0 !important;
 }
 
 .widget-schedule .date-stepper,
@@ -2823,6 +2894,9 @@ body.widget-schedule .planner-layout-grid {
   flex-direction: column !important;
   flex: 1 1 auto !important;
   width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
 }
 
 .widget-schedule .schedule-column,
@@ -2834,11 +2908,13 @@ body.widget-schedule .schedule-column {
   flex: 1 1 auto !important;
   display: flex !important;
   flex-direction: column !important;
-  padding: 16px 20px !important;
+  padding: 12px 16px !important;
   box-shadow: none !important;
   border-radius: var(--radius-lg) !important;
-  min-height: calc(100vh - 65px) !important;
+  height: 100% !important;
+  min-height: 0 !important;
   box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 .widget-schedule .schedule-header-row,
@@ -3135,7 +3211,9 @@ body.widget-tasks #tab-checklist {
   display: flex !important;
   flex-direction: column !important;
   flex: 1 1 auto !important;
-  min-height: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
 }
 
 .widget-checklist .checklist-card,
@@ -3145,11 +3223,15 @@ html.widget-tasks .checklist-card,
 body.widget-checklist .checklist-card,
 body.widget-tasks .checklist-card {
   box-shadow: none !important;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg) !important;
   flex: 1 1 auto !important;
   display: flex !important;
   flex-direction: column !important;
-  min-height: calc(100vh - 20px) !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: 12px 16px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 .widget-checklist .checklist-items-container,
@@ -3159,7 +3241,10 @@ html.widget-tasks .checklist-items-container,
 body.widget-checklist .checklist-items-container,
 body.widget-tasks .checklist-items-container {
   flex: 1 1 auto !important;
+  min-height: 0 !important;
   overflow-y: auto !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #333333 transparent !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -3171,14 +3256,22 @@ body.widget-focus #tab-focus {
   display: flex !important;
   flex-direction: column !important;
   flex: 1 1 auto !important;
-  min-height: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
 }
 
 .widget-focus .focus-grid,
 html.widget-focus .focus-grid,
 body.widget-focus .focus-grid {
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
-  gap: 14px !important;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+  gap: 12px !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  padding: 4px !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #333333 transparent !important;
 }
 
 .widget-focus .focus-card,
@@ -3186,6 +3279,7 @@ html.widget-focus .focus-card,
 body.widget-focus .focus-card {
   box-shadow: none !important;
   border-radius: var(--radius-lg);
+  padding: 14px 16px !important;
 }
 
 /* ==========================================================================
