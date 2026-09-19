@@ -1078,11 +1078,14 @@ class DayPlannerController {
     if (!listContainer) return;
 
     if (blocks.length === 0) {
-      // Empty state matching Image 2
       listContainer.innerHTML = `
         <div class="schedule-empty-state">
           <div class="empty-icon">📅</div>
-          <div class="empty-text">No blocks yet — drag on the clock or click Quick Add</div>
+          <div class="empty-text" style="margin-bottom: 12px;">No schedule blocks for this date.</div>
+          <div style="display: inline-flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+            <button type="button" class="btn btn-sm btn-dark" onclick="app.planner.openModal()">+ Add Block</button>
+            <button type="button" class="btn btn-sm btn-pill" onclick="app.planner.replicateYesterday()">⚡ Replicate Previous</button>
+          </div>
         </div>
       `;
       return;
@@ -1299,9 +1302,23 @@ class DayPlannerController {
     d.setDate(d.getDate() - 1);
     const yesterday = d.toISOString().slice(0, 10);
 
-    const yesterdayBlocks = this.app.state.schedule[yesterday] || [];
-    if (yesterdayBlocks.length === 0) {
-      this.app.showToast(`No schedule blocks found on yesterday (${yesterday}) to replicate.`, 'warning');
+    let sourceDate = yesterday;
+    let sourceBlocks = this.app.state.schedule[yesterday] || [];
+
+    // If yesterday has 0 blocks, intelligently search past days for the most recent day with schedule blocks
+    if (sourceBlocks.length === 0) {
+      const pastDates = Object.keys(this.app.state.schedule)
+        .filter(dt => dt < today && Array.isArray(this.app.state.schedule[dt]) && this.app.state.schedule[dt].length > 0)
+        .sort()
+        .reverse();
+      if (pastDates.length > 0) {
+        sourceDate = pastDates[0];
+        sourceBlocks = this.app.state.schedule[sourceDate];
+      }
+    }
+
+    if (!sourceBlocks || sourceBlocks.length === 0) {
+      this.app.showToast(`No previous schedule blocks found to replicate.`, 'warning');
       return;
     }
 
@@ -1310,7 +1327,7 @@ class DayPlannerController {
     }
 
     let addedCount = 0;
-    yesterdayBlocks.forEach(b => {
+    sourceBlocks.forEach(b => {
       const exists = this.app.state.schedule[today].some(existing =>
         existing.start === b.start && existing.end === b.end && existing.title === b.title
       );
@@ -1329,14 +1346,14 @@ class DayPlannerController {
     });
 
     if (addedCount === 0) {
-      this.app.showToast(`Yesterday's schedule blocks are already present today.`, 'info');
+      this.app.showToast(`Schedule blocks from ${sourceDate} are already present today.`, 'info');
       return;
     }
 
     this.app.state.schedule[today].sort((a, b) => a.start.localeCompare(b.start));
     this.app.saveState();
     this.render();
-    this.app.showToast(`⚡ Replicated ${addedCount} block(s) from yesterday (${yesterday})!`, 'success');
+    this.app.showToast(`⚡ Replicated ${addedCount} block(s) from ${sourceDate}!`, 'success');
   }
 }
 

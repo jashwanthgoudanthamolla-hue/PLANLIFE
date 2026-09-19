@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2.6.0">
+  <link rel="stylesheet" href="styles.css?v=2.7.0">
   <script>
     (function() {
       try {
@@ -117,14 +117,22 @@
     html.is-widget,
     body.is-widget,
     html.is-iframe,
-    body.is-iframe {
+    body.is-iframe,
+    .is-widget .app-container,
+    .is-iframe .app-container,
+    .is-widget .main-content,
+    .is-iframe .main-content {
       overflow: hidden !important;
       scrollbar-width: none !important;
     }
     .is-widget::-webkit-scrollbar,
     .is-iframe::-webkit-scrollbar,
     html.is-widget::-webkit-scrollbar,
-    body.is-widget::-webkit-scrollbar {
+    body.is-widget::-webkit-scrollbar,
+    .is-widget .app-container::-webkit-scrollbar,
+    .is-iframe .app-container::-webkit-scrollbar,
+    .is-widget .main-content::-webkit-scrollbar,
+    .is-iframe .main-content::-webkit-scrollbar {
       display: none !important;
       width: 0 !important;
       height: 0 !important;
@@ -1049,6 +1057,6 @@
 
   </div>
 
-  <script src="app.js?v=2.6.0"></script>
+  <script src="app.js?v=2.7.0"></script>
 </body>
 </html>
