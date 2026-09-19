@@ -9,8 +9,32 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script>
+    (function() {
+      try {
+        var p = new URLSearchParams(window.location.search);
+        var w = p.get('widget');
+        var t = p.get('theme');
+        var nobg = p.get('nobg') === 'true' || p.get('transparent') === 'true';
+        if (w) {
+          document.documentElement.classList.add('is-widget', 'widget-' + w.toLowerCase());
+        }
+        var isDark = t === 'dark' || (!t && (w || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)));
+        if (t === 'transparent' || nobg) {
+          document.documentElement.classList.add('theme-transparent');
+          document.documentElement.style.backgroundColor = 'transparent';
+        } else if (isDark) {
+          document.documentElement.classList.add('theme-dark');
+          document.documentElement.style.backgroundColor = '#191919';
+        } else {
+          document.documentElement.classList.add('theme-light');
+          document.documentElement.style.backgroundColor = '#f7f7f5';
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
-<body class="theme-light">
+<body>
   <div class="app-container">
     <!-- Top Notion Navigation Bar -->
     <header class="notion-navbar">
@@ -224,11 +248,8 @@
           </div>
 
           <div class="planner-actions">
-            <button id="quickAddBlockBtn" class="btn btn-dark">
-              <span class="btn-icon">+</span> Quick Add
-            </button>
-            <button id="rolloverBtn" class="btn btn-pill">
-              Roll over
+            <button id="replicateYesterdayBtn" type="button" class="btn btn-pill" title="Replicate yesterday's schedule blocks to today">
+              <span class="btn-icon">⚡</span> Replicate Yesterday
             </button>
           </div>
         </div>

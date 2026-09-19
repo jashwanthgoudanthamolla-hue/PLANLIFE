@@ -55,8 +55,10 @@
 }
 
 /* Dark Mode (Notion Sleek Graphite #191919) */
+:root.theme-dark,
+html.theme-dark,
 body.theme-dark {
-  --bg-app: #191919;
+  --bg-app: #191919 !important;
   --bg-surface: #202020;
   --bg-surface-secondary: #262626;
   --bg-surface-tertiary: #2d2d2d;
@@ -72,11 +74,15 @@ body.theme-dark {
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+  background-color: #191919 !important;
 }
 
 /* Transparent Theme (Seamless Notion Background Embedding) */
+:root.theme-transparent,
+html.theme-transparent,
 body.theme-transparent {
   --bg-app: transparent !important;
+  background: transparent !important;
   background-color: transparent !important;
 }
 
@@ -99,6 +105,17 @@ body.theme-transparent .kpi-card {
   padding: 0;
 }
 
+html, body {
+  min-height: 100vh;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background-color: var(--bg-app);
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--bg-app);
@@ -106,7 +123,6 @@ body {
   line-height: 1.5;
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
 }
 
 .app-container {
@@ -2148,13 +2164,22 @@ body.theme-dark .streak-count-badge {
 
 html.is-widget,
 body.is-widget {
+  min-height: 100vh !important;
   min-height: 100% !important;
-  height: auto !important;
+  height: 100% !important;
   padding: 0 !important;
   margin: 0 !important;
-  background-color: var(--bg-app);
+  background-color: var(--bg-app) !important;
+  box-sizing: border-box !important;
 }
 
+html.is-widget.theme-dark,
+body.is-widget.theme-dark {
+  background-color: #191919 !important;
+  background: #191919 !important;
+}
+
+html.is-widget.theme-transparent,
 body.is-widget.theme-transparent {
   background-color: transparent !important;
   background: transparent !important;
@@ -2167,14 +2192,35 @@ body.is-widget .notion-navbar {
 
 body.is-widget .app-container {
   max-width: 100% !important;
-  min-height: auto !important;
+  min-height: 100vh !important;
+  min-height: 100% !important;
+  height: 100% !important;
   margin: 0 !important;
-  padding: 10px !important;
+  padding: 8px 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+  background: transparent !important;
 }
 
 body.is-widget .main-content {
   padding: 0 !important;
   margin: 0 !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+}
+
+body.is-widget .tab-view {
+  min-height: 0 !important;
+}
+
+body.is-widget .tab-view.active {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
 }
 
 /* Hide desktop headers in widget mode */
@@ -2201,17 +2247,27 @@ body.is-widget::-webkit-scrollbar-track {
    -------------------------------------------------------------------------- */
 body.widget-clock #tab-dayplanner,
 body.widget-clockdial #tab-dayplanner {
-  display: block !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 1 1 auto !important;
+  min-height: 100% !important;
+  width: 100% !important;
 }
 
 body.widget-clock .planner-layout-grid,
 body.widget-clockdial .planner-layout-grid {
   display: flex !important;
-  flex-direction: column !important;
+  flex-direction: row !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 16px !important;
+  gap: 24px !important;
   width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  flex: 1 1 auto !important;
+  flex-wrap: wrap !important;
 }
 
 body.widget-clock .schedule-column,
@@ -2265,7 +2321,7 @@ body.widget-clock .category-breakdown-card {
 
 body.widget-clock .planner-controls-bar,
 body.widget-clockdial .planner-controls-bar {
-  margin-bottom: 8px !important;
+  margin-bottom: 12px !important;
   justify-content: center !important;
   width: 100% !important;
   max-width: 860px !important;
@@ -2292,27 +2348,104 @@ body.hide-breakdown .clock-column {
    2. 📋 WIDGET: Day Schedule & Time Blocks (widget=schedule)
    -------------------------------------------------------------------------- */
 body.widget-schedule #tab-dayplanner {
-  display: block !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 100% !important;
 }
 
 body.widget-schedule .clock-column {
   display: none !important;
 }
 
+body.widget-schedule .planner-controls-bar {
+  margin-bottom: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  flex-wrap: nowrap !important;
+}
+
+body.widget-schedule .date-stepper {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+}
+
+body.widget-schedule .planner-actions {
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+body.widget-schedule #replicateYesterdayBtn,
+#replicateYesterdayBtn {
+  white-space: nowrap !important;
+  height: 32px !important;
+  padding: 0 14px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  border-radius: var(--radius-full) !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
 body.widget-schedule .planner-layout-grid {
-  display: block !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  width: 100% !important;
 }
 
 body.widget-schedule .schedule-column {
   width: 100% !important;
   max-width: 100% !important;
   margin: 0 auto !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 16px 20px !important;
+  box-shadow: none !important;
+  border-radius: var(--radius-lg) !important;
+  min-height: calc(100vh - 65px) !important;
+  box-sizing: border-box !important;
 }
 
-body.widget-schedule .schedule-card {
-  padding: 16px !important;
-  box-shadow: none !important;
-  border-radius: var(--radius-lg);
+body.widget-schedule .schedule-header-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 14px !important;
+  padding-bottom: 8px !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+
+body.widget-schedule .schedule-title {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--text-primary) !important;
+}
+
+body.widget-schedule .schedule-badge {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding: 4px 10px !important;
+}
+
+body.widget-schedule .schedule-blocks-list,
+body.widget-schedule .schedule-list {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -2320,6 +2453,7 @@ body.widget-schedule .schedule-card {
    -------------------------------------------------------------------------- */
 body.widget-planner #tab-dayplanner {
   display: block !important;
+  min-height: 100% !important;
 }
 
 body.widget-planner .planner-layout-grid {
@@ -2339,7 +2473,11 @@ body.widget-planner .planner-layout-grid {
    -------------------------------------------------------------------------- */
 body.widget-kpis #tab-dashboard,
 body.widget-kpi #tab-dashboard {
-  display: block !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  flex: 1 1 auto !important;
+  min-height: 100% !important;
 }
 
 body.widget-kpis .dash-split-grid,
@@ -2367,11 +2505,15 @@ body.widget-kpi .kpi-card {
    5. 🔥 WIDGET: Habit Streak Multiplier (widget=habits)
    -------------------------------------------------------------------------- */
 body.widget-habits #tab-habits {
-  display: block !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 100% !important;
 }
 
 body.widget-habits .habits-layout-grid {
   display: block !important;
+  flex: 1 1 auto !important;
 }
 
 body.widget-habits .habits-stats-column {
@@ -2381,13 +2523,25 @@ body.widget-habits .habits-stats-column {
 body.widget-habits .habit-streak-card {
   box-shadow: none !important;
   border-radius: var(--radius-lg);
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: calc(100vh - 20px) !important;
+}
+
+body.widget-habits .habits-list {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
 }
 
 /* --------------------------------------------------------------------------
    6. 💰 WIDGET: Finance Surplus & Cash Flow (widget=finance)
    -------------------------------------------------------------------------- */
 body.widget-finance #tab-finance {
-  display: block !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 100% !important;
 }
 
 body.widget-finance .finance-surplus-hero {
@@ -2403,7 +2557,10 @@ body.widget-finance .finance-card {
    7. 🎯 WIDGET: Strategic Goals & Milestones (widget=goals)
    -------------------------------------------------------------------------- */
 body.widget-goals #tab-goals {
-  display: block !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 100% !important;
 }
 
 body.widget-goals .goals-grid {
@@ -2421,20 +2578,36 @@ body.widget-goals .goal-card {
    -------------------------------------------------------------------------- */
 body.widget-checklist #tab-checklist,
 body.widget-tasks #tab-checklist {
-  display: block !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 100% !important;
 }
 
 body.widget-checklist .checklist-card,
 body.widget-tasks .checklist-card {
   box-shadow: none !important;
   border-radius: var(--radius-lg);
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: calc(100vh - 20px) !important;
+}
+
+body.widget-checklist .checklist-items-container,
+body.widget-tasks .checklist-items-container {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
 }
 
 /* --------------------------------------------------------------------------
    9. ⚡ WIDGET: Daily Focus Top 3 & Brain Dump (widget=focus)
    -------------------------------------------------------------------------- */
 body.widget-focus #tab-focus {
-  display: block !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 100% !important;
 }
 
 body.widget-focus .focus-grid {
@@ -2445,4 +2618,52 @@ body.widget-focus .focus-grid {
 body.widget-focus .focus-card {
   box-shadow: none !important;
   border-radius: var(--radius-lg);
+}
+
+/* ==========================================================================
+   NOTION-STYLED IN-APP TOAST NOTIFICATION (Iframe-Safe & Non-blocking)
+   ========================================================================== */
+.planlife-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  max-width: 380px;
+  background-color: var(--bg-surface-elevated, #282828);
+  color: var(--text-primary, #f0f0ee);
+  border: 1px solid var(--border-color, #333333);
+  box-shadow: var(--shadow-lg, 0 12px 32px rgba(0, 0, 0, 0.4));
+  border-radius: var(--radius-md, 10px);
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 99999;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+.planlife-toast.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.planlife-toast.toast-danger {
+  border-left: 3px solid #ef4444;
+}
+
+.planlife-toast.toast-success {
+  border-left: 3px solid #10b981;
+}
+
+.planlife-toast.toast-warning {
+  border-left: 3px solid #f59e0b;
+}
+
+.planlife-toast.toast-info {
+  border-left: 3px solid #38bdf8;
 }

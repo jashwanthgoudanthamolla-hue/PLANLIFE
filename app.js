@@ -176,6 +176,7 @@ const DEFAULT_STATE = {
 
 class PlanLifeApp {
   constructor() {
+    window.app = this;
     this.STORAGE_KEY = 'planlife_workspace_state_v1';
     this.instanceId = 'widget-' + Math.random().toString(36).substring(2, 9);
     this.state = this.loadState();
@@ -334,30 +335,69 @@ class PlanLifeApp {
     }, 30000);
   }
 
+  showToast(message, type = 'info') {
+    let toast = document.getElementById('planlifeToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'planlifeToast';
+      toast.className = 'planlife-toast';
+      document.body.appendChild(toast);
+    }
+    toast.className = `planlife-toast toast-${type} visible`;
+    const icon = type === 'danger' ? '🗑️' : type === 'success' ? '✓' : type === 'warning' ? '⚠️' : 'ℹ️';
+    toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+    clearTimeout(this._toastTimeout);
+    this._toastTimeout = setTimeout(() => {
+      toast.classList.remove('visible');
+    }, 2800);
+  }
+
   applyTheme(theme) {
     this.state.theme = theme;
-    document.body.classList.remove('theme-light', 'theme-dark', 'theme-transparent');
+    const targets = [document.body, document.documentElement];
+    targets.forEach(el => {
+      if (el) el.classList.remove('theme-light', 'theme-dark', 'theme-transparent');
+    });
+
     if (theme === 'dark') {
-      document.body.classList.add('theme-dark');
+      targets.forEach(el => {
+        if (el) {
+          el.classList.add('theme-dark');
+          el.style.backgroundColor = '#191919';
+        }
+      });
       const icon = document.querySelector('.theme-icon');
       if (icon) icon.textContent = '☀️';
     } else if (theme === 'transparent') {
-      document.body.classList.add('theme-transparent');
-      // If user prefers dark system theme, also add dark mode contrast
+      targets.forEach(el => {
+        if (el) {
+          el.classList.add('theme-transparent');
+          el.style.backgroundColor = 'transparent';
+        }
+      });
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('theme-dark');
+        targets.forEach(el => el && el.classList.add('theme-dark'));
       }
     } else {
-      document.body.classList.add('theme-light');
+      targets.forEach(el => {
+        if (el) {
+          el.classList.add('theme-light');
+          el.style.backgroundColor = '#f7f7f5';
+        }
+      });
       const icon = document.querySelector('.theme-icon');
       if (icon) icon.textContent = '🌙';
     }
   }
 
   setupWidgetMode(widgetName) {
-    document.body.classList.add('is-widget');
-    document.body.classList.add(`widget-${widgetName}`);
-    document.documentElement.classList.add('is-widget');
+    document.body.classList.add('is-widget', `widget-${widgetName}`);
+    document.documentElement.classList.add('is-widget', `widget-${widgetName}`);
+
+    if (this.noBg || this.themeOverride === 'transparent') {
+      document.body.classList.add('theme-transparent');
+      document.documentElement.classList.add('theme-transparent');
+    }
 
     if (this.noBrk) {
       document.body.classList.add('hide-breakdown');
@@ -466,18 +506,29 @@ class PlanLifeApp {
           this.saveState();
           location.reload();
         } catch (err) {
-          alert('Invalid JSON backup file');
+          this.showToast('Invalid JSON backup file', 'danger');
         }
       };
       reader.readAsText(file);
     });
 
-    // Reset Demo Data
-    document.getElementById('resetDataBtn')?.addEventListener('click', () => {
-      if (confirm('Reset all planner data to default demo state? This will overwrite local changes.')) {
+    // Reset Demo Data (Iframe-safe double-click confirmation)
+    document.getElementById('resetDataBtn')?.addEventListener('click', (e) => {
+      const btn = e.currentTarget;
+      if (btn.dataset.confirming === 'true') {
         this.state = JSON.parse(JSON.stringify(DEFAULT_STATE));
         this.saveState();
-        location.reload();
+        this.showToast('Workspace reset to default demo data', 'info');
+        setTimeout(() => location.reload(), 250);
+      } else {
+        btn.dataset.confirming = 'true';
+        const origHtml = btn.innerHTML;
+        btn.innerHTML = '<span>⚠️ Confirm Reset?</span>';
+        this.showToast('Click Reset again to confirm resetting all workspace data', 'warning');
+        setTimeout(() => {
+          btn.innerHTML = origHtml;
+          delete btn.dataset.confirming;
+        }, 4000);
       }
     });
   }
@@ -696,12 +747,17 @@ class DayPlannerController {
       this.setDate(e.target.value);
     });
 
-    // Quick Add Button
+    // Replicate Yesterday Button
+    document.getElementById('replicateYesterdayBtn')?.addEventListener('click', () => {
+      this.replicateYesterday();
+    });
+
+    // Quick Add Button (fallback if present)
     document.getElementById('quickAddBlockBtn')?.addEventListener('click', () => {
       this.openModal();
     });
 
-    // Rollover Button
+    // Rollover Button (fallback if present)
     document.getElementById('rolloverBtn')?.addEventListener('click', () => {
       this.rolloverIncomplete();
     });
@@ -994,8 +1050,8 @@ class DayPlannerController {
         </div>
         <div class="block-right">
           <span class="block-cat-pill" style="background-color: ${b.color}20; color: ${b.color};">${b.category}</span>
-          <button class="block-action-icon" title="Edit Block" onclick="app.planner.openModal('${b.id}')">✏️</button>
-          <button class="block-action-icon text-danger" title="Delete Block" onclick="app.planner.deleteBlock('${b.id}')">🗑️</button>
+          <button type="button" class="block-action-icon" title="Edit Block" onclick="event.stopPropagation(); app.planner.openModal('${b.id}')">✏️</button>
+          <button type="button" class="block-action-icon text-danger" title="Delete Block" onclick="event.stopPropagation(); app.planner.deleteBlock('${b.id}')">🗑️</button>
         </div>
       </div>
     `).join('');
@@ -1103,7 +1159,7 @@ class DayPlannerController {
     const color = document.getElementById('modalBlockColor').value;
 
     if (!title) {
-      alert('Please enter a title for the block.');
+      this.app.showToast('Please enter a title for the block.', 'warning');
       return;
     }
 
@@ -1141,14 +1197,16 @@ class DayPlannerController {
     this.closeModal();
     this.app.saveState();
     this.render();
+    this.app.showToast(this.app.activeBlockId ? 'Schedule block updated' : 'Schedule block added', 'success');
   }
 
   deleteBlock(id) {
     const date = this.app.state.selectedDate;
-    if (confirm('Delete this schedule block?')) {
+    if (this.app.state.schedule[date]) {
       this.app.state.schedule[date] = this.app.state.schedule[date].filter(b => b.id !== id);
       this.app.saveState();
       this.render();
+      this.app.showToast('Schedule block deleted', 'danger');
     }
   }
 
@@ -1158,7 +1216,7 @@ class DayPlannerController {
     const incomplete = blocks.filter(b => !b.completed);
 
     if (incomplete.length === 0) {
-      alert('No incomplete blocks to roll over for this day.');
+      this.app.showToast('No incomplete blocks to roll over for this day.', 'warning');
       return;
     }
 
@@ -1180,8 +1238,55 @@ class DayPlannerController {
       });
     });
 
-    alert(`Successfully rolled over ${incomplete.length} block(s) to ${nextDate}!`);
+    this.app.saveState();
+    this.app.showToast(`Successfully rolled over ${incomplete.length} block(s) to ${nextDate}!`, 'success');
     this.setDate(nextDate);
+  }
+
+  replicateYesterday() {
+    const today = this.app.state.selectedDate;
+    const d = new Date(today + 'T00:00:00');
+    d.setDate(d.getDate() - 1);
+    const yesterday = d.toISOString().slice(0, 10);
+
+    const yesterdayBlocks = this.app.state.schedule[yesterday] || [];
+    if (yesterdayBlocks.length === 0) {
+      this.app.showToast(`No schedule blocks found on yesterday (${yesterday}) to replicate.`, 'warning');
+      return;
+    }
+
+    if (!this.app.state.schedule[today]) {
+      this.app.state.schedule[today] = [];
+    }
+
+    let addedCount = 0;
+    yesterdayBlocks.forEach(b => {
+      const exists = this.app.state.schedule[today].some(existing =>
+        existing.start === b.start && existing.end === b.end && existing.title === b.title
+      );
+      if (!exists) {
+        this.app.state.schedule[today].push({
+          id: 'b-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+          title: b.title,
+          start: b.start,
+          end: b.end,
+          category: b.category,
+          color: b.color,
+          completed: false
+        });
+        addedCount++;
+      }
+    });
+
+    if (addedCount === 0) {
+      this.app.showToast(`Yesterday's schedule blocks are already present today.`, 'info');
+      return;
+    }
+
+    this.app.state.schedule[today].sort((a, b) => a.start.localeCompare(b.start));
+    this.app.saveState();
+    this.render();
+    this.app.showToast(`⚡ Replicated ${addedCount} block(s) from yesterday (${yesterday})!`, 'success');
   }
 }
 
@@ -1294,7 +1399,7 @@ class FinanceController {
         <td class="font-mono"><strong>₹${Number(b.balance).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
         <td>${b.updated}</td>
         <td class="text-right">
-          <button class="block-action-icon text-danger" onclick="app.finance.deleteItem('banks', '${b.id}')">🗑️</button>
+          <button type="button" class="block-action-icon text-danger" title="Delete Account" onclick="event.stopPropagation(); app.finance.deleteItem('banks', '${b.id}')">🗑️</button>
         </td>
       </tr>
     `).join('');
@@ -1312,7 +1417,7 @@ class FinanceController {
         <td class="font-mono">₹${Number(l.remaining).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
         <td><span class="kpi-badge badge-warning">${l.status}</span></td>
         <td class="text-right">
-          <button class="block-action-icon text-danger" onclick="app.finance.deleteItem('loans', '${l.id}')">🗑️</button>
+          <button type="button" class="block-action-icon text-danger" title="Delete Loan" onclick="event.stopPropagation(); app.finance.deleteItem('loans', '${l.id}')">🗑️</button>
         </td>
       </tr>
     `).join('');
@@ -1337,7 +1442,7 @@ class FinanceController {
           </td>
           <td><span class="kpi-badge badge-neutral">${c.status}</span></td>
           <td class="text-right">
-            <button class="block-action-icon text-danger" onclick="app.finance.deleteItem('cards', '${c.id}')">🗑️</button>
+            <button type="button" class="block-action-icon text-danger" title="Delete Card" onclick="event.stopPropagation(); app.finance.deleteItem('cards', '${c.id}')">🗑️</button>
           </td>
         </tr>
       `;
@@ -1356,7 +1461,7 @@ class FinanceController {
         <td><span class="kpi-badge badge-success">${inf.probability}</span></td>
         <td>${inf.status}</td>
         <td class="text-right">
-          <button class="block-action-icon text-danger" onclick="app.finance.deleteItem('inflows', '${inf.id}')">🗑️</button>
+          <button type="button" class="block-action-icon text-danger" title="Delete Inflow" onclick="event.stopPropagation(); app.finance.deleteItem('inflows', '${inf.id}')">🗑️</button>
         </td>
       </tr>
     `).join('');
@@ -1374,7 +1479,7 @@ class FinanceController {
         <td>${exp.recurrence}</td>
         <td><span class="kpi-badge badge-warning">${exp.status}</span></td>
         <td class="text-right">
-          <button class="block-action-icon text-danger" onclick="app.finance.deleteItem('expenses', '${exp.id}')">🗑️</button>
+          <button type="button" class="block-action-icon text-danger" title="Delete Expense" onclick="event.stopPropagation(); app.finance.deleteItem('expenses', '${exp.id}')">🗑️</button>
         </td>
       </tr>
     `).join('');
@@ -1398,7 +1503,7 @@ class FinanceController {
             </span>
           </td>
           <td class="text-right">
-            <button class="block-action-icon text-danger" onclick="app.finance.deleteItem('wishlist', '${w.id}')">🗑️</button>
+            <button type="button" class="block-action-icon text-danger" title="Delete Item" onclick="event.stopPropagation(); app.finance.deleteItem('wishlist', '${w.id}')">🗑️</button>
           </td>
         </tr>
       `;
@@ -1568,7 +1673,7 @@ class FinanceController {
       const bType = document.getElementById('fin_bank_type').value.trim();
       const inst = document.getElementById('fin_bank_inst').value.trim();
       const balance = parseFloat(document.getElementById('fin_bank_balance').value) || 0;
-      if (!name) return alert('Name is required');
+      if (!name) { this.app.showToast('Account name is required', 'warning'); return; }
       this.app.state.finance.banks.push({ id: 'bk-' + Date.now(), name, type: bType, institution: inst, balance, updated: 'Just now' });
     } else if (type === 'loan') {
       const name = document.getElementById('fin_loan_name').value.trim();
@@ -1576,7 +1681,7 @@ class FinanceController {
       const emi = parseFloat(document.getElementById('fin_loan_emi').value) || 0;
       const dueDate = document.getElementById('fin_loan_date').value || '2026-10-01';
       const remaining = parseFloat(document.getElementById('fin_loan_rem').value) || 0;
-      if (!name) return alert('Name is required');
+      if (!name) { this.app.showToast('Loan name is required', 'warning'); return; }
       this.app.state.finance.loans.push({ id: 'ln-' + Date.now(), name, lender, emi, dueDate, remaining, status: 'Active' });
     } else if (type === 'card') {
       const name = document.getElementById('fin_card_name').value.trim();
@@ -1584,40 +1689,42 @@ class FinanceController {
       const minDue = parseFloat(document.getElementById('fin_card_min').value) || 0;
       const dueDate = document.getElementById('fin_card_date').value || '2026-10-01';
       const limit = parseFloat(document.getElementById('fin_card_limit').value) || 5000;
-      if (!name) return alert('Name is required');
+      if (!name) { this.app.showToast('Card name is required', 'warning'); return; }
       this.app.state.finance.cards.push({ id: 'cc-' + Date.now(), name, balance, minDue, dueDate, limit, status: 'Pending' });
     } else if (type === 'inflow') {
       const source = document.getElementById('fin_inflow_desc').value.trim();
       const category = document.getElementById('fin_inflow_cat').value.trim();
       const amount = parseFloat(document.getElementById('fin_inflow_amt').value) || 0;
       const expectedDate = document.getElementById('fin_inflow_date').value || '2026-10-01';
-      if (!source) return alert('Source is required');
+      if (!source) { this.app.showToast('Inflow source is required', 'warning'); return; }
       this.app.state.finance.inflows.push({ id: 'inf-' + Date.now(), source, category, amount, expectedDate, probability: '100%', status: 'Projected' });
     } else if (type === 'expense') {
       const title = document.getElementById('fin_exp_title').value.trim();
       const amount = parseFloat(document.getElementById('fin_exp_amt').value) || 0;
       const dueDate = document.getElementById('fin_exp_date').value || '2026-10-01';
-      if (!title) return alert('Title is required');
+      if (!title) { this.app.showToast('Expense title is required', 'warning'); return; }
       this.app.state.finance.expenses.push({ id: 'exp-' + Date.now(), title, category: 'General', amount, dueDate, recurrence: 'Monthly', status: 'Upcoming' });
     } else if (type === 'wishlist') {
       const item = document.getElementById('fin_wish_name').value.trim();
       const cost = parseFloat(document.getElementById('fin_wish_cost').value) || 0;
       const priority = document.getElementById('fin_wish_prio').value;
       const targetDate = document.getElementById('fin_wish_date').value || '2026-11-01';
-      if (!item) return alert('Item is required');
+      if (!item) { this.app.showToast('Wishlist item name is required', 'warning'); return; }
       this.app.state.finance.wishlist.push({ id: 'wb-' + Date.now(), item, priority, cost, category: 'Wishlist', targetDate });
     }
 
     this.closeModal();
     this.app.saveState();
     this.render();
+    this.app.showToast('Financial record saved', 'success');
   }
 
   deleteItem(collectionName, id) {
-    if (confirm('Delete this financial item?')) {
+    if (this.app.state.finance[collectionName]) {
       this.app.state.finance[collectionName] = this.app.state.finance[collectionName].filter(x => x.id !== id);
       this.app.saveState();
       this.render();
+      this.app.showToast('Financial item deleted', 'danger');
     }
   }
 }
@@ -1679,8 +1786,8 @@ class GoalsController {
               <h2 class="goal-card-title">${g.title}</h2>
             </div>
             <div class="goal-actions-group">
-              <button class="goal-icon-btn" title="Edit Goal" onclick="app.goals.openModal('${g.id}')">✏️</button>
-              <button class="goal-icon-btn text-danger" title="Delete Goal" onclick="app.goals.deleteGoal('${g.id}')">🗑️</button>
+              <button type="button" class="goal-icon-btn" title="Edit Goal" onclick="event.stopPropagation(); app.goals.openModal('${g.id}')">✏️</button>
+              <button type="button" class="goal-icon-btn text-danger" title="Delete Goal" onclick="event.stopPropagation(); app.goals.deleteGoal('${g.id}')">🗑️</button>
             </div>
           </div>
 
@@ -1741,7 +1848,7 @@ class GoalsController {
                     <span class="doc-type-badge">${att.type}</span>
                     <a href="${att.url}" target="_blank" style="text-decoration:none; color:inherit;">${att.title}</a>
                   </div>
-                  <button class="block-action-icon text-danger" onclick="app.goals.deleteAttachment('${g.id}', ${attIdx})">✕</button>
+                  <button type="button" class="block-action-icon text-danger" title="Remove Attachment" onclick="event.stopPropagation(); app.goals.deleteAttachment('${g.id}', ${attIdx})">✕</button>
                 </div>
               `).join('')}
             </div>
@@ -1778,15 +1885,14 @@ class GoalsController {
   }
 
   addMilestone(goalId) {
-    const text = prompt('Enter new milestone description:');
-    if (text) {
-      const goal = this.app.state.goals.find(g => g.id === goalId);
-      if (goal) {
-        goal.totalSteps += 1;
-        goal.notes.push(text);
-        this.app.saveState();
-        this.render();
-      }
+    const goal = this.app.state.goals.find(g => g.id === goalId);
+    if (goal) {
+      goal.totalSteps = (goal.totalSteps || 0) + 1;
+      const num = goal.totalSteps;
+      goal.notes.push(`Milestone ${num}: Key execution checkpoint`);
+      this.app.saveState();
+      this.render();
+      this.app.showToast(`Added Milestone ${num}. Click Edit to customize details.`, 'success');
     }
   }
 
@@ -1834,7 +1940,10 @@ class GoalsController {
     const notesRaw = document.getElementById('modalGoalNotes').value;
     const deadline = document.getElementById('modalGoalDeadline').value;
 
-    if (!title) return alert('Goal title is required');
+    if (!title) {
+      this.app.showToast('Goal title is required', 'warning');
+      return;
+    }
 
     const notes = notesRaw.split('\n').map(s => s.trim().replace(/^[•\-\*]\s*/, '')).filter(Boolean);
 
@@ -1863,14 +1972,14 @@ class GoalsController {
     this.closeModal();
     this.app.saveState();
     this.render();
+    this.app.showToast('Strategic goal saved', 'success');
   }
 
   deleteGoal(id) {
-    if (confirm('Delete this goal card?')) {
-      this.app.state.goals = this.app.state.goals.filter(g => g.id !== id);
-      this.app.saveState();
-      this.render();
-    }
+    this.app.state.goals = this.app.state.goals.filter(g => g.id !== id);
+    this.app.saveState();
+    this.render();
+    this.app.showToast('Goal card deleted', 'danger');
   }
 
   openAttachModal(goalId) {
@@ -1887,7 +1996,10 @@ class GoalsController {
     const url = document.getElementById('attachDocUrl').value.trim() || '#';
     const type = document.getElementById('attachDocType').value;
 
-    if (!title) return alert('Title is required');
+    if (!title) {
+      this.app.showToast('Attachment title is required', 'warning');
+      return;
+    }
 
     const goal = this.app.state.goals.find(g => g.id === this.app.activeGoalId);
     if (goal) {
@@ -1895,15 +2007,17 @@ class GoalsController {
       this.closeAttachModal();
       this.app.saveState();
       this.render();
+      this.app.showToast('Attachment added', 'success');
     }
   }
 
   deleteAttachment(goalId, attIndex) {
     const goal = this.app.state.goals.find(g => g.id === goalId);
-    if (goal) {
+    if (goal && goal.attachments) {
       goal.attachments.splice(attIndex, 1);
       this.app.saveState();
       this.render();
+      this.app.showToast('Attachment removed', 'info');
     }
   }
 }
@@ -1942,7 +2056,10 @@ class HabitsController {
     const category = document.getElementById('habitModalCategory').value;
     const frequency = document.getElementById('habitModalFrequency').value;
 
-    if (!name) return alert('Habit name is required');
+    if (!name) {
+      this.app.showToast('Habit name is required', 'warning');
+      return;
+    }
 
     this.app.state.habits.push({
       id: 'h-' + Date.now(),
@@ -1957,6 +2074,7 @@ class HabitsController {
     this.closeModal();
     this.app.saveState();
     this.render();
+    this.app.showToast('Habit streak created', 'success');
   }
 
   render() {
@@ -1975,7 +2093,7 @@ class HabitsController {
           <div class="habit-streak-display">
             <span class="streak-count-badge" title="Active Streak">🔥 ${h.currentStreak}d</span>
             <span style="font-size: 11px; color: var(--text-muted);">Best: ${h.bestStreak}d</span>
-            <button class="block-action-icon text-danger" onclick="app.habits.deleteHabit('${h.id}')">🗑️</button>
+            <button type="button" class="block-action-icon text-danger" title="Delete Habit" onclick="event.stopPropagation(); app.habits.deleteHabit('${h.id}')">🗑️</button>
           </div>
         </div>
 
@@ -2032,11 +2150,10 @@ class HabitsController {
   }
 
   deleteHabit(id) {
-    if (confirm('Delete this habit?')) {
-      this.app.state.habits = this.app.state.habits.filter(h => h.id !== id);
-      this.app.saveState();
-      this.render();
-    }
+    this.app.state.habits = this.app.state.habits.filter(h => h.id !== id);
+    this.app.saveState();
+    this.render();
+    this.app.showToast('Habit deleted', 'danger');
   }
 }
 
@@ -2111,6 +2228,7 @@ class ChecklistController {
     this.app.state.tasks = this.app.state.tasks.filter(t => t.id !== id);
     this.app.saveState();
     this.render();
+    this.app.showToast('Task deleted', 'danger');
   }
 
   render() {
@@ -2158,7 +2276,7 @@ class ChecklistController {
           <span class="priority-tag priority-${t.priority}">${t.priority.toUpperCase()}</span>
           <span class="task-tag-badge">#${t.tag}</span>
           <span class="task-due-date">${t.dueDate}</span>
-          <button class="block-action-icon text-danger" onclick="app.checklist.deleteTask('${t.id}')">🗑️</button>
+          <button type="button" class="block-action-icon text-danger" title="Delete Task" onclick="event.stopPropagation(); app.checklist.deleteTask('${t.id}')">🗑️</button>
         </div>
       </div>
     `).join('');
@@ -2190,7 +2308,7 @@ class FocusController {
       this.app.state.focus.top3[2].text = document.getElementById('top3_3').value;
       this.app.state.focus.top3[2].done = document.getElementById('top3_3_check').checked;
       this.app.saveState();
-      alert('Top 3 non-negotiables saved!');
+      this.app.showToast('Top 3 non-negotiables saved!', 'success');
     });
 
     // Send Brain Dump to Task
@@ -2199,7 +2317,7 @@ class FocusController {
       if (!text) return;
       this.app.checklist.addTask(text);
       document.getElementById('brainDumpText').value = '';
-      alert('Sent to Checklist!');
+      this.app.showToast('Sent to Checklist!', 'success');
     });
 
     // Send Brain Dump to Block
@@ -2226,7 +2344,7 @@ class FocusController {
         friction: document.getElementById('frictionInput').value
       };
       this.app.saveState();
-      alert('Daily reflection logged!');
+      this.app.showToast('Daily reflection logged!', 'success');
     });
 
     // Auto Rollover from Review
@@ -2259,9 +2377,17 @@ class FocusController {
   }
 }
 
-// Instantiate App on window load
+// Instantiate App safely on window load or immediately if already loaded
 let app = null;
-window.addEventListener('DOMContentLoaded', () => {
-  app = new PlanLifeApp();
-  window.app = app;
-});
+function initPlanLife() {
+  if (!window.app) {
+    app = new PlanLifeApp();
+    window.app = app;
+  }
+}
+
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', initPlanLife);
+} else {
+  initPlanLife();
+}
