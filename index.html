@@ -35,29 +35,6 @@
   </script>
 </head>
 <body>
-  <!-- Floating Widget Switcher for Embedded Notion Iframes -->
-  <button id="widgetSwitcherBtn" class="widget-switch-btn" title="Switch Widget" onclick="app.toggleWidgetSwitcher()">⚡ Switch Widget</button>
-
-  <!-- Notion Iframe Widget Selector Bar (Fallback for embeds without ?widget= param) -->
-  <div id="notionIframeWidgetBar" class="notion-iframe-widget-bar" style="display: none;">
-    <div class="iframe-bar-left">
-      <span class="iframe-bar-badge">⚡ Notion Widget Mode</span>
-      <span class="iframe-bar-hint">Click a widget to display in this block:</span>
-    </div>
-    <div class="iframe-bar-pills">
-      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('clock')">🕒 Clock Dial</button>
-      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('schedule')">📋 Day Schedule</button>
-      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('planner')">📅 Complete Planner</button>
-      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('kpis')">📊 KPI Strip</button>
-      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('habits')">🔥 Habits</button>
-      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('checklist')">✅ Checklist</button>
-      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('finance')">💰 Finance</button>
-      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('goals')">🎯 Goals</button>
-      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('focus')">⚡ Focus</button>
-      <button type="button" class="iframe-pill" onclick="app.switchTab('dashboard')">📊 Full Dashboard</button>
-    </div>
-  </div>
-
   <div class="app-container">
     <!-- Top Notion Navigation Bar -->
     <header class="notion-navbar">
@@ -382,20 +359,17 @@
           <div class="fin-panel active" id="fpanel-banks">
             <div class="panel-action-bar">
               <h3 class="panel-heading">Available Bank & Cash Reserves</h3>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <button class="btn btn-outline btn-sm" onclick="app.finance.toggleSort('banks', 'name')">Sort Name <span id="sortIndicator-banks">▲</span></button>
-                <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('bank')">+ Add Bank Account</button>
-              </div>
+              <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('bank')">+ Add Bank Account</button>
             </div>
             <div class="fin-table-wrap">
               <table class="fin-table">
                 <thead>
                   <tr>
-                    <th class="sortable-th" onclick="app.finance.toggleSort('banks', 'name')">Account Name <span id="sort-banks-name" class="sort-indicator">⇅</span></th>
+                    <th>Account Name</th>
                     <th>Type / Purpose</th>
                     <th>Bank Institution</th>
-                    <th class="sortable-th" onclick="app.finance.toggleSort('banks', 'balance')">Available Balance <span id="sort-banks-balance" class="sort-indicator">⇅</span></th>
-                    <th class="sortable-th" onclick="app.finance.toggleSort('banks', 'updated')">Last Updated <span id="sort-banks-updated" class="sort-indicator">⇅</span></th>
+                    <th>Available Balance</th>
+                    <th>Last Updated</th>
                     <th class="text-right">Actions</th>
                   </tr>
                 </thead>
@@ -408,20 +382,17 @@
           <div class="fin-panel" id="fpanel-loans">
             <div class="panel-action-bar">
               <h3 class="panel-heading">Active Loans & EMI Obligations</h3>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <button class="btn btn-outline btn-sm" onclick="app.finance.toggleSort('loans', 'dueDate')">📅 Sort Due Date <span id="sortIndicator-loans">▲</span></button>
-                <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('loan')">+ Add Loan / EMI</button>
-              </div>
+              <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('loan')">+ Add Loan / EMI</button>
             </div>
             <div class="fin-table-wrap">
               <table class="fin-table">
                 <thead>
                   <tr>
-                    <th class="sortable-th" onclick="app.finance.toggleSort('loans', 'name')">Loan Name / Type <span id="sort-loans-name" class="sort-indicator">⇅</span></th>
+                    <th>Loan Name / Type</th>
                     <th>Lender / Bank</th>
-                    <th class="sortable-th" onclick="app.finance.toggleSort('loans', 'emi')">Monthly EMI Due <span id="sort-loans-emi" class="sort-indicator">⇅</span></th>
-                    <th class="sortable-th is-sorted" onclick="app.finance.toggleSort('loans', 'dueDate')">Next Due Date <span id="sort-loans-dueDate" class="sort-indicator">▲</span></th>
-                    <th class="sortable-th" onclick="app.finance.toggleSort('loans', 'remaining')">Total Remaining <span id="sort-loans-remaining" class="sort-indicator">⇅</span></th>
+                    <th>Monthly EMI Due</th>
+                    <th>Next Due Date</th>
+                    <th>Total Remaining</th>
                     <th>Status</th>
                     <th class="text-right">Actions</th>
                   </tr>
@@ -435,19 +406,16 @@
           <div class="fin-panel" id="fpanel-cards">
             <div class="panel-action-bar">
               <h3 class="panel-heading">Credit Card Statements & Outstanding Balances</h3>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <button class="btn btn-outline btn-sm" onclick="app.finance.toggleSort('cards', 'dueDate')">📅 Sort Due Date <span id="sortIndicator-cards">▲</span></button>
-                <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('card')">+ Add Credit Card</button>
-              </div>
+              <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('card')">+ Add Credit Card</button>
             </div>
             <div class="fin-table-wrap">
               <table class="fin-table">
                 <thead>
                   <tr>
-                    <th class="sortable-th" onclick="app.finance.toggleSort('cards', 'name')">Card Name <span id="sort-cards-name" class="sort-indicator">⇅</span></th>
-                    <th class="sortable-th" onclick="app.finance.toggleSort('cards', 'balance')">Statement Balance <span id="sort-cards-balance" class="sort-indicator">⇅</span></th>
+                    <th>Card Name</th>
+                    <th>Statement Balance</th>
                     <th>Minimum Due</th>
-                    <th class="sortable-th is-sorted" onclick="app.finance.toggleSort('cards', 'dueDate')">Payment Due Date <span id="sort-cards-dueDate" class="sort-indicator">▲</span></th>
+                    <th>Payment Due Date</th>
                     <th>Limit Utilization</th>
                     <th>Status</th>
                     <th class="text-right">Actions</th>
@@ -462,19 +430,16 @@
           <div class="fin-panel" id="fpanel-inflows">
             <div class="panel-action-bar">
               <h3 class="panel-heading">Expected Income & Inflows</h3>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <button class="btn btn-outline btn-sm" onclick="app.finance.toggleSort('inflows', 'expectedDate')">📅 Sort Date <span id="sortIndicator-inflows">▲</span></button>
-                <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('inflow')">+ Add Expected Inflow</button>
-              </div>
+              <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('inflow')">+ Add Expected Inflow</button>
             </div>
             <div class="fin-table-wrap">
               <table class="fin-table">
                 <thead>
                   <tr>
-                    <th class="sortable-th" onclick="app.finance.toggleSort('inflows', 'source')">Source / Description <span id="sort-inflows-source" class="sort-indicator">⇅</span></th>
+                    <th>Source / Description</th>
                     <th>Category</th>
-                    <th class="sortable-th" onclick="app.finance.toggleSort('inflows', 'amount')">Expected Amount <span id="sort-inflows-amount" class="sort-indicator">⇅</span></th>
-                    <th class="sortable-th is-sorted" onclick="app.finance.toggleSort('inflows', 'expectedDate')">Expected Date <span id="sort-inflows-expectedDate" class="sort-indicator">▲</span></th>
+                    <th>Expected Amount</th>
+                    <th>Expected Date</th>
                     <th>Probability</th>
                     <th>Status</th>
                     <th class="text-right">Actions</th>
@@ -489,19 +454,16 @@
           <div class="fin-panel" id="fpanel-expenses">
             <div class="panel-action-bar">
               <h3 class="panel-heading">Upcoming Expenses & Bills</h3>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <button class="btn btn-outline btn-sm" onclick="app.finance.toggleSort('expenses', 'dueDate')">📅 Sort Due Date <span id="sortIndicator-expenses">▲</span></button>
-                <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('expense')">+ Add Future Expense</button>
-              </div>
+              <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('expense')">+ Add Future Expense</button>
             </div>
             <div class="fin-table-wrap">
               <table class="fin-table">
                 <thead>
                   <tr>
-                    <th class="sortable-th" onclick="app.finance.toggleSort('expenses', 'title')">Expense Item <span id="sort-expenses-title" class="sort-indicator">⇅</span></th>
+                    <th>Expense Item</th>
                     <th>Category</th>
-                    <th class="sortable-th" onclick="app.finance.toggleSort('expenses', 'amount')">Amount Due <span id="sort-expenses-amount" class="sort-indicator">⇅</span></th>
-                    <th class="sortable-th is-sorted" onclick="app.finance.toggleSort('expenses', 'dueDate')">Due Date <span id="sort-expenses-dueDate" class="sort-indicator">▲</span></th>
+                    <th>Amount Due</th>
+                    <th>Due Date</th>
                     <th>Recurrence</th>
                     <th>Status</th>
                     <th class="text-right">Actions</th>
@@ -516,20 +478,17 @@
           <div class="fin-panel" id="fpanel-wishlist">
             <div class="panel-action-bar">
               <h3 class="panel-heading">Things to Buy / Wishlist & Capital Allocation</h3>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <button class="btn btn-outline btn-sm" onclick="app.finance.toggleSort('wishlist', 'targetDate')">📅 Sort Target Date <span id="sortIndicator-wishlist">▲</span></button>
-                <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('wishlist')">+ Add Item</button>
-              </div>
+              <button class="btn btn-dark btn-sm" onclick="app.finance.openModal('wishlist')">+ Add Item</button>
             </div>
             <div class="fin-table-wrap">
               <table class="fin-table">
                 <thead>
                   <tr>
-                    <th class="sortable-th" onclick="app.finance.toggleSort('wishlist', 'item')">Item Name <span id="sort-wishlist-item" class="sort-indicator">⇅</span></th>
-                    <th class="sortable-th" onclick="app.finance.toggleSort('wishlist', 'priority')">Priority <span id="sort-wishlist-priority" class="sort-indicator">⇅</span></th>
-                    <th class="sortable-th" onclick="app.finance.toggleSort('wishlist', 'cost')">Estimated Cost <span id="sort-wishlist-cost" class="sort-indicator">⇅</span></th>
+                    <th>Item Name</th>
+                    <th>Priority</th>
+                    <th>Estimated Cost</th>
                     <th>Classification</th>
-                    <th class="sortable-th is-sorted" onclick="app.finance.toggleSort('wishlist', 'targetDate')">Target Purchase Date <span id="sort-wishlist-targetDate" class="sort-indicator">▲</span></th>
+                    <th>Target Purchase Date</th>
                     <th>Affordability Status</th>
                     <th class="text-right">Actions</th>
                   </tr>
@@ -551,14 +510,9 @@
             <h1 class="page-title serif-title">Strategic Goals</h1>
             <p class="page-subtitle">Track multi-step milestones, strategic notes, and critical project attachments.</p>
           </div>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <button id="goalSortDueBtn" class="btn btn-outline btn-sm" onclick="app.goals.toggleDateSort()" title="Sort goals chronologically by Deadline">
-              📅 Sort by Deadline <span id="goalSortIcon">▲</span>
-            </button>
-            <button id="addNewGoalBtn" class="btn btn-dark">
-              <span class="btn-icon">+</span> Create New Goal
-            </button>
-          </div>
+          <button id="addNewGoalBtn" class="btn btn-dark">
+            <span class="btn-icon">+</span> Create New Goal
+          </button>
         </div>
 
         <!-- Goals Cards Container -->
@@ -646,9 +600,6 @@
             <button class="filter-pill" data-taskfilter="today">Today (<span id="countTaskToday">0</span>)</button>
             <button class="filter-pill" data-taskfilter="upcoming">Upcoming (<span id="countTaskUpcoming">0</span>)</button>
             <button class="filter-pill" data-taskfilter="completed">Completed (<span id="countTaskCompleted">0</span>)</button>
-            <button class="filter-pill sort-pill" id="taskSortDueBtn" onclick="app.checklist.toggleDateSort()" title="Toggle Due Date sort order">
-              📅 Due Date <span id="taskSortDueIcon">▲</span>
-            </button>
           </div>
           <div class="task-meta-stats" id="taskCompletionBarWrap">
             <span id="taskProgressLabel">0% Completed</span>
@@ -853,7 +804,7 @@
     <div id="attachmentModal" class="modal-backdrop">
       <div class="modal-card">
         <div class="modal-header">
-          <h3 class="modal-title" id="attachModalTitle">Attach Document or Link</h3>
+          <h3 class="modal-title">Attach Document or Link</h3>
           <button class="modal-close-btn" onclick="app.goals.closeAttachModal()">&times;</button>
         </div>
         <div class="modal-body">
@@ -942,11 +893,11 @@
       </div>
     </div>
 
-    <!-- Modal 5: Add / Edit Habit Modal -->
+    <!-- Modal 5: Add Habit Modal -->
     <div id="habitModal" class="modal-backdrop">
       <div class="modal-card">
         <div class="modal-header">
-          <h3 class="modal-title" id="habitModalTitle">Add Habit</h3>
+          <h3 class="modal-title">Add Habit</h3>
           <button class="modal-close-btn" onclick="app.habits.closeModal()">&times;</button>
         </div>
         <div class="modal-body">
@@ -977,50 +928,6 @@
         <div class="modal-footer">
           <button class="btn btn-outline" onclick="app.habits.closeModal()">Cancel</button>
           <button id="saveHabitBtn" class="btn btn-dark">Save Habit</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal 6: Add / Edit Checklist Task Modal -->
-    <div id="taskModal" class="modal-backdrop">
-      <div class="modal-card">
-        <div class="modal-header">
-          <h3 class="modal-title" id="taskModalTitle">Edit Task</h3>
-          <button class="modal-close-btn" onclick="app.checklist.closeModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="form-label">Task Title</label>
-            <input type="text" id="taskModalTitleInput" class="form-input" placeholder="e.g. Complete quarterly financial review">
-          </div>
-          <div class="form-row-2">
-            <div class="form-group">
-              <label class="form-label">Priority</label>
-              <select id="taskModalPriority" class="form-input">
-                <option value="high">🔴 P1 High</option>
-                <option value="medium">🟡 P2 Medium</option>
-                <option value="low">🟢 P3 Low</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Category Tag</label>
-              <select id="taskModalTag" class="form-input">
-                <option value="Work">💼 Work</option>
-                <option value="Personal">🏠 Personal</option>
-                <option value="Finance">💰 Finance</option>
-                <option value="Health">🧘 Health</option>
-                <option value="Learning">📚 Learning</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Due Date</label>
-            <input type="date" id="taskModalDueDate" class="form-input">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-outline" onclick="app.checklist.closeModal()">Cancel</button>
-          <button id="saveTaskModalBtn" class="btn btn-dark" onclick="app.checklist.saveTaskFromModal()">Update Task</button>
         </div>
       </div>
     </div>
