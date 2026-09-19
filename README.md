@@ -71,7 +71,7 @@ Open **`widgets/index.html`** in your browser to test all widgets, switch betwee
 | Widget | Purpose | Direct Parameter URL | Pretty File Shortcut | Recommended Notion Sizing |
 | :--- | :--- | :--- | :--- | :--- |
 | 🕒 **24h Circular Clock** | Isolated circular dial, live hand, center time | `index.html?widget=clock&theme=dark` | `widgets/clock.html` | Height: `450px` \| 1/2 Column or Full |
-| 📋 **Day Schedule Blocks** | Active timeline blocks with checkoff & quick add | `index.html?widget=schedule&theme=dark` | `widgets/schedule.html` | Height: `460px` \| 1/2 Column or Full |
+| 📋 **Day Schedule Blocks** | Active timeline blocks with checkoff & ⚡ Replicate Yesterday | `index.html?widget=schedule&theme=dark` | `widgets/schedule.html` | Height: `460px` \| 1/2 Column or Full |
 | 📊 **Executive KPI Strip** | Single-line command bar (Surplus, Time, Habits, Tasks) | `index.html?widget=kpis&theme=dark` | `widgets/kpis.html` | Height: `150px` \| Full Width Banner |
 | 🔥 **Habit Streak Tracker** | 7-day Mon-Sun check-in grid with fire streaks | `index.html?widget=habits&theme=dark` | `widgets/habits.html` | Height: `420px` \| Full or 2-Column |
 | 💰 **Finance Surplus Engine** | Net Surplus badge, bank balances, loans & runway | `index.html?widget=finance&theme=dark` | `widgets/finance.html` | Height: `500px` \| Full Width |
