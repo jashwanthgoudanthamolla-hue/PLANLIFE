@@ -2727,6 +2727,12 @@ body.is-widget .page-header,
 .is-iframe .page-header,
 html.is-iframe .page-header,
 body.is-iframe .page-header,
+.is-widget .page-header-flex,
+html.is-widget .page-header-flex,
+body.is-widget .page-header-flex,
+.is-iframe .page-header-flex,
+html.is-iframe .page-header-flex,
+body.is-iframe .page-header-flex,
 .is-widget .dayplanner-header-wrap,
 html.is-widget .dayplanner-header-wrap,
 body.is-widget .dayplanner-header-wrap,
@@ -2756,6 +2762,31 @@ body.is-widget .main-content {
   max-width: 100% !important;
   height: 100% !important;
   min-height: 0 !important;
+}
+
+/* Override for scrollable widgets: Goals, Checklist, Tasks, Finance, Focus —
+   allow the tab panel to scroll internally within the fixed iframe frame */
+.widget-goals .app-container,
+html.widget-goals .app-container,
+body.widget-goals .app-container,
+.widget-goals .main-content,
+html.widget-goals .main-content,
+body.widget-goals .main-content,
+.widget-finance .app-container,
+html.widget-finance .app-container,
+body.widget-finance .app-container,
+.widget-finance .main-content,
+html.widget-finance .main-content,
+body.widget-finance .main-content,
+.widget-focus .app-container,
+html.widget-focus .app-container,
+body.widget-focus .app-container,
+.widget-focus .main-content,
+html.widget-focus .main-content,
+body.widget-focus .main-content {
+  overflow-y: auto !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #333333 transparent !important;
 }
 
 .is-widget::-webkit-scrollbar,
@@ -3314,7 +3345,11 @@ body.widget-goals #tab-goals {
   display: flex !important;
   flex-direction: column !important;
   flex: 1 1 auto !important;
-  min-height: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  overflow: visible !important;
+  padding: 12px 16px !important;
+  box-sizing: border-box !important;
 }
 
 .widget-goals .goals-grid,
