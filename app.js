@@ -791,7 +791,8 @@ class DayPlannerController {
   }
 
   getBlocksForDate() {
-    return this.app.state.schedule[this.app.state.selectedDate] || [];
+    const list = this.app.state.schedule[this.app.state.selectedDate] || [];
+    return [...list].sort((a, b) => (a.start || '').localeCompare(b.start || ''));
   }
 
   // Convert time "HH:MM" to angle in degrees (00:00 = 0deg at top)
@@ -1040,7 +1041,7 @@ class DayPlannerController {
 
     // Populated state matching Image 1
     listContainer.innerHTML = blocks.map(b => `
-      <div class="schedule-block-card ${b.completed ? 'is-completed' : ''}" style="border-left-color: ${b.color};">
+      <div class="schedule-block-card ${b.completed ? 'is-completed' : ''}" style="border-left-color: ${b.color}; cursor: pointer;" ondblclick="app.planner.openModal('${b.id}')" title="Double-click to edit block">
         <div class="block-left">
           <input type="checkbox" class="block-checkbox" ${b.completed ? 'checked' : ''} onchange="app.planner.toggleBlockCompleted('${b.id}')">
           <div class="block-details">
@@ -1298,6 +1299,14 @@ class DayPlannerController {
 class FinanceController {
   constructor(app) {
     this.app = app;
+    this.sortConfig = {
+      inflows: { key: 'expectedDate', order: 'asc' },
+      expenses: { key: 'dueDate', order: 'asc' },
+      loans: { key: 'dueDate', order: 'asc' },
+      cards: { key: 'dueDate', order: 'asc' },
+      wishlist: { key: 'targetDate', order: 'asc' },
+      banks: { key: 'name', order: 'asc' }
+    };
   }
 
   init() {
@@ -1314,6 +1323,7 @@ class FinanceController {
         document.querySelectorAll('.fin-panel').forEach(p => p.classList.remove('active'));
         tab.classList.add('active');
         document.getElementById(`fpanel-${target}`)?.classList.add('active');
+        if (target) this.updateSortHeaders(target);
       });
     });
 
@@ -1321,6 +1331,80 @@ class FinanceController {
     document.getElementById('saveFinanceItemBtn')?.addEventListener('click', () => {
       this.saveItemFromModal();
     });
+  }
+
+  toggleSort(collection, key) {
+    if (!this.sortConfig[collection]) {
+      this.sortConfig[collection] = { key, order: 'asc' };
+    } else if (this.sortConfig[collection].key === key) {
+      this.sortConfig[collection].order = this.sortConfig[collection].order === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortConfig[collection].key = key;
+      this.sortConfig[collection].order = 'asc';
+    }
+    this.updateSortHeaders(collection);
+    this.render();
+    const orderLabel = this.sortConfig[collection].order === 'asc' ? 'earliest / ascending' : 'latest / descending';
+    this.app.showToast(`Sorted ${collection} by ${key} (${orderLabel})`, 'info');
+  }
+
+  getSortedList(collection) {
+    const list = [...(this.app.state.finance[collection] || [])];
+    const cfg = this.sortConfig[collection];
+    if (!cfg || !cfg.key) return list;
+
+    const key = cfg.key;
+    const order = cfg.order === 'desc' ? -1 : 1;
+
+    return list.sort((a, b) => {
+      let valA = a[key];
+      let valB = b[key];
+
+      if (valA === undefined || valA === null || valA === '') return 1;
+      if (valB === undefined || valB === null || valB === '') return -1;
+
+      // Numerical comparison
+      if (typeof valA === 'number' || typeof valB === 'number' || key === 'amount' || key === 'balance' || key === 'emi' || key === 'remaining' || key === 'cost' || key === 'limit' || key === 'minDue') {
+        const numA = Number(valA) || 0;
+        const numB = Number(valB) || 0;
+        return (numA - numB) * order;
+      }
+
+      // Priority comparison
+      if (key === 'priority') {
+        const weights = { High: 3, Medium: 2, Low: 1 };
+        const wA = weights[valA] || 0;
+        const wB = weights[valB] || 0;
+        return (wA - wB) * order;
+      }
+
+      // Date or text string comparison
+      return String(valA).localeCompare(String(valB)) * order;
+    });
+  }
+
+  updateSortHeaders(collection) {
+    const cfg = this.sortConfig[collection];
+    if (!cfg) return;
+
+    // Update action bar sort indicator
+    const actionIndicator = document.getElementById(`sortIndicator-${collection}`);
+    if (actionIndicator) {
+      actionIndicator.textContent = cfg.order === 'asc' ? '▲' : '▼';
+    }
+
+    // Update table headers
+    document.querySelectorAll(`#fpanel-${collection} th.sortable-th`).forEach(th => {
+      th.classList.remove('is-sorted');
+      const icon = th.querySelector('.sort-indicator');
+      if (icon) icon.textContent = '⇅';
+    });
+
+    const activeHeaderIcon = document.getElementById(`sort-${collection}-${cfg.key}`);
+    if (activeHeaderIcon) {
+      activeHeaderIcon.textContent = cfg.order === 'asc' ? '▲' : '▼';
+      activeHeaderIcon.closest('th')?.classList.add('is-sorted');
+    }
   }
 
   calculateNetSurplus() {
@@ -1386,19 +1470,24 @@ class FinanceController {
     this.renderInflows();
     this.renderExpenses();
     this.renderWishlist(summary.netSurplus);
+
+    // Update active sort visual header indicators
+    ['banks', 'loans', 'cards', 'inflows', 'expenses', 'wishlist'].forEach(c => this.updateSortHeaders(c));
   }
 
   renderBankAccounts() {
     const tbody = document.getElementById('bankAccountsTbody');
     if (!tbody) return;
-    tbody.innerHTML = this.app.state.finance.banks.map(b => `
-      <tr>
+    const sorted = this.getSortedList('banks');
+    tbody.innerHTML = sorted.map(b => `
+      <tr ondblclick="app.finance.openModal('bank', '${b.id}')" title="Double-click to edit this account">
         <td><strong>${b.name}</strong></td>
         <td><span class="kpi-badge badge-neutral">${b.type}</span></td>
         <td>${b.institution}</td>
         <td class="font-mono"><strong>₹${Number(b.balance).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
         <td>${b.updated}</td>
         <td class="text-right">
+          <button type="button" class="block-action-icon" title="Edit Account" onclick="event.stopPropagation(); app.finance.openModal('bank', '${b.id}')">✏️</button>
           <button type="button" class="block-action-icon text-danger" title="Delete Account" onclick="event.stopPropagation(); app.finance.deleteItem('banks', '${b.id}')">🗑️</button>
         </td>
       </tr>
@@ -1408,8 +1497,9 @@ class FinanceController {
   renderLoans() {
     const tbody = document.getElementById('loansDueTbody');
     if (!tbody) return;
-    tbody.innerHTML = this.app.state.finance.loans.map(l => `
-      <tr>
+    const sorted = this.getSortedList('loans');
+    tbody.innerHTML = sorted.map(l => `
+      <tr ondblclick="app.finance.openModal('loan', '${l.id}')" title="Double-click to edit this loan">
         <td><strong>${l.name}</strong></td>
         <td>${l.lender}</td>
         <td class="font-mono text-danger"><strong>₹${Number(l.emi).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong> / mo</td>
@@ -1417,6 +1507,7 @@ class FinanceController {
         <td class="font-mono">₹${Number(l.remaining).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
         <td><span class="kpi-badge badge-warning">${l.status}</span></td>
         <td class="text-right">
+          <button type="button" class="block-action-icon" title="Edit Loan" onclick="event.stopPropagation(); app.finance.openModal('loan', '${l.id}')">✏️</button>
           <button type="button" class="block-action-icon text-danger" title="Delete Loan" onclick="event.stopPropagation(); app.finance.deleteItem('loans', '${l.id}')">🗑️</button>
         </td>
       </tr>
@@ -1426,10 +1517,11 @@ class FinanceController {
   renderCards() {
     const tbody = document.getElementById('creditCardsTbody');
     if (!tbody) return;
-    tbody.innerHTML = this.app.state.finance.cards.map(c => {
+    const sorted = this.getSortedList('cards');
+    tbody.innerHTML = sorted.map(c => {
       const utilPct = Math.round((c.balance / c.limit) * 100);
       return `
-        <tr>
+        <tr ondblclick="app.finance.openModal('card', '${c.id}')" title="Double-click to edit this card">
           <td><strong>${c.name}</strong></td>
           <td class="font-mono text-danger"><strong>₹${Number(c.balance).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
           <td class="font-mono">₹${Number(c.minDue).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
@@ -1442,6 +1534,7 @@ class FinanceController {
           </td>
           <td><span class="kpi-badge badge-neutral">${c.status}</span></td>
           <td class="text-right">
+            <button type="button" class="block-action-icon" title="Edit Card" onclick="event.stopPropagation(); app.finance.openModal('card', '${c.id}')">✏️</button>
             <button type="button" class="block-action-icon text-danger" title="Delete Card" onclick="event.stopPropagation(); app.finance.deleteItem('cards', '${c.id}')">🗑️</button>
           </td>
         </tr>
@@ -1452,8 +1545,9 @@ class FinanceController {
   renderInflows() {
     const tbody = document.getElementById('expectedInflowsTbody');
     if (!tbody) return;
-    tbody.innerHTML = this.app.state.finance.inflows.map(inf => `
-      <tr>
+    const sorted = this.getSortedList('inflows');
+    tbody.innerHTML = sorted.map(inf => `
+      <tr ondblclick="app.finance.openModal('inflow', '${inf.id}')" title="Double-click to edit this inflow">
         <td><strong>${inf.source}</strong></td>
         <td><span class="kpi-badge badge-info">${inf.category}</span></td>
         <td class="font-mono text-success"><strong>+₹${Number(inf.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
@@ -1461,6 +1555,7 @@ class FinanceController {
         <td><span class="kpi-badge badge-success">${inf.probability}</span></td>
         <td>${inf.status}</td>
         <td class="text-right">
+          <button type="button" class="block-action-icon" title="Edit Inflow" onclick="event.stopPropagation(); app.finance.openModal('inflow', '${inf.id}')">✏️</button>
           <button type="button" class="block-action-icon text-danger" title="Delete Inflow" onclick="event.stopPropagation(); app.finance.deleteItem('inflows', '${inf.id}')">🗑️</button>
         </td>
       </tr>
@@ -1470,8 +1565,9 @@ class FinanceController {
   renderExpenses() {
     const tbody = document.getElementById('futureExpensesTbody');
     if (!tbody) return;
-    tbody.innerHTML = this.app.state.finance.expenses.map(exp => `
-      <tr>
+    const sorted = this.getSortedList('expenses');
+    tbody.innerHTML = sorted.map(exp => `
+      <tr ondblclick="app.finance.openModal('expense', '${exp.id}')" title="Double-click to edit this expense">
         <td><strong>${exp.title}</strong></td>
         <td><span class="kpi-badge badge-neutral">${exp.category}</span></td>
         <td class="font-mono text-danger"><strong>₹${Number(exp.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
@@ -1479,6 +1575,7 @@ class FinanceController {
         <td>${exp.recurrence}</td>
         <td><span class="kpi-badge badge-warning">${exp.status}</span></td>
         <td class="text-right">
+          <button type="button" class="block-action-icon" title="Edit Expense" onclick="event.stopPropagation(); app.finance.openModal('expense', '${exp.id}')">✏️</button>
           <button type="button" class="block-action-icon text-danger" title="Delete Expense" onclick="event.stopPropagation(); app.finance.deleteItem('expenses', '${exp.id}')">🗑️</button>
         </td>
       </tr>
@@ -1488,10 +1585,11 @@ class FinanceController {
   renderWishlist(currentNetSurplus) {
     const tbody = document.getElementById('thingsToBuyTbody');
     if (!tbody) return;
-    tbody.innerHTML = this.app.state.finance.wishlist.map(w => {
+    const sorted = this.getSortedList('wishlist');
+    tbody.innerHTML = sorted.map(w => {
       const isAffordable = currentNetSurplus >= w.cost;
       return `
-        <tr>
+        <tr ondblclick="app.finance.openModal('wishlist', '${w.id}')" title="Double-click to edit this item">
           <td><strong>${w.item}</strong></td>
           <td><span class="priority-tag ${w.priority === 'High' ? 'priority-high' : 'priority-medium'}">${w.priority}</span></td>
           <td class="font-mono"><strong>₹${Number(w.cost).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
@@ -1503,6 +1601,7 @@ class FinanceController {
             </span>
           </td>
           <td class="text-right">
+            <button type="button" class="block-action-icon" title="Edit Item" onclick="event.stopPropagation(); app.finance.openModal('wishlist', '${w.id}')">✏️</button>
             <button type="button" class="block-action-icon text-danger" title="Delete Item" onclick="event.stopPropagation(); app.finance.deleteItem('wishlist', '${w.id}')">🗑️</button>
           </td>
         </tr>
@@ -1510,150 +1609,168 @@ class FinanceController {
     }).join('');
   }
 
-  openModal(type) {
+  openModal(type, itemId = null) {
     this.app.activeFinanceType = type;
+    this.app.activeFinanceItemId = itemId;
     const modal = document.getElementById('financeModal');
     const body = document.getElementById('financeModalBody');
     const titleEl = document.getElementById('financeModalTitle');
+    const saveBtn = document.getElementById('saveFinanceItemBtn');
+
+    const colMap = {
+      bank: 'banks',
+      loan: 'loans',
+      card: 'cards',
+      inflow: 'inflows',
+      expense: 'expenses',
+      wishlist: 'wishlist'
+    };
+
+    const collection = colMap[type];
+    const existing = itemId ? (this.app.state.finance[collection] || []).find(x => x.id === itemId) : null;
+
+    if (saveBtn) {
+      saveBtn.textContent = existing ? 'Update Record' : 'Save Record';
+    }
 
     if (type === 'bank') {
-      titleEl.textContent = 'Add Bank Account';
+      titleEl.textContent = existing ? 'Edit Bank Account' : 'Add Bank Account';
       body.innerHTML = `
         <div class="form-group">
           <label class="form-label">Account Name</label>
-          <input type="text" id="fin_bank_name" class="form-input" placeholder="e.g. Chase Main Checking">
+          <input type="text" id="fin_bank_name" class="form-input" placeholder="e.g. Chase Main Checking" value="${existing ? existing.name : ''}">
         </div>
         <div class="form-group">
           <label class="form-label">Type / Purpose</label>
-          <input type="text" id="fin_bank_type" class="form-input" placeholder="e.g. Operating Cash, Emergency Fund">
+          <input type="text" id="fin_bank_type" class="form-input" placeholder="e.g. Operating Cash, Emergency Fund" value="${existing ? existing.type : ''}">
         </div>
         <div class="form-group">
           <label class="form-label">Bank Institution</label>
-          <input type="text" id="fin_bank_inst" class="form-input" placeholder="e.g. HDFC Bank, SBI">
+          <input type="text" id="fin_bank_inst" class="form-input" placeholder="e.g. HDFC Bank, SBI" value="${existing ? existing.institution : ''}">
         </div>
         <div class="form-group">
           <label class="form-label">Available Balance (₹)</label>
-          <input type="number" id="fin_bank_balance" class="form-input" step="1" placeholder="50000">
+          <input type="number" id="fin_bank_balance" class="form-input" step="1" placeholder="50000" value="${existing ? existing.balance : ''}">
         </div>
       `;
     } else if (type === 'loan') {
-      titleEl.textContent = 'Add Loan / EMI';
+      titleEl.textContent = existing ? 'Edit Loan / EMI' : 'Add Loan / EMI';
       body.innerHTML = `
         <div class="form-group">
           <label class="form-label">Loan Name</label>
-          <input type="text" id="fin_loan_name" class="form-input" placeholder="e.g. Car Loan, Education Loan">
+          <input type="text" id="fin_loan_name" class="form-input" placeholder="e.g. Car Loan, Education Loan" value="${existing ? existing.name : ''}">
         </div>
         <div class="form-group">
           <label class="form-label">Lender</label>
-          <input type="text" id="fin_loan_lender" class="form-input" placeholder="e.g. HDFC Bank, SBI">
+          <input type="text" id="fin_loan_lender" class="form-input" placeholder="e.g. HDFC Bank, SBI" value="${existing ? existing.lender : ''}">
         </div>
         <div class="form-row-2">
           <div class="form-group">
             <label class="form-label">Monthly EMI (₹)</label>
-            <input type="number" id="fin_loan_emi" class="form-input" step="1" placeholder="15000">
+            <input type="number" id="fin_loan_emi" class="form-input" step="1" placeholder="15000" value="${existing ? existing.emi : ''}">
           </div>
           <div class="form-group">
             <label class="form-label">Next Due Date</label>
-            <input type="date" id="fin_loan_date" class="form-input">
+            <input type="date" id="fin_loan_date" class="form-input" value="${existing ? existing.dueDate : ''}">
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">Total Principal Remaining (₹)</label>
-          <input type="number" id="fin_loan_rem" class="form-input" step="1" placeholder="350000">
+          <input type="number" id="fin_loan_rem" class="form-input" step="1" placeholder="350000" value="${existing ? existing.remaining : ''}">
         </div>
       `;
     } else if (type === 'card') {
-      titleEl.textContent = 'Add Credit Card';
+      titleEl.textContent = existing ? 'Edit Credit Card' : 'Add Credit Card';
       body.innerHTML = `
         <div class="form-group">
           <label class="form-label">Card Name</label>
-          <input type="text" id="fin_card_name" class="form-input" placeholder="e.g. HDFC Regalia, ICICI Sapphiro">
+          <input type="text" id="fin_card_name" class="form-input" placeholder="e.g. HDFC Regalia, ICICI Sapphiro" value="${existing ? existing.name : ''}">
         </div>
         <div class="form-row-2">
           <div class="form-group">
             <label class="form-label">Statement Balance (₹)</label>
-            <input type="number" id="fin_card_bal" class="form-input" step="1" placeholder="15000">
+            <input type="number" id="fin_card_bal" class="form-input" step="1" placeholder="15000" value="${existing ? existing.balance : ''}">
           </div>
           <div class="form-group">
             <label class="form-label">Minimum Due (₹)</label>
-            <input type="number" id="fin_card_min" class="form-input" step="1" placeholder="1500">
+            <input type="number" id="fin_card_min" class="form-input" step="1" placeholder="1500" value="${existing ? existing.minDue : ''}">
           </div>
         </div>
         <div class="form-row-2">
           <div class="form-group">
             <label class="form-label">Payment Due Date</label>
-            <input type="date" id="fin_card_date" class="form-input">
+            <input type="date" id="fin_card_date" class="form-input" value="${existing ? existing.dueDate : ''}">
           </div>
           <div class="form-group">
             <label class="form-label">Credit Limit (₹)</label>
-            <input type="number" id="fin_card_limit" class="form-input" step="1000" placeholder="200000">
+            <input type="number" id="fin_card_limit" class="form-input" step="1000" placeholder="200000" value="${existing ? existing.limit : ''}">
           </div>
         </div>
       `;
     } else if (type === 'inflow') {
-      titleEl.textContent = 'Add Expected Inflow';
+      titleEl.textContent = existing ? 'Edit Expected Inflow' : 'Add Expected Inflow';
       body.innerHTML = `
         <div class="form-group">
           <label class="form-label">Source / Description</label>
-          <input type="text" id="fin_inflow_desc" class="form-input" placeholder="e.g. Salary, Consulting Retainer">
+          <input type="text" id="fin_inflow_desc" class="form-input" placeholder="e.g. Salary, Consulting Retainer" value="${existing ? existing.source : ''}">
         </div>
         <div class="form-row-2">
           <div class="form-group">
             <label class="form-label">Category</label>
-            <input type="text" id="fin_inflow_cat" class="form-input" placeholder="e.g. Salary, Freelance">
+            <input type="text" id="fin_inflow_cat" class="form-input" placeholder="e.g. Salary, Freelance" value="${existing ? existing.category : ''}">
           </div>
           <div class="form-group">
-            <label class="form-label">Amount (₹)</label>
-            <input type="number" id="fin_inflow_amt" class="form-input" step="1" placeholder="75000">
+            <label class="form-label">Expected Amount (₹)</label>
+            <input type="number" id="fin_inflow_amt" class="form-input" step="1" placeholder="75000" value="${existing ? existing.amount : ''}">
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">Expected Date</label>
-          <input type="date" id="fin_inflow_date" class="form-input">
+          <input type="date" id="fin_inflow_date" class="form-input" value="${existing ? existing.expectedDate : ''}">
         </div>
       `;
     } else if (type === 'expense') {
-      titleEl.textContent = 'Add Future Expense';
+      titleEl.textContent = existing ? 'Edit Future Expense' : 'Add Future Expense';
       body.innerHTML = `
         <div class="form-group">
           <label class="form-label">Expense Title</label>
-          <input type="text" id="fin_exp_title" class="form-input" placeholder="e.g. Rent, Quarterly Tax">
+          <input type="text" id="fin_exp_title" class="form-input" placeholder="e.g. Rent, Quarterly Tax" value="${existing ? existing.title : ''}">
         </div>
         <div class="form-row-2">
           <div class="form-group">
             <label class="form-label">Amount (₹)</label>
-            <input type="number" id="fin_exp_amt" class="form-input" step="1" placeholder="25000">
+            <input type="number" id="fin_exp_amt" class="form-input" step="1" placeholder="25000" value="${existing ? existing.amount : ''}">
           </div>
           <div class="form-group">
             <label class="form-label">Due Date</label>
-            <input type="date" id="fin_exp_date" class="form-input">
+            <input type="date" id="fin_exp_date" class="form-input" value="${existing ? existing.dueDate : ''}">
           </div>
         </div>
       `;
     } else if (type === 'wishlist') {
-      titleEl.textContent = 'Add Things to Buy';
+      titleEl.textContent = existing ? 'Edit Things to Buy' : 'Add Things to Buy';
       body.innerHTML = `
         <div class="form-group">
           <label class="form-label">Item Name</label>
-          <input type="text" id="fin_wish_name" class="form-input" placeholder="e.g. Ergonomic Chair, MacBook Pro">
+          <input type="text" id="fin_wish_name" class="form-input" placeholder="e.g. Ergonomic Chair, MacBook Pro" value="${existing ? existing.item : ''}">
         </div>
         <div class="form-row-2">
           <div class="form-group">
             <label class="form-label">Estimated Cost (₹)</label>
-            <input type="number" id="fin_wish_cost" class="form-input" step="1" placeholder="45000">
+            <input type="number" id="fin_wish_cost" class="form-input" step="1" placeholder="45000" value="${existing ? existing.cost : ''}">
           </div>
           <div class="form-group">
             <label class="form-label">Priority</label>
             <select id="fin_wish_prio" class="form-input">
-              <option value="High">High</option>
-              <option value="Medium" selected>Medium</option>
-              <option value="Low">Low</option>
+              <option value="High" ${existing && existing.priority === 'High' ? 'selected' : ''}>High</option>
+              <option value="Medium" ${!existing || existing.priority === 'Medium' ? 'selected' : ''}>Medium</option>
+              <option value="Low" ${existing && existing.priority === 'Low' ? 'selected' : ''}>Low</option>
             </select>
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">Target Date</label>
-          <input type="date" id="fin_wish_date" class="form-input">
+          <input type="date" id="fin_wish_date" class="form-input" value="${existing ? existing.targetDate : ''}">
         </div>
       `;
     }
@@ -1664,17 +1781,32 @@ class FinanceController {
   closeModal() {
     document.getElementById('financeModal')?.classList.remove('active');
     this.app.activeFinanceType = null;
+    this.app.activeFinanceItemId = null;
   }
 
   saveItemFromModal() {
     const type = this.app.activeFinanceType;
+    const itemId = this.app.activeFinanceItemId;
+
     if (type === 'bank') {
       const name = document.getElementById('fin_bank_name').value.trim();
       const bType = document.getElementById('fin_bank_type').value.trim();
       const inst = document.getElementById('fin_bank_inst').value.trim();
       const balance = parseFloat(document.getElementById('fin_bank_balance').value) || 0;
       if (!name) { this.app.showToast('Account name is required', 'warning'); return; }
-      this.app.state.finance.banks.push({ id: 'bk-' + Date.now(), name, type: bType, institution: inst, balance, updated: 'Just now' });
+
+      if (itemId) {
+        const item = this.app.state.finance.banks.find(x => x.id === itemId);
+        if (item) {
+          item.name = name;
+          item.type = bType;
+          item.institution = inst;
+          item.balance = balance;
+          item.updated = 'Just now';
+        }
+      } else {
+        this.app.state.finance.banks.push({ id: 'bk-' + Date.now(), name, type: bType, institution: inst, balance, updated: 'Just now' });
+      }
     } else if (type === 'loan') {
       const name = document.getElementById('fin_loan_name').value.trim();
       const lender = document.getElementById('fin_loan_lender').value.trim();
@@ -1682,7 +1814,19 @@ class FinanceController {
       const dueDate = document.getElementById('fin_loan_date').value || '2026-10-01';
       const remaining = parseFloat(document.getElementById('fin_loan_rem').value) || 0;
       if (!name) { this.app.showToast('Loan name is required', 'warning'); return; }
-      this.app.state.finance.loans.push({ id: 'ln-' + Date.now(), name, lender, emi, dueDate, remaining, status: 'Active' });
+
+      if (itemId) {
+        const item = this.app.state.finance.loans.find(x => x.id === itemId);
+        if (item) {
+          item.name = name;
+          item.lender = lender;
+          item.emi = emi;
+          item.dueDate = dueDate;
+          item.remaining = remaining;
+        }
+      } else {
+        this.app.state.finance.loans.push({ id: 'ln-' + Date.now(), name, lender, emi, dueDate, remaining, status: 'Active' });
+      }
     } else if (type === 'card') {
       const name = document.getElementById('fin_card_name').value.trim();
       const balance = parseFloat(document.getElementById('fin_card_bal').value) || 0;
@@ -1690,33 +1834,78 @@ class FinanceController {
       const dueDate = document.getElementById('fin_card_date').value || '2026-10-01';
       const limit = parseFloat(document.getElementById('fin_card_limit').value) || 5000;
       if (!name) { this.app.showToast('Card name is required', 'warning'); return; }
-      this.app.state.finance.cards.push({ id: 'cc-' + Date.now(), name, balance, minDue, dueDate, limit, status: 'Pending' });
+
+      if (itemId) {
+        const item = this.app.state.finance.cards.find(x => x.id === itemId);
+        if (item) {
+          item.name = name;
+          item.balance = balance;
+          item.minDue = minDue;
+          item.dueDate = dueDate;
+          item.limit = limit;
+        }
+      } else {
+        this.app.state.finance.cards.push({ id: 'cc-' + Date.now(), name, balance, minDue, dueDate, limit, status: 'Pending' });
+      }
     } else if (type === 'inflow') {
       const source = document.getElementById('fin_inflow_desc').value.trim();
       const category = document.getElementById('fin_inflow_cat').value.trim();
       const amount = parseFloat(document.getElementById('fin_inflow_amt').value) || 0;
       const expectedDate = document.getElementById('fin_inflow_date').value || '2026-10-01';
       if (!source) { this.app.showToast('Inflow source is required', 'warning'); return; }
-      this.app.state.finance.inflows.push({ id: 'inf-' + Date.now(), source, category, amount, expectedDate, probability: '100%', status: 'Projected' });
+
+      if (itemId) {
+        const item = this.app.state.finance.inflows.find(x => x.id === itemId);
+        if (item) {
+          item.source = source;
+          item.category = category;
+          item.amount = amount;
+          item.expectedDate = expectedDate;
+        }
+      } else {
+        this.app.state.finance.inflows.push({ id: 'inf-' + Date.now(), source, category, amount, expectedDate, probability: '100%', status: 'Projected' });
+      }
     } else if (type === 'expense') {
       const title = document.getElementById('fin_exp_title').value.trim();
       const amount = parseFloat(document.getElementById('fin_exp_amt').value) || 0;
       const dueDate = document.getElementById('fin_exp_date').value || '2026-10-01';
       if (!title) { this.app.showToast('Expense title is required', 'warning'); return; }
-      this.app.state.finance.expenses.push({ id: 'exp-' + Date.now(), title, category: 'General', amount, dueDate, recurrence: 'Monthly', status: 'Upcoming' });
+
+      if (itemId) {
+        const item = this.app.state.finance.expenses.find(x => x.id === itemId);
+        if (item) {
+          item.title = title;
+          item.amount = amount;
+          item.dueDate = dueDate;
+        }
+      } else {
+        this.app.state.finance.expenses.push({ id: 'exp-' + Date.now(), title, category: 'General', amount, dueDate, recurrence: 'Monthly', status: 'Upcoming' });
+      }
     } else if (type === 'wishlist') {
       const item = document.getElementById('fin_wish_name').value.trim();
       const cost = parseFloat(document.getElementById('fin_wish_cost').value) || 0;
       const priority = document.getElementById('fin_wish_prio').value;
       const targetDate = document.getElementById('fin_wish_date').value || '2026-11-01';
       if (!item) { this.app.showToast('Wishlist item name is required', 'warning'); return; }
-      this.app.state.finance.wishlist.push({ id: 'wb-' + Date.now(), item, priority, cost, category: 'Wishlist', targetDate });
+
+      if (itemId) {
+        const wItem = this.app.state.finance.wishlist.find(x => x.id === itemId);
+        if (wItem) {
+          wItem.item = item;
+          wItem.cost = cost;
+          wItem.priority = priority;
+          wItem.targetDate = targetDate;
+        }
+      } else {
+        this.app.state.finance.wishlist.push({ id: 'wb-' + Date.now(), item, priority, cost, category: 'Wishlist', targetDate });
+      }
     }
 
+    const wasEditing = !!this.app.activeFinanceItemId;
     this.closeModal();
     this.app.saveState();
     this.render();
-    this.app.showToast('Financial record saved', 'success');
+    this.app.showToast(wasEditing ? 'Financial record updated' : 'Financial record saved', 'success');
   }
 
   deleteItem(collectionName, id) {
@@ -1739,6 +1928,8 @@ class GoalsController {
     this.app = app;
     this.currentAttachTab = 'upload';
     this.selectedModalFile = null;
+    this.sortOrder = 'asc';
+    this.activeAttIndex = null;
   }
 
   init() {
@@ -1753,6 +1944,10 @@ class GoalsController {
 
     document.getElementById('saveGoalBtn')?.addEventListener('click', () => {
       this.saveGoalFromModal();
+    });
+
+    document.getElementById('goalSortDueBtn')?.addEventListener('click', () => {
+      this.toggleDateSort();
     });
 
     // Drag-and-drop support for modal file drop area
@@ -1781,6 +1976,20 @@ class GoalsController {
     }
   }
 
+  toggleDateSort() {
+    this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    const icon = document.getElementById('goalSortIcon');
+    if (icon) {
+      icon.textContent = this.sortOrder === 'asc' ? '▲' : '▼';
+    }
+    const btn = document.getElementById('goalSortDueBtn');
+    if (btn) {
+      btn.classList.toggle('active', true);
+    }
+    this.render();
+    this.app.showToast(`Goals sorted by deadline (${this.sortOrder === 'asc' ? 'earliest first' : 'latest first'})`, 'info');
+  }
+
   render() {
     const container = document.getElementById('goalsCardsContainer');
     if (!container) return;
@@ -1788,12 +1997,21 @@ class GoalsController {
     // Circumference for r=25 is 2 * PI * 25 = 157.08
     const circumference = 157.08;
 
-    container.innerHTML = this.app.state.goals.map(g => {
+    let sortedGoals = [...(this.app.state.goals || [])];
+    if (this.sortOrder) {
+      sortedGoals.sort((a, b) => {
+        const d1 = a.deadline || '9999-12-31';
+        const d2 = b.deadline || '9999-12-31';
+        return this.sortOrder === 'asc' ? d1.localeCompare(d2) : d2.localeCompare(d1);
+      });
+    }
+
+    container.innerHTML = sortedGoals.map(g => {
       const pct = Math.min(100, Math.round((g.currentSteps / Math.max(1, g.totalSteps)) * 100));
       const strokeOffset = circumference - (pct / 100) * circumference;
 
       return `
-        <div class="goal-card-wrapper" id="goal-card-${g.id}">
+        <div class="goal-card-wrapper" id="goal-card-${g.id}" ondblclick="app.goals.openModal('${g.id}')" title="Double-click anywhere to edit goal" style="cursor: pointer;">
           <!-- Top Row: Circle Ring + Serif Title + Actions -->
           <div class="goal-card-top">
             <div class="goal-top-left">
@@ -1806,16 +2024,19 @@ class GoalsController {
                 </svg>
                 <span class="goal-pct-label">${pct}%</span>
               </div>
-              <h2 class="goal-card-title">${g.title}</h2>
+              <div>
+                <h2 class="goal-card-title">${g.title}</h2>
+                ${g.deadline ? `<span class="goal-deadline-badge" style="display:inline-flex; align-items:center; gap:4px; font-size:11px; color:var(--text-muted); margin-top:2px;">📅 Due: ${g.deadline}</span>` : ''}
+              </div>
             </div>
-            <div class="goal-actions-group">
+            <div class="goal-actions-group" onclick="event.stopPropagation()">
               <button type="button" class="goal-icon-btn" title="Edit Goal" onclick="event.stopPropagation(); app.goals.openModal('${g.id}')">✏️</button>
               <button type="button" class="goal-icon-btn text-danger" title="Delete Goal" onclick="event.stopPropagation(); app.goals.deleteGoal('${g.id}')">🗑️</button>
             </div>
           </div>
 
           <!-- PROGRESS Section -->
-          <div class="goal-progress-section">
+          <div class="goal-progress-section" onclick="event.stopPropagation()">
             <div class="goal-progress-labels">
               <span class="goal-prog-lbl">PROGRESS</span>
               <span class="goal-prog-steps">${g.currentSteps}/${g.totalSteps} steps</span>
@@ -1826,10 +2047,10 @@ class GoalsController {
           </div>
 
           <!-- Update Progress Strip -->
-          <div class="goal-update-strip">
+          <div class="goal-update-strip" onclick="event.stopPropagation()">
             <div class="goal-update-left">
               <span>Update Progress:</span>
-              <input type="number" class="goal-step-input" id="step-input-${g.id}" value="${g.currentSteps}" min="0" max="${g.totalSteps}">
+              <input type="number" class="goal-step-input" id="step-input-${g.id}" value="${g.currentSteps}" min="0" max="${g.totalSteps}" onclick="event.stopPropagation()">
               <span>/${g.totalSteps} steps</span>
             </div>
             <div class="goal-update-right">
@@ -1839,13 +2060,13 @@ class GoalsController {
           </div>
 
           <!-- NOTES & STRATEGY Card (Matching Image 3) -->
-          <div class="goal-inner-card">
+          <div class="goal-inner-card" onclick="event.stopPropagation()">
             <div class="goal-inner-header">
               <div class="goal-inner-title-wrap">
                 <span>📝</span>
                 <span>NOTES & STRATEGY</span>
               </div>
-              <button class="btn btn-pill btn-sm" onclick="app.goals.openModal('${g.id}')">Edit</button>
+              <button class="btn btn-pill btn-sm" onclick="event.stopPropagation(); app.goals.openModal('${g.id}')">Edit</button>
             </div>
             <ul class="goal-bullet-list">
               ${g.notes.length > 0 ? g.notes.map(n => `<li>${n}</li>`).join('') : '<li style="color:#94a3b8; font-style:italic;">No strategy notes added.</li>'}
@@ -1853,7 +2074,7 @@ class GoalsController {
           </div>
 
           <!-- DOCS & ATTACHMENTS Card (Matching Image 3) -->
-          <div class="goal-inner-card">
+          <div class="goal-inner-card" onclick="event.stopPropagation()">
             <div class="goal-inner-header">
               <div class="goal-inner-title-wrap">
                 <span>📎</span>
@@ -1875,13 +2096,14 @@ class GoalsController {
                 const badgeClass = `doc-badge-${(att.type || 'link').toLowerCase()}`;
                 const isData = att.url && att.url.startsWith('data:');
                 return `
-                  <div class="goal-doc-item" onclick="app.goals.openAttachment('${g.id}', ${attIdx})" title="Click to open ${att.title}">
+                  <div class="goal-doc-item" onclick="app.goals.openAttachment('${g.id}', ${attIdx})" ondblclick="event.stopPropagation(); app.goals.editAttachment('${g.id}', ${attIdx})" title="Click to open ${att.title} • Double-click to edit" style="cursor: pointer;">
                     <div class="doc-info">
                       <span class="doc-type-badge ${badgeClass}">${att.type || 'Doc'}</span>
                       <span class="doc-title-text" title="${att.title}">${att.title}</span>
                       ${att.size ? `<span class="doc-size-tag">${app.goals.formatBytes(att.size)}</span>` : ''}
                     </div>
                     <div class="doc-actions" onclick="event.stopPropagation()">
+                      <button type="button" class="doc-action-btn" title="Edit Attachment" onclick="event.stopPropagation(); app.goals.editAttachment('${g.id}', ${attIdx})">✏️</button>
                       <button type="button" class="doc-action-btn" title="Open Document" onclick="app.goals.openAttachment('${g.id}', ${attIdx})">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                       </button>
@@ -1899,7 +2121,7 @@ class GoalsController {
           </div>
 
           <!-- Add Milestone Button (Matching Image 3) -->
-          <div>
+          <div onclick="event.stopPropagation()">
             <button class="btn btn-pill btn-sm" onclick="app.goals.addMilestone('${g.id}')">+ Add milestone</button>
           </div>
         </div>
@@ -2229,7 +2451,10 @@ class GoalsController {
 
   openAttachModal(goalId) {
     this.app.activeGoalId = goalId;
+    this.activeAttIndex = null;
     this.clearModalFile();
+    const titleModal = document.getElementById('attachModalTitle');
+    if (titleModal) titleModal.textContent = 'Attach Document or Link';
     const urlInput = document.getElementById('attachModalUrl');
     const linkTitle = document.getElementById('attachModalLinkTitle');
     if (urlInput) urlInput.value = '';
@@ -2237,12 +2462,59 @@ class GoalsController {
       linkTitle.value = '';
       delete linkTitle.dataset.autofilled;
     }
+    const saveBtn = document.getElementById('saveAttachmentBtn');
+    if (saveBtn) saveBtn.textContent = 'Attach File';
     this.switchAttachTab('upload');
+    document.getElementById('attachmentModal')?.classList.add('active');
+  }
+
+  editAttachment(goalId, attIndex) {
+    this.app.activeGoalId = goalId;
+    this.activeAttIndex = attIndex;
+    const goal = this.app.state.goals.find(g => g.id === goalId);
+    if (!goal || !goal.attachments || !goal.attachments[attIndex]) return;
+    const att = goal.attachments[attIndex];
+
+    const titleModal = document.getElementById('attachModalTitle');
+    if (titleModal) titleModal.textContent = 'Edit Attachment';
+
+    const isData = att.url && att.url.startsWith('data:');
+    if (isData) {
+      this.switchAttachTab('upload');
+      const titleInput = document.getElementById('attachModalFileTitle');
+      if (titleInput) titleInput.value = att.title || att.fileName || '';
+      const dropArea = document.getElementById('fileDropArea');
+      const previewArea = document.getElementById('modalFilePreview');
+      const filenameEl = document.getElementById('previewFilename');
+      const filesizeEl = document.getElementById('previewFilesize');
+      const badgeEl = document.getElementById('previewBadge');
+      if (dropArea) dropArea.style.display = 'none';
+      if (previewArea) previewArea.style.display = 'flex';
+      if (filenameEl) filenameEl.textContent = att.fileName || att.title;
+      if (filesizeEl) filesizeEl.textContent = this.formatBytes(att.size);
+      if (badgeEl) {
+        badgeEl.textContent = att.type || 'FILE';
+        badgeEl.className = `preview-type-badge doc-badge-${(att.type || 'file').toLowerCase()}`;
+      }
+    } else {
+      this.switchAttachTab('link');
+      const urlInput = document.getElementById('attachModalUrl');
+      const linkTitle = document.getElementById('attachModalLinkTitle');
+      const typeSelect = document.getElementById('attachModalLinkType');
+      if (urlInput) urlInput.value = att.url || '';
+      if (linkTitle) linkTitle.value = att.title || '';
+      if (typeSelect && att.type) typeSelect.value = att.type;
+    }
+
+    const saveBtn = document.getElementById('saveAttachmentBtn');
+    if (saveBtn) saveBtn.textContent = 'Update Attachment';
+
     document.getElementById('attachmentModal')?.classList.add('active');
   }
 
   closeAttachModal() {
     document.getElementById('attachmentModal')?.classList.remove('active');
+    this.activeAttIndex = null;
     this.clearModalFile();
   }
 
@@ -2254,13 +2526,32 @@ class GoalsController {
     }
     if (!goal.attachments) goal.attachments = [];
 
+    const isEditing = (this.activeAttIndex !== null && this.activeAttIndex !== undefined && goal.attachments[this.activeAttIndex]);
+
     if (this.currentAttachTab === 'upload') {
+      const titleInput = document.getElementById('attachModalFileTitle');
+      const title = (titleInput?.value.trim()) || (this.selectedModalFile ? this.selectedModalFile.name : (isEditing ? goal.attachments[this.activeAttIndex].title : 'Attachment'));
+
+      if (isEditing) {
+        const att = goal.attachments[this.activeAttIndex];
+        att.title = title;
+        if (this.selectedModalFile) {
+          att.fileName = this.selectedModalFile.name;
+          att.url = this.selectedModalFile.dataUrl;
+          att.type = this.selectedModalFile.type;
+          att.size = this.selectedModalFile.size;
+        }
+        this.closeAttachModal();
+        this.app.saveState();
+        this.render();
+        this.app.showToast(`Updated "${title}"`, 'success');
+        return;
+      }
+
       if (!this.selectedModalFile) {
         this.app.showToast('Please choose a file or switch to Paste Link', 'warning');
         return;
       }
-      const titleInput = document.getElementById('attachModalFileTitle');
-      const title = (titleInput?.value.trim()) || this.selectedModalFile.name;
 
       goal.attachments.push({
         id: 'att-' + Date.now(),
@@ -2279,16 +2570,29 @@ class GoalsController {
     } else {
       const urlInput = document.getElementById('attachModalUrl');
       let url = (urlInput?.value || '').trim();
-      if (!url) {
+      if (!url && !isEditing) {
         this.app.showToast('Please enter a URL or link', 'warning');
         return;
       }
-      if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('data:') && !url.startsWith('blob:')) {
+      if (url && !url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('data:') && !url.startsWith('blob:')) {
         url = 'https://' + url;
       }
 
       const titleInput = document.getElementById('attachModalLinkTitle');
       const typeSelect = document.getElementById('attachModalLinkType');
+
+      if (isEditing) {
+        const att = goal.attachments[this.activeAttIndex];
+        if (url) att.url = url;
+        att.title = (titleInput?.value.trim()) || att.title;
+        if (typeSelect?.value) att.type = typeSelect.value;
+        this.closeAttachModal();
+        this.app.saveState();
+        this.render();
+        this.app.showToast(`Updated "${att.title}"`, 'success');
+        return;
+      }
+
       const title = (titleInput?.value.trim()) || this.autoTitleFromUrl(url);
       const type = typeSelect?.value || this.detectUrlType(url);
 
@@ -2443,7 +2747,7 @@ class HabitsController {
 
   bindEvents() {
     document.getElementById('addNewHabitBtn')?.addEventListener('click', () => {
-      document.getElementById('habitModal')?.classList.add('active');
+      this.openModal();
     });
 
     document.getElementById('saveHabitBtn')?.addEventListener('click', () => {
@@ -2451,8 +2755,37 @@ class HabitsController {
     });
   }
 
+  openModal(habitId = null) {
+    this.app.activeHabitId = habitId;
+    const titleEl = document.getElementById('habitModalTitle');
+    const nameInput = document.getElementById('habitModalName');
+    const categorySelect = document.getElementById('habitModalCategory');
+    const freqSelect = document.getElementById('habitModalFrequency');
+    const saveBtn = document.getElementById('saveHabitBtn');
+
+    if (habitId) {
+      if (titleEl) titleEl.textContent = 'Edit Habit';
+      if (saveBtn) saveBtn.textContent = 'Update Habit';
+      const habit = this.app.state.habits.find(h => h.id === habitId);
+      if (habit) {
+        if (nameInput) nameInput.value = habit.name;
+        if (categorySelect) categorySelect.value = habit.category;
+        if (freqSelect) freqSelect.value = habit.frequency;
+      }
+    } else {
+      if (titleEl) titleEl.textContent = 'Add Habit';
+      if (saveBtn) saveBtn.textContent = 'Create Habit';
+      if (nameInput) nameInput.value = '';
+      if (categorySelect) categorySelect.value = 'Mind';
+      if (freqSelect) freqSelect.value = 'daily';
+    }
+
+    document.getElementById('habitModal')?.classList.add('active');
+  }
+
   closeModal() {
     document.getElementById('habitModal')?.classList.remove('active');
+    this.app.activeHabitId = null;
   }
 
   saveHabitFromModal() {
@@ -2465,20 +2798,30 @@ class HabitsController {
       return;
     }
 
-    this.app.state.habits.push({
-      id: 'h-' + Date.now(),
-      name,
-      category,
-      frequency,
-      currentStreak: 1,
-      bestStreak: 1,
-      history: { 'Mon': true, 'Tue': false, 'Wed': false, 'Thu': false, 'Fri': false, 'Sat': false, 'Sun': false }
-    });
+    if (this.app.activeHabitId) {
+      const habit = this.app.state.habits.find(h => h.id === this.app.activeHabitId);
+      if (habit) {
+        habit.name = name;
+        habit.category = category;
+        habit.frequency = frequency;
+        this.app.showToast('Habit updated', 'success');
+      }
+    } else {
+      this.app.state.habits.push({
+        id: 'h-' + Date.now(),
+        name,
+        category,
+        frequency,
+        currentStreak: 1,
+        bestStreak: 1,
+        history: { 'Mon': true, 'Tue': false, 'Wed': false, 'Thu': false, 'Fri': false, 'Sat': false, 'Sun': false }
+      });
+      this.app.showToast('Habit streak created', 'success');
+    }
 
     this.closeModal();
     this.app.saveState();
     this.render();
-    this.app.showToast('Habit streak created', 'success');
   }
 
   render() {
@@ -2488,20 +2831,21 @@ class HabitsController {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
     container.innerHTML = this.app.state.habits.map(h => `
-      <div class="habit-card">
+      <div class="habit-card" ondblclick="app.habits.openModal('${h.id}')" title="Double-click to edit habit" style="cursor: pointer;">
         <div class="habit-card-header">
           <div>
             <h3 class="habit-name">${h.name}</h3>
             <span class="habit-category-pill">${h.category} • ${h.frequency}</span>
           </div>
-          <div class="habit-streak-display">
+          <div class="habit-streak-display" onclick="event.stopPropagation()">
             <span class="streak-count-badge" title="Active Streak">🔥 ${h.currentStreak}d</span>
             <span style="font-size: 11px; color: var(--text-muted);">Best: ${h.bestStreak}d</span>
+            <button type="button" class="block-action-icon" title="Edit Habit" onclick="event.stopPropagation(); app.habits.openModal('${h.id}')">✏️</button>
             <button type="button" class="block-action-icon text-danger" title="Delete Habit" onclick="event.stopPropagation(); app.habits.deleteHabit('${h.id}')">🗑️</button>
           </div>
         </div>
 
-        <div class="habit-matrix-row">
+        <div class="habit-matrix-row" onclick="event.stopPropagation()">
           ${days.map(d => {
             const isChecked = !!h.history[d];
             return `
@@ -2569,6 +2913,7 @@ class HabitsController {
 class ChecklistController {
   constructor(app) {
     this.app = app;
+    this.sortOrder = 'asc';
   }
 
   init() {
@@ -2586,14 +2931,22 @@ class ChecklistController {
     });
 
     // Filters
-    document.querySelectorAll('.filter-pill').forEach(pill => {
+    document.querySelectorAll('.filter-pill[data-taskfilter]').forEach(pill => {
       pill.addEventListener('click', () => {
-        document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.filter-pill[data-taskfilter]').forEach(p => p.classList.remove('active'));
         pill.classList.add('active');
         this.app.activeTaskFilter = pill.getAttribute('data-taskfilter');
         this.render();
       });
     });
+  }
+
+  toggleDateSort() {
+    this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    const icon = document.getElementById('taskSortDueIcon');
+    if (icon) icon.textContent = this.sortOrder === 'asc' ? '▲' : '▼';
+    this.render();
+    this.app.showToast(`Tasks sorted by due date (${this.sortOrder === 'asc' ? 'earliest first' : 'latest first'})`, 'info');
   }
 
   addTask(titleOverride = null) {
@@ -2615,6 +2968,80 @@ class ChecklistController {
     });
 
     if (titleInput) titleInput.value = '';
+    this.app.saveState();
+    this.render();
+  }
+
+  openModal(taskId = null) {
+    this.app.activeTaskId = taskId;
+    const titleEl = document.getElementById('taskModalTitle');
+    const titleInput = document.getElementById('taskModalTitleInput');
+    const prioSelect = document.getElementById('taskModalPriority');
+    const tagSelect = document.getElementById('taskModalTag');
+    const dateInput = document.getElementById('taskModalDueDate');
+    const saveBtn = document.getElementById('saveTaskModalBtn');
+
+    if (taskId) {
+      if (titleEl) titleEl.textContent = 'Edit Task';
+      if (saveBtn) saveBtn.textContent = 'Update Task';
+      const task = this.app.state.tasks.find(x => x.id === taskId);
+      if (task) {
+        if (titleInput) titleInput.value = task.title;
+        if (prioSelect) prioSelect.value = task.priority;
+        if (tagSelect) tagSelect.value = task.tag;
+        if (dateInput) dateInput.value = task.dueDate;
+      }
+    } else {
+      if (titleEl) titleEl.textContent = 'Add Task';
+      if (saveBtn) saveBtn.textContent = 'Add Task';
+      if (titleInput) titleInput.value = '';
+      if (prioSelect) prioSelect.value = 'medium';
+      if (tagSelect) tagSelect.value = 'Work';
+      if (dateInput) dateInput.value = this.app.state.selectedDate;
+    }
+
+    document.getElementById('taskModal')?.classList.add('active');
+  }
+
+  closeModal() {
+    document.getElementById('taskModal')?.classList.remove('active');
+    this.app.activeTaskId = null;
+  }
+
+  saveTaskFromModal() {
+    const titleInput = document.getElementById('taskModalTitleInput');
+    const title = titleInput?.value.trim() || '';
+    if (!title) {
+      this.app.showToast('Task title is required', 'warning');
+      return;
+    }
+
+    const priority = document.getElementById('taskModalPriority')?.value || 'medium';
+    const tag = document.getElementById('taskModalTag')?.value || 'Work';
+    const dueDate = document.getElementById('taskModalDueDate')?.value || this.app.state.selectedDate;
+
+    if (this.app.activeTaskId) {
+      const task = this.app.state.tasks.find(x => x.id === this.app.activeTaskId);
+      if (task) {
+        task.title = title;
+        task.priority = priority;
+        task.tag = tag;
+        task.dueDate = dueDate;
+      }
+      this.app.showToast('Task updated', 'success');
+    } else {
+      this.app.state.tasks.unshift({
+        id: 't-' + Date.now(),
+        title,
+        priority,
+        tag,
+        dueDate,
+        completed: false
+      });
+      this.app.showToast('Task added', 'success');
+    }
+
+    this.closeModal();
     this.app.saveState();
     this.render();
   }
@@ -2642,7 +3069,7 @@ class ChecklistController {
     const filter = this.app.activeTaskFilter;
     const today = this.app.state.selectedDate;
 
-    let filtered = this.app.state.tasks;
+    let filtered = [...this.app.state.tasks];
     if (filter === 'today') {
       filtered = filtered.filter(t => t.dueDate === today);
     } else if (filter === 'upcoming') {
@@ -2650,6 +3077,17 @@ class ChecklistController {
     } else if (filter === 'completed') {
       filtered = filtered.filter(t => t.completed);
     }
+
+    // Sort tasks by completion first (incomplete first), then by dueDate
+    filtered.sort((a, b) => {
+      if (a.completed !== b.completed) {
+        return a.completed ? 1 : -1;
+      }
+      const dateA = a.dueDate || '9999-99-99';
+      const dateB = b.dueDate || '9999-99-99';
+      const cmp = dateA.localeCompare(dateB);
+      return this.sortOrder === 'desc' ? -cmp : cmp;
+    });
 
     // Counts
     document.getElementById('countTaskAll').textContent = this.app.state.tasks.length;
@@ -2671,7 +3109,7 @@ class ChecklistController {
     }
 
     container.innerHTML = filtered.map(t => `
-      <div class="task-card ${t.completed ? 'is-completed' : ''}">
+      <div class="task-card ${t.completed ? 'is-completed' : ''}" ondblclick="app.checklist.openModal('${t.id}')" title="Double-click to edit task" style="cursor: pointer;">
         <div class="task-left">
           <input type="checkbox" class="task-checkbox" ${t.completed ? 'checked' : ''} onchange="app.checklist.toggleTask('${t.id}')">
           <span class="task-title-text">${t.title}</span>
@@ -2680,6 +3118,7 @@ class ChecklistController {
           <span class="priority-tag priority-${t.priority}">${t.priority.toUpperCase()}</span>
           <span class="task-tag-badge">#${t.tag}</span>
           <span class="task-due-date">${t.dueDate}</span>
+          <button type="button" class="block-action-icon" title="Edit Task" onclick="event.stopPropagation(); app.checklist.openModal('${t.id}')">✏️</button>
           <button type="button" class="block-action-icon text-danger" title="Delete Task" onclick="event.stopPropagation(); app.checklist.deleteTask('${t.id}')">🗑️</button>
         </div>
       </div>
