@@ -181,9 +181,33 @@ class PlanLifeApp {
     this.instanceId = 'widget-' + Math.random().toString(36).substring(2, 9);
     this.state = this.loadState();
     
-    // Parse URL Query Parameters for Widget Mode & Notion Embeds
+    // Parse URL Query Parameters & Hash for Widget Mode & Notion Embeds
     const params = new URLSearchParams(window.location.search);
-    this.widgetMode = (params.get('widget') || '').toLowerCase();
+    let widgetParam = (params.get('widget') || '').toLowerCase();
+    
+    // Also check location hash if ?widget= was omitted
+    if (!widgetParam && window.location.hash) {
+      const h = window.location.hash.replace('#', '').toLowerCase();
+      if (['kpi', 'kpis', 'clock', 'clockdial', 'schedule', 'planner', 'habits', 'finance', 'goals', 'checklist', 'tasks', 'focus', 'dashboard'].includes(h)) {
+        widgetParam = h;
+      }
+    }
+
+    let inIframe = false;
+    try {
+      inIframe = window.self !== window.top;
+    } catch (e) {
+      inIframe = true;
+    }
+
+    // When running inside an iframe (Notion embed) and no widget mode was explicitly specified,
+    // default to 'kpi' so the full desktop navbar/header is NEVER shown inside Notion
+    if (inIframe && !widgetParam) {
+      widgetParam = 'kpi';
+    }
+
+    this.inIframe = inIframe;
+    this.widgetMode = widgetParam;
     this.themeOverride = (params.get('theme') || '').toLowerCase();
     this.noBg = params.get('nobg') === 'true' || params.get('transparent') === 'true';
     this.noBrk = params.get('nobrk') === 'true' || params.get('hidebreakdown') === 'true';
@@ -329,6 +353,15 @@ class PlanLifeApp {
       this.renderDashboard();
     }
 
+    // Support dynamic hash navigation (e.g. #clock, #kpi, #schedule)
+    window.addEventListener('hashchange', () => {
+      const h = window.location.hash.replace('#', '').toLowerCase();
+      if (['kpi', 'kpis', 'clock', 'clockdial', 'schedule', 'planner', 'habits', 'finance', 'goals', 'checklist', 'tasks', 'focus', 'dashboard'].includes(h)) {
+        this.widgetMode = h;
+        this.setupWidgetMode(h);
+      }
+    });
+
     // Live clock ticker every 30 seconds
     setInterval(() => {
       this.planner.updateLiveTime();
@@ -394,6 +427,11 @@ class PlanLifeApp {
     document.body.classList.add('is-widget', `widget-${widgetName}`);
     document.documentElement.classList.add('is-widget', `widget-${widgetName}`);
 
+    if (this.inIframe) {
+      document.body.classList.add('is-iframe');
+      document.documentElement.classList.add('is-iframe');
+    }
+
     if (this.noBg || this.themeOverride === 'transparent') {
       document.body.classList.add('theme-transparent');
       document.documentElement.classList.add('theme-transparent');
@@ -424,6 +462,7 @@ class PlanLifeApp {
         break;
       case 'kpis':
       case 'kpi':
+      case 'dashboard':
         this.switchTab('dashboard');
         this.renderDashboard();
         break;

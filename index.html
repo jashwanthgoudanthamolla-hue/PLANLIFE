@@ -12,14 +12,39 @@
   <script>
     (function() {
       try {
+        var inIframe = false;
+        try {
+          inIframe = window.self !== window.top;
+        } catch(e) {
+          inIframe = true;
+        }
         var p = new URLSearchParams(window.location.search);
         var w = p.get('widget');
+        if (!w && window.location.hash) {
+          var h = window.location.hash.replace('#', '').toLowerCase();
+          if (h.indexOf('=') !== -1) {
+            var hp = new URLSearchParams(h);
+            w = hp.get('widget') || hp.get('w');
+          } else if (['kpi', 'kpis', 'clock', 'clockdial', 'schedule', 'planner', 'habits', 'finance', 'goals', 'checklist', 'tasks', 'focus', 'dashboard'].indexOf(h) !== -1) {
+            w = h;
+          }
+        }
+        // If inside an iframe embed (e.g. Notion embed) and no widget was explicitly specified, default to 'kpi'
+        if (inIframe && !w) {
+          w = 'kpi';
+        }
+
         var t = p.get('theme');
         var nobg = p.get('nobg') === 'true' || p.get('transparent') === 'true';
-        if (w) {
-          document.documentElement.classList.add('is-widget', 'widget-' + w.toLowerCase());
+
+        if (w || inIframe) {
+          var wName = (w || 'kpi').toLowerCase();
+          document.documentElement.classList.add('is-widget', 'widget-' + wName);
+          if (inIframe) {
+            document.documentElement.classList.add('is-iframe');
+          }
         }
-        var isDark = t === 'dark' || (!t && (w || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)));
+        var isDark = t === 'dark' || (!t && ((w || inIframe) || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)));
         if (t === 'transparent' || nobg) {
           document.documentElement.classList.add('theme-transparent');
           document.documentElement.style.backgroundColor = 'transparent';
@@ -33,8 +58,56 @@
       } catch (e) {}
     })();
   </script>
+  <style>
+    /* Critical immediate rules: hide navbar and headers in widget/iframe embeds */
+    .is-widget .notion-navbar,
+    .is-iframe .notion-navbar,
+    html.is-widget .notion-navbar,
+    body.is-widget .notion-navbar,
+    html.is-iframe .notion-navbar,
+    body.is-iframe .notion-navbar {
+      display: none !important;
+    }
+    .is-widget .page-header,
+    .is-iframe .page-header,
+    html.is-widget .page-header,
+    body.is-widget .page-header,
+    .is-widget .dayplanner-header-wrap,
+    .is-iframe .dayplanner-header-wrap {
+      display: none !important;
+    }
+    .is-widget,
+    .is-iframe,
+    html.is-widget,
+    body.is-widget,
+    html.is-iframe,
+    body.is-iframe {
+      overflow-x: hidden !important;
+      scrollbar-width: none !important;
+    }
+    .is-widget::-webkit-scrollbar,
+    .is-iframe::-webkit-scrollbar,
+    html.is-widget::-webkit-scrollbar,
+    body.is-widget::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+  </style>
 </head>
 <body>
+  <script>
+    // Synchronously apply widget classes to body immediately upon opening body tag
+    if (document.documentElement.classList.contains('is-widget')) {
+      document.body.classList.add('is-widget');
+      var cList = document.documentElement.className.split(/\s+/);
+      cList.forEach(function(c) {
+        if (c && (c.indexOf('widget-') === 0 || c.indexOf('theme-') === 0 || c === 'is-iframe')) {
+          document.body.classList.add(c);
+        }
+      });
+    }
+  </script>
   <div class="app-container">
     <!-- Top Notion Navigation Bar -->
     <header class="notion-navbar">
