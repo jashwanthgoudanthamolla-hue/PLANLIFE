@@ -321,9 +321,19 @@ class PlanLifeApp {
     this.checklist.init();
     this.focusCtrl.init();
 
+    // Check if running inside an iframe (e.g. Notion embed)
+    let isEmbedded = false;
+    try { isEmbedded = window.self !== window.top; } catch (e) { isEmbedded = true; }
+    this.isEmbedded = isEmbedded;
+
     // If Widget Mode active, initialize dedicated widget layout
     if (this.widgetMode) {
       this.setupWidgetMode(this.widgetMode);
+    } else if (isEmbedded) {
+      // Embedded in Notion iframe without a specific widget parameter
+      // Automatically show the Notion widget switcher toolbar
+      document.getElementById('notionIframeWidgetBar')?.style.setProperty('display', 'flex', 'important');
+      this.renderDashboard();
     } else {
       // Render standard executive dashboard
       this.renderDashboard();
@@ -391,6 +401,13 @@ class PlanLifeApp {
   }
 
   setupWidgetMode(widgetName) {
+    this.widgetMode = widgetName;
+    const allWidgets = ['widget-clock', 'widget-clockdial', 'widget-schedule', 'widget-planner', 'widget-kpis', 'widget-kpi', 'widget-habits', 'widget-finance', 'widget-goals', 'widget-tasks', 'widget-checklist', 'widget-focus'];
+    allWidgets.forEach(cls => {
+      document.body.classList.remove(cls);
+      document.documentElement.classList.remove(cls);
+    });
+
     document.body.classList.add('is-widget', `widget-${widgetName}`);
     document.documentElement.classList.add('is-widget', `widget-${widgetName}`);
 
@@ -403,8 +420,19 @@ class PlanLifeApp {
       document.body.classList.add('hide-breakdown');
     }
 
+    // Hide fallback bar once widget selected
+    document.getElementById('notionIframeWidgetBar')?.style.setProperty('display', 'none');
+
     // Route to appropriate tab and trigger view render
     this.renderWidgetView(widgetName);
+  }
+
+  toggleWidgetSwitcher() {
+    const bar = document.getElementById('notionIframeWidgetBar');
+    if (bar) {
+      const isHidden = bar.style.display === 'none' || !bar.style.display;
+      bar.style.setProperty('display', isHidden ? 'flex' : 'none', 'important');
+    }
   }
 
   renderWidgetView(widgetName) {
@@ -467,7 +495,19 @@ class PlanLifeApp {
     document.querySelectorAll('.jump-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const target = btn.getAttribute('data-target');
-        this.switchTab(target);
+        let isEmbedded = false;
+        try { isEmbedded = window.self !== window.top; } catch (e) { isEmbedded = true; }
+        if (isEmbedded) {
+          if (target === 'dayplanner') this.setupWidgetMode('planner');
+          else if (target === 'finance') this.setupWidgetMode('finance');
+          else if (target === 'goals') this.setupWidgetMode('goals');
+          else if (target === 'habits') this.setupWidgetMode('habits');
+          else if (target === 'checklist') this.setupWidgetMode('checklist');
+          else if (target === 'focus') this.setupWidgetMode('focus');
+          else this.switchTab(target);
+        } else {
+          this.switchTab(target);
+        }
       });
     });
 

@@ -3022,3 +3022,100 @@ body.widget-focus .focus-card {
 .planlife-toast.toast-info {
   border-left: 3px solid #38bdf8;
 }
+
+/* ==========================================================================
+   NOTION IFRAME WIDGET TOOLBAR & FLOATING SWITCHER
+   ========================================================================== */
+.notion-iframe-widget-bar {
+  display: none;
+  background-color: #202020;
+  border-bottom: 1px solid #333333;
+  padding: 8px 14px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  z-index: 999;
+  position: sticky;
+  top: 0;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.iframe-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iframe-bar-badge {
+  background: var(--accent-indigo, #6366f1);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.03em;
+}
+
+.iframe-bar-hint {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.iframe-bar-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.iframe-pill {
+  background: #2a2a2a;
+  border: 1px solid #404040;
+  color: #e2e8f0;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.iframe-pill:hover {
+  background: var(--accent-indigo, #6366f1);
+  color: #ffffff;
+  border-color: var(--accent-indigo, #6366f1);
+}
+
+.widget-switch-btn {
+  display: none;
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  z-index: 9999;
+  background: rgba(35, 35, 35, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.widget-switch-btn:hover {
+  opacity: 1;
+  color: #ffffff;
+  background: #6366f1;
+  border-color: #6366f1;
+}
+
+body.is-widget .widget-switch-btn {
+  display: inline-flex;
+}
+

@@ -35,6 +35,29 @@
   </script>
 </head>
 <body>
+  <!-- Floating Widget Switcher for Embedded Notion Iframes -->
+  <button id="widgetSwitcherBtn" class="widget-switch-btn" title="Switch Widget" onclick="app.toggleWidgetSwitcher()">⚡ Switch Widget</button>
+
+  <!-- Notion Iframe Widget Selector Bar (Fallback for embeds without ?widget= param) -->
+  <div id="notionIframeWidgetBar" class="notion-iframe-widget-bar" style="display: none;">
+    <div class="iframe-bar-left">
+      <span class="iframe-bar-badge">⚡ Notion Widget Mode</span>
+      <span class="iframe-bar-hint">Click a widget to display in this block:</span>
+    </div>
+    <div class="iframe-bar-pills">
+      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('clock')">🕒 Clock Dial</button>
+      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('schedule')">📋 Day Schedule</button>
+      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('planner')">📅 Complete Planner</button>
+      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('kpis')">📊 KPI Strip</button>
+      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('habits')">🔥 Habits</button>
+      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('checklist')">✅ Checklist</button>
+      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('finance')">💰 Finance</button>
+      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('goals')">🎯 Goals</button>
+      <button type="button" class="iframe-pill" onclick="app.setupWidgetMode('focus')">⚡ Focus</button>
+      <button type="button" class="iframe-pill" onclick="app.switchTab('dashboard')">📊 Full Dashboard</button>
+    </div>
+  </div>
+
   <div class="app-container">
     <!-- Top Notion Navigation Bar -->
     <header class="notion-navbar">
