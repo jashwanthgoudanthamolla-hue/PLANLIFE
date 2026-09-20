@@ -182,6 +182,8 @@ class PlanLifeApp {
     }
     this.STORAGE_KEY = 'planlife_workspace_state_v1';
     this.instanceId = 'widget-' + Math.random().toString(36).substring(2, 9);
+    // One-time cleanup: strip any base64 data: blobs from stored state to free quota
+    this._cleanStoredBlobs();
     this.state = this.loadState();
     
     // Parse URL Query Parameters & Hash for Widget Mode & Notion Embeds
@@ -246,11 +248,47 @@ class PlanLifeApp {
     this.init();
   }
 
+  // Surgically strips base64 data: blobs from stored goals to free localStorage quota.
+  // Called once on startup before loadState() so the cleaned state is what gets loaded.
+  _cleanStoredBlobs() {
+    try {
+      const raw = localStorage.getItem(this.STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      let changed = false;
+      if (parsed.goals) {
+        parsed.goals.forEach(g => {
+          if (g.attachments) {
+            g.attachments = g.attachments.map(att => {
+              if (att.url && att.url.startsWith('data:')) {
+                changed = true;
+                return { ...att, url: '#', _stripped: true };
+              }
+              return att;
+            });
+          }
+        });
+      }
+      if (changed) {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(parsed));
+      }
+    } catch (e) {
+      // If we can't even parse what's stored, wipe it so the app can recover
+      try { localStorage.removeItem(this.STORAGE_KEY); } catch (_) {}
+    }
+  }
+
   loadState() {
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        // Deep-merge: ensure top-level keys from DEFAULT_STATE always exist
+        const defaults = JSON.parse(JSON.stringify(DEFAULT_STATE));
+        return Object.assign({}, defaults, parsed, {
+          finance: Object.assign({}, defaults.finance, parsed.finance || {}),
+          focus: Object.assign({}, defaults.focus, parsed.focus || {}),
+        });
       }
     } catch (e) {
       console.warn('Could not load saved state, using defaults', e);
@@ -260,9 +298,29 @@ class PlanLifeApp {
 
   saveState() {
     try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.state));
+      // Strip base64 data: URLs from attachments before saving to avoid QuotaExceededError.
+      // These blobs can be MBs each and fill localStorage instantly.
+      const stateToSave = JSON.parse(JSON.stringify(this.state));
+      if (stateToSave.goals) {
+        stateToSave.goals.forEach(g => {
+          if (g.attachments) {
+            g.attachments = g.attachments.map(att => {
+              if (att.url && att.url.startsWith('data:')) {
+                // Keep metadata but strip the blob — user must re-upload after refresh
+                return { ...att, url: '#', _stripped: true };
+              }
+              return att;
+            });
+          }
+        });
+      }
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(stateToSave));
     } catch (e) {
       console.error('Error saving state to localStorage', e);
+      // Show visible error so user knows their change wasn't persisted
+      if (e.name === 'QuotaExceededError' || e.code === 22) {
+        this.showToast('Storage full — delete some attachments to free space', 'warning');
+      }
     }
     
     // Broadcast state update to all other embedded Notion widgets in real time
