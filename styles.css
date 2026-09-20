@@ -838,52 +838,72 @@ body.theme-dark .planner-date-field {
 }
 
 .clock-svg-container {
-  width: 420px;
-  height: 420px;
+  width: min(480px, 100%);
+  height: auto;
+  aspect-ratio: 1 / 1;
+  max-width: 500px;
+  max-height: 500px;
   position: relative;
   user-select: none;
-  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 14px 32px rgba(0, 0, 0, 0.45));
 }
 
 .clock-svg {
   width: 100%;
   height: 100%;
+  display: block;
   cursor: crosshair;
 }
 
-/* Clock Center Hub */
+/* Clock Center Hub (Proportional 38% diameter ensures zero overlap with 24h donut ring) */
 .clock-center-hub {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 170px;
-  height: 170px;
-  background: radial-gradient(circle at 50% 50%, #111a2e 0%, #090e1a 100%);
+  width: 38%;
+  height: 38%;
+  background: radial-gradient(circle at 50% 50%, #151d2f 0%, #0a0f1d 100%);
   border-radius: var(--radius-full);
-  border: 1px solid #1e293b;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6), 0 0 24px rgba(0, 0, 0, 0.4);
+  border: 2px solid #233148;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.7), 0 0 24px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   pointer-events: none;
+  z-index: 2;
+}
+
+body.theme-light .clock-center-hub {
+  background: radial-gradient(circle at 50% 50%, #ffffff 0%, #f1f5f9 100%);
+  border-color: #cbd5e1;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .center-time {
   font-family: var(--font-sans);
-  font-size: 28px;
-  font-weight: 700;
+  font-size: clamp(22px, 5.8vw, 32px);
+  font-weight: 800;
   color: #ffffff;
   letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+body.theme-light .center-time {
+  color: #0f172a;
 }
 
 .center-label {
-  font-size: 11px;
+  font-size: clamp(9px, 2.2vw, 11px);
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   color: #38bdf8;
-  margin-top: -2px;
+  margin-top: 3px;
+}
+
+body.theme-light .center-label {
+  color: #0284c7;
 }
 
 /* Hours By Category Breakdown Card */
@@ -2805,82 +2825,137 @@ body.is-iframe::-webkit-scrollbar,
 }
 
 /* --------------------------------------------------------------------------
-   1. 🕒 WIDGET: 24-Hour Circular Clock Dial & Hours by Category (Side-by-Side)
+   1. 🕒 WIDGET: Complete Day Planner (Large Clock + Category Card + Schedule)
+   Applies to widget=clock and widget=planner
+   Matches user's exact vision:
+   - Date Controls & Action Buttons at top
+   - Large Circular 24-Hour Clock (480px width) on Left
+   - Category Breakdown Card directly below the clock on Left
+   - Full Schedule Column with block cards on Right
    -------------------------------------------------------------------------- */
+.widget-clock .main-content,
+.widget-planner .main-content,
+html.widget-clock .main-content,
+html.widget-planner .main-content,
+body.widget-clock .main-content,
+body.widget-planner .main-content {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+}
+
 .widget-clock #tab-dayplanner,
-.widget-clockdial #tab-dayplanner,
+.widget-planner #tab-dayplanner,
 html.widget-clock #tab-dayplanner,
-html.widget-clockdial #tab-dayplanner,
+html.widget-planner #tab-dayplanner,
 body.widget-clock #tab-dayplanner,
-body.widget-clockdial #tab-dayplanner {
+body.widget-planner #tab-dayplanner {
   display: flex !important;
   flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
   flex: 1 1 auto !important;
-  height: 100% !important;
-  min-height: 0 !important;
   width: 100% !important;
-  padding: 8px 14px !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 100% !important;
+  padding: 16px 20px !important;
   box-sizing: border-box !important;
+  gap: 16px !important;
+  overflow: visible !important;
+}
+
+.widget-clock .planner-controls-bar,
+.widget-planner .planner-controls-bar,
+html.widget-clock .planner-controls-bar,
+html.widget-planner .planner-controls-bar,
+body.widget-clock .planner-controls-bar,
+body.widget-planner .planner-controls-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  margin-bottom: 0 !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  flex-shrink: 0 !important;
+}
+
+.widget-clock .date-stepper,
+.widget-planner .date-stepper,
+html.widget-clock .date-stepper,
+html.widget-planner .date-stepper,
+body.widget-clock .date-stepper,
+body.widget-planner .date-stepper {
+  display: flex !important;
+  align-items: center !important;
   gap: 8px !important;
-  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+
+.widget-clock .planner-actions,
+.widget-planner .planner-actions,
+html.widget-clock .planner-actions,
+html.widget-planner .planner-actions,
+body.widget-clock .planner-actions,
+body.widget-planner .planner-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
 }
 
 .widget-clock .planner-layout-grid,
-.widget-clockdial .planner-layout-grid,
+.widget-planner .planner-layout-grid,
 html.widget-clock .planner-layout-grid,
-html.widget-clockdial .planner-layout-grid,
+html.widget-planner .planner-layout-grid,
 body.widget-clock .planner-layout-grid,
-body.widget-clockdial .planner-layout-grid {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 12px !important;
+body.widget-planner .planner-layout-grid {
+  display: grid !important;
+  grid-template-columns: minmax(460px, 500px) 1fr !important;
+  gap: 28px !important;
   width: 100% !important;
   max-width: 100% !important;
-  margin: 0 auto !important;
-  flex: 0 1 auto !important;
-  flex-wrap: nowrap !important;
-  overflow: hidden !important;
+  align-items: start !important;
+  margin: 0 !important;
+  flex: 1 1 auto !important;
 }
 
-.widget-clock .schedule-column,
-.widget-clockdial .schedule-column,
-html.widget-clock .schedule-column,
-html.widget-clockdial .schedule-column,
-body.widget-clock .schedule-column,
-body.widget-clockdial .schedule-column {
-  display: none !important;
+@media (max-width: 980px) {
+  .widget-clock .planner-layout-grid,
+  .widget-planner .planner-layout-grid,
+  html.widget-clock .planner-layout-grid,
+  html.widget-planner .planner-layout-grid,
+  body.widget-clock .planner-layout-grid,
+  body.widget-planner .planner-layout-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
 }
 
 .widget-clock .clock-column,
-.widget-clockdial .clock-column,
+.widget-planner .clock-column,
 html.widget-clock .clock-column,
-html.widget-clockdial .clock-column,
+html.widget-planner .clock-column,
 body.widget-clock .clock-column,
-body.widget-clockdial .clock-column {
+body.widget-planner .clock-column {
   width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 auto !important;
+  max-width: 500px !important;
   display: flex !important;
-  flex-direction: row !important;
+  flex-direction: column !important;
   align-items: center !important;
-  justify-content: center !important;
-  gap: 12px !important;
-  flex-wrap: nowrap !important;
-  overflow: hidden !important;
+  gap: 18px !important;
+  margin: 0 auto !important;
 }
 
-/* Pure circle clock, zero rectangular box */
 .widget-clock .clock-card,
-.widget-clockdial .clock-card,
+.widget-planner .clock-card,
 html.widget-clock .clock-card,
-html.widget-clockdial .clock-card,
+html.widget-planner .clock-card,
 body.widget-clock .clock-card,
-body.widget-clockdial .clock-card {
-  flex: 0 0 auto !important;
+body.widget-planner .clock-card {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -2888,78 +2963,140 @@ body.widget-clockdial .clock-card {
 }
 
 .widget-clock .clock-svg-container,
-.widget-clockdial .clock-svg-container,
+.widget-planner .clock-svg-container,
 html.widget-clock .clock-svg-container,
-html.widget-clockdial .clock-svg-container,
+html.widget-planner .clock-svg-container,
 body.widget-clock .clock-svg-container,
-body.widget-clockdial .clock-svg-container {
-  width: clamp(280px, min(55vw, 65vh), 440px) !important;
-  height: clamp(280px, min(55vw, 65vh), 440px) !important;
-  max-width: 440px !important;
-  max-height: 440px !important;
+body.widget-planner .clock-svg-container {
+  width: min(480px, 100%) !important;
+  height: auto !important;
+  aspect-ratio: 1 / 1 !important;
+  max-width: 480px !important;
+  max-height: 480px !important;
+  position: relative !important;
+  user-select: none !important;
   margin: 0 auto !important;
-  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.45)) !important;
-  flex: 0 0 auto !important;
+  filter: drop-shadow(0 14px 32px rgba(0, 0, 0, 0.4)) !important;
 }
 
-/* Hours by Category sitting side-by-side with the clock */
 .widget-clock .category-breakdown-card,
+.widget-planner .category-breakdown-card,
 html.widget-clock .category-breakdown-card,
-body.widget-clock .category-breakdown-card {
-  flex: 0 1 220px !important;
-  max-width: 250px !important;
-  min-width: 160px !important;
-  max-height: clamp(280px, min(55vw, 65vh), 440px) !important;
+html.widget-planner .category-breakdown-card,
+body.widget-clock .category-breakdown-card,
+body.widget-planner .category-breakdown-card {
+  width: 100% !important;
+  max-width: 480px !important;
   background-color: var(--bg-surface) !important;
   border: 1px solid var(--border-color) !important;
-  border-radius: var(--radius-lg) !important;
-  padding: 10px 12px !important;
+  border-radius: var(--radius-md) !important;
+  padding: 14px 18px !important;
   box-shadow: var(--shadow-sm) !important;
   box-sizing: border-box !important;
-  overflow-y: auto !important;
 }
 
-.widget-clock .category-breakdown-card .breakdown-title {
-  font-size: 11px !important;
-  letter-spacing: 0.04em !important;
-}
-
-.widget-clock .planner-controls-bar,
-.widget-clockdial .planner-controls-bar,
-html.widget-clock .planner-controls-bar,
-html.widget-clockdial .planner-controls-bar,
-body.widget-clock .planner-controls-bar,
-body.widget-clockdial .planner-controls-bar {
-  margin-bottom: 0 !important;
-  justify-content: center !important;
+.widget-clock .schedule-column,
+.widget-planner .schedule-column,
+html.widget-clock .schedule-column,
+html.widget-planner .schedule-column,
+body.widget-clock .schedule-column,
+body.widget-planner .schedule-column {
+  display: flex !important;
+  flex-direction: column !important;
   width: 100% !important;
-  max-width: 860px !important;
+  min-height: 520px !important;
+  max-height: 850px !important;
+  background-color: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 16px 18px !important;
+  box-shadow: var(--shadow-sm) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.widget-clock .schedule-header-row,
+.widget-planner .schedule-header-row,
+html.widget-clock .schedule-header-row,
+html.widget-planner .schedule-header-row,
+body.widget-clock .schedule-header-row,
+body.widget-planner .schedule-header-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 14px !important;
+  padding-bottom: 10px !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
   flex-shrink: 0 !important;
 }
 
-.widget-clock .planner-actions,
+.widget-clock .schedule-list,
+.widget-planner .schedule-list,
+html.widget-clock .schedule-list,
+html.widget-planner .schedule-list,
+body.widget-clock .schedule-list,
+body.widget-planner .schedule-list {
+  flex: 1 1 auto !important;
+  min-height: 200px !important;
+  overflow-y: auto !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #333333 transparent !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  padding-right: 4px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Standalone Circular Dial Only (widget=dial or widget=clockdial)
+   -------------------------------------------------------------------------- */
+.widget-clockdial #tab-dayplanner,
+html.widget-clockdial #tab-dayplanner,
+body.widget-clockdial #tab-dayplanner {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  padding: 8px !important;
+  box-sizing: border-box !important;
+}
+
+.widget-clockdial .schedule-column,
+html.widget-clockdial .schedule-column,
+body.widget-clockdial .schedule-column,
+.widget-clockdial .category-breakdown-card,
+html.widget-clockdial .category-breakdown-card,
+body.widget-clockdial .category-breakdown-card,
 .widget-clockdial .planner-actions,
-html.widget-clock .planner-actions,
 html.widget-clockdial .planner-actions,
-body.widget-clock .planner-actions,
 body.widget-clockdial .planner-actions {
   display: none !important;
 }
 
-/* Support pure circle dial only mode via &nobrk=true or widget=clockdial */
-.widget-clockdial .category-breakdown-card,
-html.widget-clockdial .category-breakdown-card,
-body.widget-clockdial .category-breakdown-card,
-.hide-breakdown .category-breakdown-card {
-  display: none !important;
+.widget-clockdial .planner-layout-grid,
+html.widget-clockdial .planner-layout-grid,
+body.widget-clockdial .planner-layout-grid {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 auto !important;
+  width: 100% !important;
 }
 
 .widget-clockdial .clock-column,
 html.widget-clockdial .clock-column,
-body.widget-clockdial .clock-column,
-.hide-breakdown .clock-column {
-  max-width: 440px !important;
+body.widget-clockdial .clock-column {
+  max-width: 480px !important;
   justify-content: center !important;
+  margin: 0 auto !important;
+}
+
+.widget-clockdial .clock-svg-container,
+html.widget-clockdial .clock-svg-container,
+body.widget-clockdial .clock-svg-container {
+  width: min(480px, 92vw, 92vh) !important;
+  height: min(480px, 92vw, 92vh) !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -3120,31 +3257,7 @@ body.widget-schedule .schedule-block-card {
   flex-shrink: 0 !important;
 }
 
-/* --------------------------------------------------------------------------
-   3. 📅 WIDGET: Day Planner (Clock + Schedule) (widget=planner)
-   -------------------------------------------------------------------------- */
-.widget-planner #tab-dayplanner,
-html.widget-planner #tab-dayplanner,
-body.widget-planner #tab-dayplanner {
-  display: block !important;
-  min-height: 100% !important;
-}
-
-.widget-planner .planner-layout-grid,
-html.widget-planner .planner-layout-grid,
-body.widget-planner .planner-layout-grid {
-  display: grid !important;
-  grid-template-columns: minmax(320px, 420px) 1fr !important;
-  gap: 16px !important;
-}
-
-@media (max-width: 768px) {
-  .widget-planner .planner-layout-grid,
-  html.widget-planner .planner-layout-grid,
-  body.widget-planner .planner-layout-grid {
-    grid-template-columns: 1fr !important;
-  }
-}
+/* Note: Section 3 (widget=planner) is now unified with Section 1 (widget=clock) above */
 
 /* --------------------------------------------------------------------------
    4. 📊 WIDGET: Executive KPI Summary Strip (widget=kpis or widget=kpi)

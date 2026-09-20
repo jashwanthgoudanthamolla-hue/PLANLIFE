@@ -816,8 +816,8 @@ class DayPlannerController {
     this.app = app;
     this.svg = null;
     this.center = 250;
-    this.outerRadius = 205;
-    this.innerRadius = 110;
+    this.outerRadius = 196;
+    this.innerRadius = 112;
   }
 
   init() {
@@ -945,44 +945,89 @@ class DayPlannerController {
   renderClockDial() {
     if (!this.svg) return;
     const blocks = this.getBlocksForDate();
+    const isDark = document.documentElement.classList.contains('theme-dark') || 
+                   document.body.classList.contains('theme-dark') ||
+                   (!document.documentElement.classList.contains('theme-light') && this.app.state.theme !== 'light');
 
-    // Base background layers
+    // Base background layers with luxury gradients & SVG filters
     let svgHtml = `
-      <!-- Base Outer Dark Dial -->
-      <circle cx="250" cy="250" r="225" fill="#0d1527" stroke="#1e293b" stroke-width="2" />
-      <circle cx="250" cy="250" r="${this.outerRadius}" fill="#0f172a" stroke="#334155" stroke-width="1.5" />
+      <defs>
+        <!-- Dial Face Gradient -->
+        <radialGradient id="clockDialGrad" cx="50%" cy="50%" r="50%">
+          ${isDark 
+            ? '<stop offset="0%" stop-color="#182235"/><stop offset="68%" stop-color="#0f1624"/><stop offset="100%" stop-color="#090d16"/>' 
+            : '<stop offset="0%" stop-color="#ffffff"/><stop offset="70%" stop-color="#f8fafc"/><stop offset="100%" stop-color="#edf2f7"/>'}
+        </radialGradient>
+        <!-- Needle Glow -->
+        <filter id="needleGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#f59e0b" flood-opacity="0.8"/>
+        </filter>
+        <!-- Text Glow for readability over colored sectors -->
+        <filter id="textGlow" x="-10%" y="-10%" width="120%" height="120%">
+          <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.8"/>
+        </filter>
+      </defs>
+
+      <!-- Outer Bezel Ring -->
+      <circle cx="250" cy="250" r="238" fill="url(#clockDialGrad)" stroke="${isDark ? '#26344d' : '#cbd5e1'}" stroke-width="2.5" />
+      <!-- Subtle Decorative Rim Inset -->
+      <circle cx="250" cy="250" r="231" fill="none" stroke="${isDark ? 'rgba(56, 189, 248, 0.12)' : 'rgba(0, 0, 0, 0.05)'}" stroke-width="1" />
+
+      <!-- Donut Track Bed -->
+      <circle cx="250" cy="250" r="${this.outerRadius}" fill="${isDark ? '#0b101c' : '#f1f5f9'}" stroke="${isDark ? '#1e293b' : '#e2e8f0'}" stroke-width="1.5" />
+      <circle cx="250" cy="250" r="${this.innerRadius}" fill="${isDark ? '#070b13' : '#ffffff'}" stroke="${isDark ? '#1e293b' : '#cbd5e1'}" stroke-width="1.5" />
     `;
 
     // Render 96 15-min sub-ticks & 24 major hour ticks
     for (let i = 0; i < 96; i++) {
       const angle = (i / 96) * 360;
-      const isHour = (i % 4 === 0);
       const isQuarter = (i % 24 === 0); // 0, 6, 12, 18
-      const tickLength = isHour ? (isQuarter ? 14 : 9) : 4;
+      const isHour = (i % 4 === 0);
+      let tickLength = 4;
+      let strokeColor = isDark ? '#1e293b' : '#cbd5e1';
+      let strokeWidth = 1;
+
+      if (isQuarter) {
+        tickLength = 12;
+        strokeColor = '#fbbf24';
+        strokeWidth = 2.5;
+      } else if (isHour) {
+        tickLength = 8;
+        strokeColor = isDark ? '#64748b' : '#94a3b8';
+        strokeWidth = 1.5;
+      }
+
       const p1 = this.polarToCartesian(this.outerRadius, angle);
       const p2 = this.polarToCartesian(this.outerRadius - tickLength, angle);
-      const strokeColor = isQuarter ? '#eab308' : (isHour ? '#64748b' : '#1e293b');
-      const strokeWidth = isQuarter ? 2 : (isHour ? 1.5 : 1);
-      svgHtml += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${strokeColor}" stroke-width="${strokeWidth}" />`;
+      svgHtml += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-linecap="round" />`;
     }
 
-    // Outer Hour Number Labels: 00, 3, 6, 9, 12, 15, 18, 21
+    // Outer Hour Number Labels (Even hours: 00, 02, 04, 06, 08, 10, 12, 14, 16, 18, 20, 22)
     const hoursToLabel = [
-      { h: 0, label: '00', color: '#fbbf24' },
-      { h: 3, label: '3', color: '#94a3b8' },
-      { h: 6, label: '6', color: '#fbbf24' },
-      { h: 9, label: '9', color: '#94a3b8' },
-      { h: 12, label: '12', color: '#fbbf24' },
-      { h: 15, label: '15', color: '#94a3b8' },
-      { h: 18, label: '18', color: '#fbbf24' },
-      { h: 21, label: '21', color: '#94a3b8' }
+      { h: 0, label: '00', cardinal: true },
+      { h: 2, label: '02', cardinal: false },
+      { h: 4, label: '04', cardinal: false },
+      { h: 6, label: '06', cardinal: true },
+      { h: 8, label: '08', cardinal: false },
+      { h: 10, label: '10', cardinal: false },
+      { h: 12, label: '12', cardinal: true },
+      { h: 14, label: '14', cardinal: false },
+      { h: 16, label: '16', cardinal: false },
+      { h: 18, label: '18', cardinal: true },
+      { h: 20, label: '20', cardinal: false },
+      { h: 22, label: '22', cardinal: false }
     ];
 
     hoursToLabel.forEach(item => {
       const angle = (item.h / 24) * 360;
-      const pos = this.polarToCartesian(this.outerRadius + 14, angle);
+      const pos = this.polarToCartesian(217, angle);
+      const fillColor = item.cardinal 
+        ? '#fbbf24' 
+        : (isDark ? '#94a3b8' : '#64748b');
+      const fontSize = item.cardinal ? '12' : '10.5';
+      const fontWeight = item.cardinal ? '800' : '600';
       svgHtml += `
-        <text x="${pos.x}" y="${pos.y + 4}" text-anchor="middle" font-family="'Inter', sans-serif" font-size="12" font-weight="700" fill="${item.color}">
+        <text x="${pos.x}" y="${pos.y + 3.5}" text-anchor="middle" font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="${fontSize}" font-weight="${fontWeight}" fill="${fillColor}">
           ${item.label}
         </text>
       `;
@@ -1002,10 +1047,10 @@ class DayPlannerController {
 
       svgHtml += `
         <g class="clock-sector-group" data-id="${b.id}" style="cursor: pointer;">
-          <path d="${pathData}" fill="${b.color}" fill-opacity="${b.completed ? '0.5' : '0.9'}" stroke="#0d1527" stroke-width="1.5" />
-          ${span >= 15 ? `
-            <text x="${midPos.x}" y="${midPos.y + 3}" text-anchor="middle" font-family="'Inter', sans-serif" font-size="10" font-weight="600" fill="#ffffff" style="pointer-events:none;">
-              ${b.title.length > 12 ? b.title.slice(0, 10) + '...' : b.title}
+          <path d="${pathData}" fill="${b.color}" fill-opacity="${b.completed ? '0.5' : '0.92'}" stroke="${isDark ? '#0b101c' : '#ffffff'}" stroke-width="1.8" />
+          ${span >= 14 ? `
+            <text x="${midPos.x}" y="${midPos.y + 3.5}" text-anchor="middle" font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" font-weight="700" fill="#ffffff" filter="url(#textGlow)" style="pointer-events:none; letter-spacing: -0.01em;">
+              ${b.title.length > 13 ? b.title.slice(0, 11) + '…' : b.title}
             </text>
           ` : ''}
         </g>
@@ -1017,7 +1062,7 @@ class DayPlannerController {
       const startAngle = this.app.clockDrag.startAngle;
       const curAngle = this.app.clockDrag.currentAngle;
       const previewPath = this.describeDonutArc(startAngle, curAngle, this.innerRadius, this.outerRadius - 2);
-      svgHtml += `<path d="${previewPath}" fill="#38bdf8" fill-opacity="0.4" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4,4" />`;
+      svgHtml += `<path d="${previewPath}" fill="#38bdf8" fill-opacity="0.45" stroke="#38bdf8" stroke-width="2" stroke-dasharray="5,5" />`;
     }
 
     // Render Live Current Time Hand (Needle)
@@ -1025,13 +1070,13 @@ class DayPlannerController {
     const curTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     const liveAngle = this.timeToAngle(curTimeStr);
     const needleEnd = this.polarToCartesian(this.outerRadius + 8, liveAngle);
-    const needleHub = this.polarToCartesian(this.innerRadius - 40, liveAngle);
+    const needleHub = this.polarToCartesian(this.innerRadius - 16, liveAngle);
 
     svgHtml += `
       <!-- Live Needle Hand -->
-      <line x1="${needleHub.x}" y1="${needleHub.y}" x2="${needleEnd.x}" y2="${needleEnd.y}" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" />
-      <circle cx="${needleEnd.x}" cy="${needleEnd.y}" r="4" fill="#fbbf24" />
-      <circle cx="250" cy="250" r="6" fill="#fbbf24" />
+      <line x1="${needleHub.x}" y1="${needleHub.y}" x2="${needleEnd.x}" y2="${needleEnd.y}" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" filter="url(#needleGlow)" />
+      <circle cx="${needleEnd.x}" cy="${needleEnd.y}" r="4.5" fill="#fbbf24" stroke="#ffffff" stroke-width="1.5" />
+      <circle cx="250" cy="250" r="5" fill="#fbbf24" />
     `;
 
     this.svg.innerHTML = svgHtml;
