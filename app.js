@@ -63,47 +63,8 @@ const DEFAULT_STATE = {
     ]
   },
 
-  // 3. GOALS TRACKER (Matching Reference Image 3: BUILD A NOTION TEMPLATE)
-  goals: [
-    {
-      id: 'g-1',
-      title: 'BUILD A NOTION TEMPLATE',
-      currentSteps: 0,
-      totalSteps: 1,
-      deadline: '2026-09-30',
-      notes: [
-        'Define database schema for daily sprints & habit trackers',
-        'Design executive white typography & high-contrast aesthetics',
-        'Prepare launch documentation, user templates & demo video'
-      ],
-      attachments: [],
-      milestones: [
-        { id: 'm-1', text: 'Complete database relational links', done: false }
-      ]
-    },
-    {
-      id: 'g-2',
-      title: 'LAUNCH PLANLIFE EXECUTIVE OS',
-      currentSteps: 3,
-      totalSteps: 5,
-      deadline: '2026-10-15',
-      notes: [
-        'Run beta tests with 25 product leaders',
-        'Integrate 24-hour circular day planner widget',
-        'Finalize Gumroad & Product Hunt launch assets'
-      ],
-      attachments: [
-        { id: 'att-1', title: 'Product Hunt Launch Checklist (Notion)', type: 'Notion', url: 'https://www.notion.so' },
-        { id: 'att-2', title: 'PlanLife Beta Feedback Sheet (Google Sheets)', type: 'Sheet', url: 'https://docs.google.com/spreadsheets' }
-      ],
-      milestones: [
-        { id: 'm-2', text: 'Publish interactive landing page', done: true },
-        { id: 'm-3', text: 'Create onboarding video walkthrough', done: true },
-        { id: 'm-4', text: 'Distribute early access licenses', done: true },
-        { id: 'm-5', text: 'Collect post-launch feedback', done: false }
-      ]
-    }
-  ],
+  // 3. GOALS TRACKER
+  goals: [],
 
   // 4. HABIT STREAK TRACKER
   habits: [
@@ -180,8 +141,10 @@ class PlanLifeApp {
     if (typeof app !== 'undefined') {
       try { app = this; } catch (e) {}
     }
-    this.STORAGE_KEY = 'planlife_workspace_state_v1';
+    this.STORAGE_KEY = 'planlife_state_v3';
     this.instanceId = 'widget-' + Math.random().toString(36).substring(2, 9);
+    // Detect storage availability; fall back to sessionStorage if localStorage is blocked
+    this._storage = this._getStorage();
     // One-time cleanup: strip any base64 data: blobs from stored state to free quota
     this._cleanStoredBlobs();
     this.state = this.loadState();
@@ -248,11 +211,36 @@ class PlanLifeApp {
     this.init();
   }
 
+  // Returns the best available storage: localStorage → sessionStorage → memory object
+  _getStorage() {
+    try {
+      const test = '__planlife_test__';
+      localStorage.setItem(test, '1');
+      localStorage.removeItem(test);
+      return localStorage;
+    } catch (e) {}
+    try {
+      const test = '__planlife_test__';
+      sessionStorage.setItem(test, '1');
+      sessionStorage.removeItem(test);
+      console.warn('PlanLife: localStorage blocked, using sessionStorage (data lost on tab close)');
+      return sessionStorage;
+    } catch (e) {}
+    // Ultimate fallback: in-memory store (data lost on page reload, but goals work in-session)
+    console.warn('PlanLife: all storage blocked, using memory (data will not persist)');
+    const mem = {};
+    return {
+      getItem: k => mem[k] || null,
+      setItem: (k, v) => { mem[k] = v; },
+      removeItem: k => { delete mem[k]; }
+    };
+  }
+
   // Surgically strips base64 data: blobs from stored goals to free localStorage quota.
   // Called once on startup before loadState() so the cleaned state is what gets loaded.
   _cleanStoredBlobs() {
     try {
-      const raw = localStorage.getItem(this.STORAGE_KEY);
+      const raw = this._storage.getItem(this.STORAGE_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw);
       let changed = false;
@@ -270,20 +258,18 @@ class PlanLifeApp {
         });
       }
       if (changed) {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(parsed));
+        this._storage.setItem(this.STORAGE_KEY, JSON.stringify(parsed));
       }
     } catch (e) {
-      // If we can't even parse what's stored, wipe it so the app can recover
-      try { localStorage.removeItem(this.STORAGE_KEY); } catch (_) {}
+      try { this._storage.removeItem(this.STORAGE_KEY); } catch (_) {}
     }
   }
 
   loadState() {
     try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
+      const stored = this._storage.getItem(this.STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        // Deep-merge: ensure top-level keys from DEFAULT_STATE always exist
         const defaults = JSON.parse(JSON.stringify(DEFAULT_STATE));
         return Object.assign({}, defaults, parsed, {
           finance: Object.assign({}, defaults.finance, parsed.finance || {}),
@@ -298,15 +284,12 @@ class PlanLifeApp {
 
   saveState() {
     try {
-      // Strip base64 data: URLs from attachments before saving to avoid QuotaExceededError.
-      // These blobs can be MBs each and fill localStorage instantly.
       const stateToSave = JSON.parse(JSON.stringify(this.state));
       if (stateToSave.goals) {
         stateToSave.goals.forEach(g => {
           if (g.attachments) {
             g.attachments = g.attachments.map(att => {
               if (att.url && att.url.startsWith('data:')) {
-                // Keep metadata but strip the blob — user must re-upload after refresh
                 return { ...att, url: '#', _stripped: true };
               }
               return att;
@@ -314,10 +297,9 @@ class PlanLifeApp {
           }
         });
       }
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(stateToSave));
+      this._storage.setItem(this.STORAGE_KEY, JSON.stringify(stateToSave));
     } catch (e) {
-      console.error('Error saving state to localStorage', e);
-      // Show visible error so user knows their change wasn't persisted
+      console.error('Error saving state', e);
       if (e.name === 'QuotaExceededError' || e.code === 22) {
         this.showToast('Storage full — delete some attachments to free space', 'warning');
       }
