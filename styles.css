@@ -2893,10 +2893,10 @@ html.widget-clock .clock-svg-container,
 html.widget-clockdial .clock-svg-container,
 body.widget-clock .clock-svg-container,
 body.widget-clockdial .clock-svg-container {
-  width: clamp(190px, min(40vw, 50vh), 290px) !important;
-  height: clamp(190px, min(40vw, 50vh), 290px) !important;
-  max-width: 290px !important;
-  max-height: 290px !important;
+  width: clamp(280px, min(55vw, 65vh), 440px) !important;
+  height: clamp(280px, min(55vw, 65vh), 440px) !important;
+  max-width: 440px !important;
+  max-height: 440px !important;
   margin: 0 auto !important;
   filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.45)) !important;
   flex: 0 0 auto !important;
@@ -2906,10 +2906,10 @@ body.widget-clockdial .clock-svg-container {
 .widget-clock .category-breakdown-card,
 html.widget-clock .category-breakdown-card,
 body.widget-clock .category-breakdown-card {
-  flex: 0 1 200px !important;
-  max-width: 230px !important;
-  min-width: 140px !important;
-  max-height: clamp(190px, min(40vw, 50vh), 290px) !important;
+  flex: 0 1 220px !important;
+  max-width: 250px !important;
+  min-width: 160px !important;
+  max-height: clamp(280px, min(55vw, 65vh), 440px) !important;
   background-color: var(--bg-surface) !important;
   border: 1px solid var(--border-color) !important;
   border-radius: var(--radius-lg) !important;
