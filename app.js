@@ -63,8 +63,79 @@ const DEFAULT_STATE = {
     ]
   },
 
-  // 3. GOALS TRACKER
-  goals: [],
+  // 3. GOALS TRACKER (Matching Reference Image 3: BUILD A NOTION TEMPLATE)
+  goals: [
+    {
+      id: 'g-1',
+      title: 'BUILD A NOTION TEMPLATE',
+      currentSteps: 3,
+      totalSteps: 4,
+      deadline: '2026-09-30',
+      notes: [
+        'Define relational database schema for daily sprints & habit trackers',
+        'Design executive dark/light typography & high-contrast aesthetics',
+        'Integrate 24-hour circular day planner clock & real-time time tracker',
+        'Prepare launch documentation, user walkthrough & interactive demo'
+      ],
+      attachments: [
+        { id: 'att-1', title: 'Notion Workspace Blueprint (Notion)', type: 'Notion', url: 'https://www.notion.so' },
+        { id: 'att-2', title: 'Product Launch Checklist (PDF)', type: 'PDF', url: '#' }
+      ],
+      milestones: [
+        { id: 'm-1', text: 'Database architecture & relational formulas', done: true },
+        { id: 'm-2', text: '24-hour clock SVG widget integration', done: true },
+        { id: 'm-3', text: 'Financial net surplus / deficit engine', done: true },
+        { id: 'm-4', text: 'Gumroad & Product Hunt public launch', done: false }
+      ]
+    },
+    {
+      id: 'g-2',
+      title: 'FINANCIAL FREEDOM & SURPLUS ACCUMULATION',
+      currentSteps: 4,
+      totalSteps: 6,
+      deadline: '2026-12-31',
+      notes: [
+        'Maintain 6-month liquid emergency runway in high-yield savings (SBI/HDFC)',
+        'Automate monthly mutual fund SIPs & equity index investments',
+        'Eliminate credit card rolling balance to ensure 0% interest penalty',
+        'Target ₹5,00,000 net liquid reserve by end of year'
+      ],
+      attachments: [
+        { id: 'att-3', title: 'Annual Wealth & Asset Allocation Model', type: 'Sheet', url: 'https://docs.google.com/spreadsheets' },
+        { id: 'att-4', title: 'Term & Health Insurance Policy Details', type: 'PDF', url: '#' }
+      ],
+      milestones: [
+        { id: 'm-5', text: 'Emergency fund target of ₹3,00,000 reached', done: true },
+        { id: 'm-6', text: 'SaaS expense audit & recurring cost trimming', done: true },
+        { id: 'm-7', text: 'SIP investments automated for Q3 & Q4', done: true },
+        { id: 'm-8', text: 'Car loan EMI paydown ahead of schedule', done: true },
+        { id: 'm-9', text: 'Achieve ₹4,50,000 net portfolio milestone', done: false },
+        { id: 'm-10', text: 'Year-end financial tax & advisory audit', done: false }
+      ]
+    },
+    {
+      id: 'g-3',
+      title: 'EXECUTIVE HEALTH & PEAK FOCUS',
+      currentSteps: 2,
+      totalSteps: 5,
+      deadline: '2026-11-15',
+      notes: [
+        'Complete 90-minute uninterrupted deep work sprint every morning before 10 AM',
+        'Maintain 5-day weekly strength training & cardio conditioning',
+        'Zero phone screen time 45 minutes before sleep to optimize circadian rhythm'
+      ],
+      attachments: [
+        { id: 'att-5', title: 'Deep Work & Circadian Protocol Guidelines', type: 'Doc', url: '#' }
+      ],
+      milestones: [
+        { id: 'm-11', text: 'Establish 14-day morning meditation streak', done: true },
+        { id: 'm-12', text: 'Ergonomic workspace setup completed', done: true },
+        { id: 'm-13', text: 'Hit 21-day consecutive deep work sprint streak', done: false },
+        { id: 'm-14', text: 'Consistent 7.5h sleep score on wearable', done: false },
+        { id: 'm-15', text: 'Quarterly biomarker & physical health review', done: false }
+      ]
+    }
+  ],
 
   // 4. HABIT STREAK TRACKER
   habits: [
@@ -271,10 +342,15 @@ class PlanLifeApp {
       if (stored) {
         const parsed = JSON.parse(stored);
         const defaults = JSON.parse(JSON.stringify(DEFAULT_STATE));
-        return Object.assign({}, defaults, parsed, {
+        const merged = Object.assign({}, defaults, parsed, {
           finance: Object.assign({}, defaults.finance, parsed.finance || {}),
           focus: Object.assign({}, defaults.focus, parsed.focus || {}),
         });
+        // Auto-heal empty goals from previous empty commit
+        if (!merged.goals || !Array.isArray(merged.goals) || (!merged._goalsExplicitlyCleared && merged.goals.length === 0)) {
+          merged.goals = JSON.parse(JSON.stringify(DEFAULT_STATE.goals));
+        }
+        return merged;
       }
     } catch (e) {
       console.warn('Could not load saved state, using defaults', e);
@@ -755,23 +831,38 @@ class PlanLifeApp {
     // 6. Dashboard Goals Mini List
     const dashGoalsList = document.getElementById('dashGoalsList');
     if (dashGoalsList) {
-      dashGoalsList.innerHTML = this.state.goals.map(g => {
-        const pct = Math.round((g.currentSteps / Math.max(1, g.totalSteps)) * 100);
-        return `
-          <div class="dash-goal-row">
-            <div class="dash-goal-ring">
-              <svg viewBox="0 0 36 36" style="width:100%; height:100%; transform: rotate(-90deg);">
-                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e2e8f0" stroke-width="4"/>
-                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#3b82f6" stroke-width="4" stroke-dasharray="${pct}, 100"/>
-              </svg>
-            </div>
-            <div class="dash-goal-info">
-              <div class="dash-goal-title">${g.title}</div>
-              <div class="dash-goal-steps">${g.currentSteps}/${g.totalSteps} steps completed (${pct}%)</div>
-            </div>
+      if (!this.state.goals || this.state.goals.length === 0) {
+        dashGoalsList.innerHTML = `
+          <div class="dash-goal-empty">
+            <span>No strategic goals tracked yet.</span>
+            <button type="button" class="btn btn-xs btn-pill" onclick="app.switchTab('goals')">+ Set Goals</button>
           </div>
         `;
-      }).join('');
+      } else {
+        const isDark = document.body.classList.contains('theme-dark') || document.documentElement.classList.contains('theme-dark');
+        const trackBg = isDark ? '#334155' : '#e2e8f0';
+        const trackFill = isDark ? '#38bdf8' : '#3b82f6';
+
+        dashGoalsList.innerHTML = this.state.goals.map(g => {
+          const currentSteps = Number(g.currentSteps) || 0;
+          const totalSteps = Math.max(1, Number(g.totalSteps) || 1);
+          const pct = Math.min(100, Math.max(0, Math.round((currentSteps / totalSteps) * 100)));
+          return `
+            <div class="dash-goal-row" onclick="app.switchTab('goals')" style="cursor: pointer;" title="Open in Goals tab">
+              <div class="dash-goal-ring">
+                <svg viewBox="0 0 36 36" style="width:100%; height:100%; transform: rotate(-90deg);">
+                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="${trackBg}" stroke-width="3.8"/>
+                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="${trackFill}" stroke-width="3.8" stroke-dasharray="${pct}, 100" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="dash-goal-info">
+                <div class="dash-goal-title">${g.title}</div>
+                <div class="dash-goal-steps">${currentSteps}/${totalSteps} steps completed (${pct}%)</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
     }
 
     // 7. Dashboard Finance Mini
@@ -2199,11 +2290,28 @@ class GoalsController {
     const container = document.getElementById('goalsCardsContainer');
     if (!container) return;
 
+    if (!this.app.state.goals || this.app.state.goals.length === 0) {
+      container.innerHTML = `
+        <div class="goals-empty-state">
+          <div class="empty-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
+          <h3 style="margin: 12px 0 6px; font-size: 18px; font-weight: 700; color: var(--text-primary);">No Strategic Goals Active</h3>
+          <p style="color: var(--text-secondary); font-size: 13px; max-width: 440px; margin: 0 auto 20px;">Track your high-impact objectives with interactive progress rings, milestone steps, strategy notes, and attached documents.</p>
+          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button type="button" class="btn btn-dark" onclick="app.goals.openModal()">+ Create New Goal</button>
+            <button type="button" class="btn btn-pill" onclick="app.goals.loadStarterGoals()">Restore Starter Goals</button>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
     // Circumference for r=25 is 2 * PI * 25 = 157.08
     const circumference = 157.08;
 
     container.innerHTML = this.app.state.goals.map(g => {
-      const pct = Math.min(100, Math.round((g.currentSteps / Math.max(1, g.totalSteps)) * 100));
+      const currentSteps = Number(g.currentSteps) || 0;
+      const totalSteps = Math.max(1, Number(g.totalSteps) || 1);
+      const pct = Math.min(100, Math.max(0, Math.round((currentSteps / totalSteps) * 100)));
       const strokeOffset = circumference - (pct / 100) * circumference;
 
       return `
@@ -2220,7 +2328,10 @@ class GoalsController {
                 </svg>
                 <span class="goal-pct-label">${pct}%</span>
               </div>
-              <h2 class="goal-card-title">${g.title}</h2>
+              <div>
+                <h2 class="goal-card-title">${g.title}</h2>
+                ${g.deadline ? `<div style="font-size: 12px; color: var(--text-muted); margin-top: 3px; font-weight: 500;">Target Deadline: <strong>${g.deadline}</strong></div>` : ''}
+              </div>
             </div>
             <div class="goal-actions-group">
               <button type="button" class="goal-icon-btn" title="Edit Goal" onclick="event.stopPropagation(); app.goals.openModal('${g.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
@@ -2232,7 +2343,7 @@ class GoalsController {
           <div class="goal-progress-section">
             <div class="goal-progress-labels">
               <span class="goal-prog-lbl">PROGRESS</span>
-              <span class="goal-prog-steps">${g.currentSteps}/${g.totalSteps} steps</span>
+              <span class="goal-prog-steps">${currentSteps}/${totalSteps} steps completed (${pct}%)</span>
             </div>
             <div class="goal-linear-track">
               <div class="goal-linear-fill" style="width: ${pct}%;"></div>
@@ -2242,13 +2353,31 @@ class GoalsController {
           <!-- Update Progress Strip -->
           <div class="goal-update-strip">
             <div class="goal-update-left">
-              <span>Update Progress:</span>
-              <input type="number" class="goal-step-input" id="step-input-${g.id}" value="${g.currentSteps}" min="0" max="${g.totalSteps}">
-              <span>/${g.totalSteps} steps</span>
+              <span>Update Steps:</span>
+              <input type="number" class="goal-step-input" id="step-input-${g.id}" value="${currentSteps}" min="0" max="${totalSteps}">
+              <span>/${totalSteps} steps</span>
             </div>
             <div class="goal-update-right">
-              <button class="btn btn-pill btn-sm" onclick="app.goals.incrementStep('${g.id}')">+1</button>
-              <button class="btn btn-dark btn-sm" onclick="app.goals.saveManualStep('${g.id}')">Save</button>
+              <button type="button" class="btn btn-pill btn-sm" onclick="app.goals.incrementStep('${g.id}')">+1 Step</button>
+              <button type="button" class="btn btn-dark btn-sm" onclick="app.goals.saveManualStep('${g.id}')">Save</button>
+            </div>
+          </div>
+
+          <!-- KEY MILESTONES Checklist Card (Matching Reference Image 3) -->
+          <div class="goal-milestones-card">
+            <div class="goal-milestones-header">
+              <span>KEY MILESTONES (${(g.milestones || []).filter(m => m.done).length}/${(g.milestones || []).length || totalSteps})</span>
+              <button type="button" class="btn btn-pill btn-xs" onclick="app.goals.addMilestone('${g.id}')">+ Add Milestone</button>
+            </div>
+            <div class="goal-milestones-list">
+              ${(!g.milestones || g.milestones.length === 0) ? `
+                <div style="font-size: 12px; color: var(--text-muted); font-style: italic; padding: 4px 0;">No milestones yet. Click "+ Add Milestone" to add checkpoints.</div>
+              ` : g.milestones.map(m => `
+                <label class="goal-milestone-item ${m.done ? 'is-done' : ''}">
+                  <input type="checkbox" class="milestone-checkbox" ${m.done ? 'checked' : ''} onchange="app.goals.toggleMilestone('${g.id}', '${m.id}')">
+                  <span class="milestone-text">${m.text}</span>
+                </label>
+              `).join('')}
             </div>
           </div>
 
@@ -2259,10 +2388,10 @@ class GoalsController {
                 <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
                 <span>NOTES & STRATEGY</span>
               </div>
-              <button class="btn btn-pill btn-sm" onclick="app.goals.openModal('${g.id}')">Edit</button>
+              <button type="button" class="btn btn-pill btn-sm" onclick="app.goals.openModal('${g.id}')">Edit</button>
             </div>
             <ul class="goal-bullet-list">
-              ${g.notes.length > 0 ? g.notes.map(n => `<li>${n}</li>`).join('') : '<li style="color:#94a3b8; font-style:italic;">No strategy notes added.</li>'}
+              ${(g.notes && g.notes.length > 0) ? g.notes.map(n => `<li>${n}</li>`).join('') : '<li style="color:#94a3b8; font-style:italic;">No strategy notes added.</li>'}
             </ul>
           </div>
 
@@ -2279,12 +2408,12 @@ class GoalsController {
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg> Upload File
                   <input type="file" style="display:none;" onchange="app.goals.handleDirectUpload('${g.id}', this)">
                 </label>
-                <button class="btn btn-pill btn-sm" onclick="app.goals.openAttachModal('${g.id}')">+ Link / More</button>
+                <button type="button" class="btn btn-pill btn-sm" onclick="app.goals.openAttachModal('${g.id}')">+ Link / More</button>
               </div>
             </div>
             <div class="goal-docs-list">
               ${(!g.attachments || g.attachments.length === 0) ? `
-                <div class="doc-empty-msg">No documents attached yet. Click <strong><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg> Upload File</strong> to attach any file from your computer or <strong>+ Link</strong> for Notion / web docs.</div>
+                <div class="doc-empty-msg">No documents attached yet. Click <strong>Upload File</strong> to attach any file from your computer or <strong>+ Link / More</strong> for Notion / web docs.</div>
               ` : g.attachments.map((att, attIdx) => {
                 const badgeClass = `doc-badge-${(att.type || 'link').toLowerCase()}`;
                 const isData = att.url && att.url.startsWith('data:');
@@ -2311,22 +2440,40 @@ class GoalsController {
               }).join('')}
             </div>
           </div>
-
-          <!-- Add Milestone Button (Matching Image 3) -->
-          <div>
-            <button class="btn btn-pill btn-sm" onclick="app.goals.addMilestone('${g.id}')">+ Add milestone</button>
-          </div>
         </div>
       `;
     }).join('');
   }
 
+  toggleMilestone(goalId, milestoneId) {
+    const goal = this.app.state.goals.find(g => g.id === goalId);
+    if (goal && goal.milestones) {
+      const m = goal.milestones.find(item => item.id === milestoneId);
+      if (m) {
+        m.done = !m.done;
+        // Sync completed count with currentSteps
+        const doneCount = goal.milestones.filter(item => item.done).length;
+        goal.currentSteps = doneCount;
+        goal.totalSteps = Math.max(goal.totalSteps, goal.milestones.length);
+        this.app.saveState();
+        this.render();
+        try { this.app.renderDashboard(); } catch (e) {}
+      }
+    }
+  }
+
   incrementStep(goalId) {
     const goal = this.app.state.goals.find(g => g.id === goalId);
     if (goal) {
-      goal.currentSteps = Math.min(goal.totalSteps, goal.currentSteps + 1);
+      goal.currentSteps = Math.min(goal.totalSteps, (Number(goal.currentSteps) || 0) + 1);
+      if (goal.milestones && goal.milestones.length > 0) {
+        for (let i = 0; i < goal.milestones.length; i++) {
+          goal.milestones[i].done = (i < goal.currentSteps);
+        }
+      }
       this.app.saveState();
       this.render();
+      try { this.app.renderDashboard(); } catch (e) {}
     }
   }
 
@@ -2337,21 +2484,44 @@ class GoalsController {
     const goal = this.app.state.goals.find(g => g.id === goalId);
     if (goal && !isNaN(val)) {
       goal.currentSteps = Math.max(0, Math.min(goal.totalSteps, val));
+      if (goal.milestones && goal.milestones.length > 0) {
+        for (let i = 0; i < goal.milestones.length; i++) {
+          goal.milestones[i].done = (i < goal.currentSteps);
+        }
+      }
       this.app.saveState();
       this.render();
+      try { this.app.renderDashboard(); } catch (e) {}
+      this.app.showToast('Progress updated', 'success');
     }
   }
 
   addMilestone(goalId) {
     const goal = this.app.state.goals.find(g => g.id === goalId);
-    if (goal) {
-      goal.totalSteps = (goal.totalSteps || 0) + 1;
-      const num = goal.totalSteps;
-      goal.notes.push(`Milestone ${num}: Key execution checkpoint`);
+    if (!goal) return;
+    if (!goal.milestones) goal.milestones = [];
+    const text = prompt('Enter milestone title:', `Milestone ${goal.milestones.length + 1}`);
+    if (text && text.trim()) {
+      goal.milestones.push({
+        id: 'm-' + Date.now(),
+        text: text.trim(),
+        done: false
+      });
+      goal.totalSteps = Math.max(goal.totalSteps, goal.milestones.length);
       this.app.saveState();
       this.render();
-      this.app.showToast(`Added Milestone ${num}. Click Edit to customize details.`, 'success');
+      try { this.app.renderDashboard(); } catch (e) {}
+      this.app.showToast('Milestone checkpoint added', 'success');
     }
+  }
+
+  loadStarterGoals() {
+    this.app.state.goals = JSON.parse(JSON.stringify(DEFAULT_STATE.goals));
+    this.app.state._goalsExplicitlyCleared = false;
+    this.app.saveState();
+    this.render();
+    try { this.app.renderDashboard(); } catch (e) {}
+    this.app.showToast('Starter strategic goals loaded', 'success');
   }
 
   openModal(goalId = null) {
@@ -2371,7 +2541,7 @@ class GoalsController {
         titleInput.value = g.title;
         totalSteps.value = g.totalSteps;
         currentSteps.value = g.currentSteps;
-        notesInput.value = g.notes.join('\n');
+        notesInput.value = (g.notes || []).join('\n');
         deadline.value = g.deadline || '';
       }
     } else {
@@ -2425,18 +2595,24 @@ class GoalsController {
         attachments: [],
         milestones: []
       });
+      this.app.state._goalsExplicitlyCleared = false;
     }
 
     this.closeModal();
     this.app.saveState();
     this.render();
+    try { this.app.renderDashboard(); } catch (e) {}
     this.app.showToast('Strategic goal saved', 'success');
   }
 
   deleteGoal(id) {
     this.app.state.goals = this.app.state.goals.filter(g => g.id !== id);
+    if (this.app.state.goals.length === 0) {
+      this.app.state._goalsExplicitlyCleared = true;
+    }
     this.app.saveState();
     this.render();
+    try { this.app.renderDashboard(); } catch (e) {}
     this.app.showToast('Goal card deleted', 'danger');
   }
 

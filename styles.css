@@ -2021,6 +2021,108 @@ body.theme-dark .attach-tab-btn.active {
   margin-top: 5px;
 }
 
+/* Goals Milestones Card & Checklist */
+.goal-milestones-card {
+  background-color: var(--bg-surface-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.goal-milestones-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.goal-milestones-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.goal-milestone-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-primary);
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 0;
+  transition: opacity 0.15s ease;
+}
+
+.goal-milestone-item.is-done .milestone-text {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+.milestone-checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  accent-color: var(--accent-blue, #3b82f6);
+}
+
+/* Strategic Goals Empty State */
+.goals-empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  background-color: var(--bg-surface);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  margin-top: 12px;
+}
+
+.goals-empty-state .empty-icon {
+  color: #3b82f6;
+  margin-bottom: 8px;
+}
+
+/* Dashboard Goal Row & Empty State */
+.dash-goal-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  background-color: var(--bg-surface-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.15s ease;
+}
+
+.dash-goal-row:hover {
+  background-color: var(--bg-surface-tertiary);
+  transform: translateY(-1px);
+}
+
+.dash-goal-empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background-color: var(--bg-surface-secondary);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.btn-xs {
+  height: 24px !important;
+  padding: 0 8px !important;
+  font-size: 11px !important;
+  border-radius: var(--radius-sm) !important;
+}
+
 /* ==========================================================================
    TAB 5: HABIT STREAK COUNTER
    ========================================================================== */
@@ -3460,23 +3562,49 @@ body.widget-goals #tab-goals {
   flex: 1 1 auto !important;
   min-height: 0 !important;
   height: auto !important;
-  overflow: visible !important;
-  padding: 12px 16px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 16px 20px !important;
   box-sizing: border-box !important;
+  gap: 16px !important;
 }
 
-.widget-goals .goals-grid,
-html.widget-goals .goals-grid,
-body.widget-goals .goals-grid {
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
-  gap: 14px !important;
+.widget-goals .page-header-flex,
+html.widget-goals .page-header-flex,
+body.widget-goals .page-header-flex {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 14px !important;
+  padding-bottom: 10px !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  flex-shrink: 0 !important;
 }
 
-.widget-goals .goal-card,
-html.widget-goals .goal-card,
-body.widget-goals .goal-card {
+.widget-goals .page-header-flex .page-title,
+html.widget-goals .page-header-flex .page-title,
+body.widget-goals .page-header-flex .page-title {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  display: block !important;
+}
+
+.widget-goals .goals-card-list,
+html.widget-goals .goals-card-list,
+body.widget-goals .goals-card-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 18px !important;
+  width: 100% !important;
+}
+
+.widget-goals .goal-card-wrapper,
+html.widget-goals .goal-card-wrapper,
+body.widget-goals .goal-card-wrapper {
+  padding: 20px 22px !important;
+  border-radius: var(--radius-lg) !important;
   box-shadow: none !important;
-  border-radius: var(--radius-lg);
 }
 
 /* --------------------------------------------------------------------------
