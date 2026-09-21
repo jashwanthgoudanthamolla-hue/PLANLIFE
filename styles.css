@@ -2541,41 +2541,363 @@ body.theme-dark .streak-count-badge {
   justify-content: flex-end;
 }
 
-.evening-review-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 20px;
-  margin-top: 14px;
+/* ==========================================================================
+   DATE-WISE MOOD & ENERGY TRACKER
+   ========================================================================== */
+.mood-tracker-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
-.review-col {
+.mood-tracker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.mood-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mood-header-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.mood-subtitle {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.mood-date-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-icon-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface-secondary);
+  color: var(--text-primary);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-icon-nav:hover {
+  background: var(--hover-overlay);
+  border-color: var(--text-tertiary);
+}
+
+.mood-date-input {
+  background: var(--bg-surface-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+}
+
+.mood-date-input:focus {
+  border-color: var(--accent-purple);
+}
+
+/* 7-Day Date-Wise Mini Strip */
+.mood-week-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px 8px 2px;
+  scrollbar-width: thin;
+}
+
+.mood-day-pill {
+  flex: 1 0 52px;
+  max-width: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface-secondary);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+
+.mood-day-pill:hover {
+  border-color: var(--text-tertiary);
+  background: var(--hover-overlay);
+}
+
+.mood-day-pill.active {
+  border-color: var(--accent-purple);
+  background: rgba(139, 92, 246, 0.12);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.25);
+}
+
+.day-pill-name {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+.mood-day-pill.is-today .day-pill-name {
+  color: var(--accent-purple);
+}
+
+.day-pill-num {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+.day-pill-emoji {
+  font-size: 15px;
+  line-height: 1;
+  min-height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.day-pill-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--border-color);
+  opacity: 0.6;
+}
+
+/* Mood Emojis Grid */
+.mood-selector-section {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.review-label {
-  font-size: 12px;
+.mood-section-label {
+  font-size: 11.5px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   color: var(--text-secondary);
 }
 
-.energy-slider {
-  width: 100%;
+.mood-emojis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+  gap: 8px;
+}
+
+.mood-emoji-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 10px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface-secondary);
   cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
 }
 
-.slider-val-readout {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 14px;
-  color: var(--accent-purple);
+.mood-emoji-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--text-tertiary);
 }
 
-.review-bottom-actions {
+.mood-emoji-btn.active {
+  transform: translateY(-2px);
+  border-color: var(--mood-color, #38bdf8);
+  background: var(--mood-bg, rgba(56, 189, 248, 0.12));
+  box-shadow: 0 0 12px var(--mood-glow, rgba(56, 189, 248, 0.25));
+}
+
+.mood-btn-emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.mood-btn-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mood-btn-vibe {
+  font-size: 9.5px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Mood Details (Energy Slider & Factors) */
+.mood-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .mood-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mood-energy-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mood-slider-header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+}
+
+.mood-energy-badge {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent-blue);
+  transition: all 0.2s ease;
+}
+
+.mood-slider {
+  width: 100%;
+  cursor: pointer;
+  accent-color: var(--accent-purple);
+}
+
+.mood-energy-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+.mood-factors-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mood-tags-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mood-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface-secondary);
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.mood-tag-chip:hover {
+  border-color: var(--text-tertiary);
+  color: var(--text-primary);
+}
+
+.mood-tag-chip.active {
+  background: rgba(139, 92, 246, 0.16);
+  border-color: var(--accent-purple);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Micro Note */
+.mood-note-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mood-note-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mood-save-status {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-green);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.mood-save-status.visible {
+  opacity: 1;
+}
+
+.mood-note-input {
+  width: 100%;
+}
+
+/* Dashboard Mood Badge */
+.dash-mood-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface-secondary);
+  color: var(--text-primary);
 }
 
 /* ==========================================================================
@@ -3656,17 +3978,17 @@ body.widget-tasks .checklist-items-container {
 }
 
 /* --------------------------------------------------------------------------
-   9. ⚡ WIDGET: Daily Focus Top 3 & Brain Dump (widget=focus)
+   9. ⚡ WIDGET: Daily Focus & Mood Tracker (widget=focus)
    -------------------------------------------------------------------------- */
 .widget-focus #tab-focus,
 html.widget-focus #tab-focus,
 body.widget-focus #tab-focus {
-  display: flex !important;
-  flex-direction: column !important;
+  display: block !important;
   flex: 1 1 auto !important;
   height: 100% !important;
   min-height: 0 !important;
-  overflow: hidden !important;
+  overflow-y: auto !important;
+  padding: 8px !important;
 }
 
 .widget-focus .focus-grid,
@@ -3674,12 +3996,8 @@ html.widget-focus .focus-grid,
 body.widget-focus .focus-grid {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
   gap: 12px !important;
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  overflow-y: auto !important;
-  padding: 4px !important;
-  scrollbar-width: thin !important;
-  scrollbar-color: #333333 transparent !important;
+  margin-bottom: 12px !important;
+  overflow: visible !important;
 }
 
 .widget-focus .focus-card,
@@ -3687,7 +4005,32 @@ html.widget-focus .focus-card,
 body.widget-focus .focus-card {
   box-shadow: none !important;
   border-radius: var(--radius-lg);
-  padding: 12px 14px !important;
+  padding: 14px !important;
+}
+
+/* --------------------------------------------------------------------------
+   10. ✨ WIDGET: Standalone Date-Wise Mood Tracker (widget=mood)
+   -------------------------------------------------------------------------- */
+.widget-mood .page-header,
+.widget-mood .focus-grid {
+  display: none !important;
+}
+
+.widget-mood #tab-focus,
+html.widget-mood #tab-focus,
+body.widget-mood #tab-focus {
+  display: block !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  padding: 8px !important;
+}
+
+.widget-mood #moodTrackerCard {
+  margin-top: 0 !important;
+  box-shadow: none !important;
+  border-radius: var(--radius-lg);
+  padding: 16px !important;
 }
 
 /* Custom Notion-Style Dark Scrollbars for Inner Scrollable Lists */

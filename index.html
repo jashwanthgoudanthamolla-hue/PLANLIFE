@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2.9.1">
+  <link rel="stylesheet" href="styles.css?v=2.9.2">
   <script>
     (function() {
       try {
@@ -181,7 +181,7 @@
             <span class="tab-icon">✅</span> Checklist
           </button>
           <button class="nav-tab" data-tab="focus">
-            <span class="tab-icon">⚡</span> Focus & Review
+            <span class="tab-icon">⚡</span> Focus & Mood
           </button>
         </nav>
       </div>
@@ -327,14 +327,17 @@
           </div>
         </div>
 
-        <!-- Daily Priority & Brain Dump Quick Bar -->
+        <!-- Daily Priority & Mood Quick Bar -->
         <div class="dash-card mt-4">
           <div class="card-header-flex">
             <div>
-              <h3 class="card-title">⚡ Daily Focus: The Non-Negotiable 3</h3>
-              <p class="card-desc">Identify your 3 high-leverage outcomes for today</p>
+              <h3 class="card-title">⚡ Daily Focus &amp; Mood</h3>
+              <p class="card-desc">Non-negotiable outcomes and date-wise vibe tracking</p>
             </div>
-            <button class="btn btn-sm btn-outline jump-tab-btn" data-target="focus">Focus Engine →</button>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div id="dashTodayMoodBadge" class="dash-mood-badge"></div>
+              <button class="btn btn-sm btn-outline jump-tab-btn" data-target="focus">Focus &amp; Mood →</button>
+            </div>
           </div>
           <div class="dash-top3-grid" id="dashTop3Container">
             <!-- Rendered via JS -->
@@ -741,11 +744,12 @@
       </section>
 
       <!-- ========================================================================= -->
-      <!-- TAB 7: FOCUS ENGINE & BRAIN DUMP (Value-Add Feature) -->
+      <!-- TAB 7: FOCUS ENGINE & DATE-WISE MOOD TRACKER -->
       <!-- ========================================================================= -->
       <section id="tab-focus" class="tab-view">
         <div class="page-header">
-          <h1 class="page-title serif-title">Daily Focus &amp; Time Audit</h1>
+          <h1 class="page-title serif-title">Daily Focus &amp; Mood Tracker</h1>
+          <p class="page-subtitle">Prioritize non-negotiable outcomes, capture thoughts, and track emotional flow and energy levels day by day.</p>
         </div>
 
         <div class="focus-grid">
@@ -753,7 +757,9 @@
           <div class="focus-card">
             <div class="focus-card-header">
               <span class="focus-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
-              <h3 class="focus-title">Top 3 Non-Negotiable Priorities Today</h3>
+              <div>
+                <h3 class="focus-title">Top 3 Non-Negotiable Priorities Today</h3>
+              </div>
             </div>
             <div class="top3-inputs-wrap">
               <div class="top3-item-row">
@@ -778,7 +784,9 @@
           <div class="focus-card">
             <div class="focus-card-header">
               <span class="focus-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/><circle cx="12" cy="12" r="10"/></svg></span>
-              <h3 class="focus-title">Frictionless Brain Dump</h3>
+              <div>
+                <h3 class="focus-title">Frictionless Brain Dump</h3>
+              </div>
             </div>
             <div class="brain-dump-input-box">
               <textarea id="brainDumpText" class="brain-dump-textarea" placeholder="Type anything on your mind... Ideas, errands, reminders, notes"></textarea>
@@ -786,30 +794,71 @@
           </div>
         </div>
 
-        <!-- End of Day Review & Energy Audit -->
-        <div class="focus-card mt-4">
-          <div class="focus-card-header">
-            <span class="focus-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
-            <h3 class="focus-title">Evening Review &amp; Energy Audit</h3>
-          </div>
-          <div class="evening-review-grid">
-            <div class="review-col">
-              <label class="review-label">Energy &amp; Focus Level Today (1 to 10)</label>
-              <input type="range" id="dailyEnergyRating" min="1" max="10" value="8" class="energy-slider">
-              <div class="slider-val-readout"><span id="energyValText">8</span> / 10</div>
+        <!-- Date-Wise Mood & Energy Tracker -->
+        <div class="focus-card mt-4 mood-tracker-card" id="moodTrackerCard">
+          <div class="mood-tracker-header">
+            <div class="mood-title-wrap">
+              <span class="mood-header-icon">✨</span>
+              <div>
+                <h3 class="focus-title">Date-Wise Mood &amp; Energy Tracker</h3>
+                <p class="mood-subtitle" id="moodSubtitleDate">Track emotional state, energy levels, and daily drivers day by day</p>
+              </div>
             </div>
-            <div class="review-col">
-              <label class="review-label">What moved the needle most today?</label>
-              <input type="text" id="needleMovedInput" class="form-input" placeholder="Key breakthrough or achievement">
-            </div>
-            <div class="review-col">
-              <label class="review-label">What drained energy or was avoided?</label>
-              <input type="text" id="frictionInput" class="form-input" placeholder="Friction point or distraction">
+            
+            <!-- Date Navigator Controls -->
+            <div class="mood-date-controls">
+              <button type="button" class="btn-icon-nav" id="moodPrevDateBtn" title="Previous Day">◀</button>
+              <input type="date" id="moodDateInput" class="mood-date-input" title="Select Date">
+              <button type="button" class="btn-icon-nav" id="moodNextDateBtn" title="Next Day">▶</button>
+              <button type="button" class="btn btn-xs btn-pill" id="moodTodayBtn">Today</button>
             </div>
           </div>
-          <div class="review-bottom-actions mt-3">
-            <button id="saveReviewBtn" class="btn btn-dark btn-sm">Save Reflection</button>
-            <button id="rolloverIncompleteReviewBtn" class="btn btn-pill btn-sm">Auto-Rollover Incomplete Items to Tomorrow</button>
+
+          <!-- 7-Day Date-Wise Mini Strip / Calendar Bar -->
+          <div class="mood-week-strip" id="moodWeekStrip">
+            <!-- Dynamically populated 7-day strip -->
+          </div>
+
+          <!-- Mood Spectrum Selection Grid -->
+          <div class="mood-selector-section">
+            <label class="mood-section-label">How are you feeling on this date?</label>
+            <div class="mood-emojis-grid" id="moodEmojisGrid">
+              <!-- Dynamically populated 8 mood buttons -->
+            </div>
+          </div>
+
+          <!-- Energy & Influencing Factors Grid -->
+          <div class="mood-details-grid">
+            <!-- Energy & Focus Slider -->
+            <div class="mood-energy-col">
+              <div class="mood-slider-header">
+                <label class="mood-section-label">Energy &amp; Focus Level</label>
+                <span class="mood-energy-badge" id="moodEnergyValText">8 / 10 • High Drive</span>
+              </div>
+              <input type="range" id="moodEnergySlider" min="1" max="10" value="8" class="energy-slider mood-slider">
+              <div class="mood-energy-ticks">
+                <span>1 Drained</span>
+                <span>5 Steady</span>
+                <span>10 Peak Flow</span>
+              </div>
+            </div>
+
+            <!-- Mood Factors / Triggers -->
+            <div class="mood-factors-col">
+              <label class="mood-section-label">What influenced your mood?</label>
+              <div class="mood-tags-wrap" id="moodTagsWrap">
+                <!-- Dynamically populated tag chips -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Daily Reflection & Micro-Note -->
+          <div class="mood-note-row">
+            <div class="mood-note-header">
+              <label class="mood-section-label">Daily Note &amp; Gratitude</label>
+              <span class="mood-save-status" id="moodSaveStatus">✓ Saved</span>
+            </div>
+            <input type="text" id="moodNoteInput" class="form-input mood-note-input" placeholder="What shaped your mood today? Key win, gratitude, or breakthrough...">
           </div>
         </div>
       </section>
@@ -1062,6 +1111,6 @@
 
   </div>
 
-  <script src="app.js?v=2.9.1"></script>
+  <script src="app.js?v=2.9.2"></script>
 </body>
 </html>

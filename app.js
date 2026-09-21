@@ -186,18 +186,59 @@ const DEFAULT_STATE = {
     { id: 't-5', title: 'Refill multivitamins & recovery supplements', priority: 'low', tag: 'Health', dueDate: '2026-09-18', completed: false }
   ],
 
-  // 6. FOCUS & BRAIN DUMP (Value-add feature)
+  // 6. FOCUS & BRAIN DUMP
   focus: {
     top3: [
       { id: 'p1', text: 'Finalize Notion template database architecture', done: false },
       { id: 'p2', text: 'Reconcile loans due and verify credit card autopay', done: true },
       { id: 'p3', text: 'Complete 24-hour circular day planner schedule blocks', done: true }
     ],
-    brainDump: 'Remember to verify tax deduction documents for the home office upgrade.\nSend invoice #104 to consulting client.\nBackup Notion workspace before migrating formulas.',
-    review: {
-      energy: 8,
-      needleMoved: 'Shipped the full 24-Hour Circular Day Planner clock UI and finance manager calculations.',
-      friction: 'Context switching between emails during the mid-day focus block.'
+    brainDump: 'Remember to verify tax deduction documents for the home office upgrade.\nSend invoice #104 to consulting client.\nBackup Notion workspace before migrating formulas.'
+  },
+
+  // 7. DATE-WISE MOOD & VIBE TRACKER
+  moods: {
+    '2026-09-16': {
+      mood: 'energetic',
+      score: 8,
+      factors: ['work', 'focus'],
+      note: 'Crushed the day planner release and kept deep focus for 4+ hours.'
+    },
+    '2026-09-17': {
+      mood: 'ecstatic',
+      score: 9,
+      factors: ['work', 'creative'],
+      note: 'Launched Notion templates and closed pending tasks ahead of schedule.'
+    },
+    '2026-09-18': {
+      mood: 'calm',
+      score: 7,
+      factors: ['fitness', 'sleep'],
+      note: 'Peaceful morning walk and steady progress on financial goals.'
+    },
+    '2026-09-19': {
+      mood: 'happy',
+      score: 8,
+      factors: ['social', 'mind'],
+      note: 'Great discussions and clarity on roadmap execution.'
+    },
+    '2026-09-20': {
+      mood: 'energetic',
+      score: 8,
+      factors: ['work', 'fitness'],
+      note: 'High energy sprint, completed non-negotiable top 3.'
+    },
+    '2026-09-21': {
+      mood: 'ecstatic',
+      score: 9,
+      factors: ['work', 'finance'],
+      note: 'Zero distractions, full financial audit and planning aligned.'
+    },
+    '2026-09-22': {
+      mood: 'energetic',
+      score: 8,
+      factors: ['work', 'focus'],
+      note: 'Ready for peak execution and template optimization.'
     }
   }
 };
@@ -345,10 +386,15 @@ class PlanLifeApp {
         const merged = Object.assign({}, defaults, parsed, {
           finance: Object.assign({}, defaults.finance, parsed.finance || {}),
           focus: Object.assign({}, defaults.focus, parsed.focus || {}),
+          moods: Object.assign({}, defaults.moods, parsed.moods || {})
         });
         // Auto-heal empty goals from previous empty commit
         if (!merged.goals || !Array.isArray(merged.goals) || (!merged._goalsExplicitlyCleared && merged.goals.length === 0)) {
           merged.goals = JSON.parse(JSON.stringify(DEFAULT_STATE.goals));
+        }
+        // Auto-heal moods if missing or empty
+        if (!merged.moods || typeof merged.moods !== 'object' || Object.keys(merged.moods).length === 0) {
+          merged.moods = JSON.parse(JSON.stringify(DEFAULT_STATE.moods));
         }
         return merged;
       }
@@ -611,6 +657,11 @@ class PlanLifeApp {
         try { this.checklist.render(); } catch (e) {}
         break;
       case 'focus':
+        this.switchTab('focus');
+        try { this.focusCtrl.render(); } catch (e) {}
+        break;
+      case 'mood':
+      case 'vibe':
         this.switchTab('focus');
         try { this.focusCtrl.render(); } catch (e) {}
         break;
@@ -884,7 +935,21 @@ class PlanLifeApp {
       `;
     }
 
-    // 8. Top 3 Priorities
+    // 8. Top 3 Priorities & Today's Mood
+    const moodBadge = document.getElementById('dashTodayMoodBadge');
+    if (moodBadge) {
+      const todayDate = this.state.selectedDate || new Date().toISOString().slice(0, 10);
+      const todayMood = (this.state.moods && this.state.moods[todayDate]) ? this.state.moods[todayDate] : null;
+      if (todayMood && todayMood.mood) {
+        const moodObj = this.focusCtrl?.getMoodOption(todayMood.mood) || { emoji: '✨', label: todayMood.mood };
+        moodBadge.innerHTML = `<span style="font-size:14px;">${moodObj.emoji}</span> <span>${moodObj.label}</span> <span style="font-family:var(--font-mono); font-size:11px; opacity:0.8;">(${todayMood.score || 8}/10)</span>`;
+        moodBadge.style.display = 'inline-flex';
+      } else {
+        moodBadge.innerHTML = `<span style="font-size:13px;">✨</span> <span>Log Mood</span>`;
+        moodBadge.style.display = 'inline-flex';
+      }
+    }
+
     const top3Cont = document.getElementById('dashTop3Container');
     if (top3Cont) {
       top3Cont.innerHTML = this.state.focus.top3.map((item, idx) => `
@@ -3279,12 +3344,42 @@ class ChecklistController {
 
 
 // =============================================================================
-// MODULE 6: FOCUS & BRAIN DUMP ENGINE (Value-Add Feature)
+// MODULE 6: FOCUS & DATE-WISE MOOD TRACKER ENGINE
 // =============================================================================
 
 class FocusController {
   constructor(app) {
     this.app = app;
+    this.activeDate = this.app.state.selectedDate || new Date().toISOString().slice(0, 10);
+    this._saveTimeout = null;
+
+    this.moodOptions = [
+      { id: 'ecstatic', emoji: '🤩', label: 'Ecstatic', vibe: 'Victorious & High Drive', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)', glow: 'rgba(245, 158, 11, 0.3)', defaultScore: 10 },
+      { id: 'energetic', emoji: '⚡', label: 'Energetic', vibe: 'Focused & Flow State', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)', glow: 'rgba(56, 189, 248, 0.3)', defaultScore: 8 },
+      { id: 'happy', emoji: '😊', label: 'Happy', vibe: 'Fulfilled & Upbeat', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)', glow: 'rgba(16, 185, 129, 0.3)', defaultScore: 8 },
+      { id: 'calm', emoji: '🧘', label: 'Calm', vibe: 'Centered & At Peace', color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.15)', glow: 'rgba(139, 92, 246, 0.3)', defaultScore: 7 },
+      { id: 'neutral', emoji: '😐', label: 'Neutral', vibe: 'Steady & Routine', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.15)', glow: 'rgba(148, 163, 184, 0.3)', defaultScore: 6 },
+      { id: 'tired', emoji: '🥱', label: 'Tired', vibe: 'Low Battery & Drained', color: '#f97316', bg: 'rgba(249, 115, 22, 0.15)', glow: 'rgba(249, 115, 22, 0.3)', defaultScore: 4 },
+      { id: 'low', emoji: '😔', label: 'Low', vibe: 'Down & Unmotivated', color: '#64748b', bg: 'rgba(100, 116, 139, 0.15)', glow: 'rgba(100, 116, 139, 0.3)', defaultScore: 3 },
+      { id: 'stressed', emoji: '😤', label: 'Stressed', vibe: 'Tense & Anxious', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.15)', glow: 'rgba(239, 68, 68, 0.3)', defaultScore: 2 }
+    ];
+
+    this.factors = [
+      { id: 'work', label: '💼 Work & Code' },
+      { id: 'focus', label: '🎯 Deep Focus' },
+      { id: 'fitness', label: '🏃 Workout / Run' },
+      { id: 'sleep', label: '😴 Deep Sleep' },
+      { id: 'nutrition', label: '🥗 Clean Diet' },
+      { id: 'social', label: '🤝 Social / Family' },
+      { id: 'finance', label: '💰 Financial Win' },
+      { id: 'mind', label: '🧘 Mindfulness' },
+      { id: 'creative', label: '🎨 Creative Spark' },
+      { id: 'rest', label: '🛋️ Rest & Reset' }
+    ];
+  }
+
+  getMoodOption(id) {
+    return this.moodOptions.find(m => m.id === id) || null;
   }
 
   init() {
@@ -3293,59 +3388,12 @@ class FocusController {
   }
 
   render() {
-    this.loadFocusData();
+    this.loadTop3AndBrainDump();
+    this.renderMoodTracker();
   }
 
-  bindEvents() {
-    // Auto-save Top 3 on every keystroke / checkbox toggle
-    const saveTop3 = () => {
-      this.app.state.focus.top3[0].text = document.getElementById('top3_1')?.value || '';
-      this.app.state.focus.top3[0].done = !!document.getElementById('top3_1_check')?.checked;
-      this.app.state.focus.top3[1].text = document.getElementById('top3_2')?.value || '';
-      this.app.state.focus.top3[1].done = !!document.getElementById('top3_2_check')?.checked;
-      this.app.state.focus.top3[2].text = document.getElementById('top3_3')?.value || '';
-      this.app.state.focus.top3[2].done = !!document.getElementById('top3_3_check')?.checked;
-      this.app.saveState();
-    };
-    ['top3_1', 'top3_2', 'top3_3'].forEach(id => {
-      document.getElementById(id)?.addEventListener('input', saveTop3);
-    });
-    ['top3_1_check', 'top3_2_check', 'top3_3_check'].forEach(id => {
-      document.getElementById(id)?.addEventListener('change', saveTop3);
-    });
-
-    // Auto-save Brain Dump on every keystroke
-    document.getElementById('brainDumpText')?.addEventListener('input', () => {
-      this.app.state.focus.brainDump = document.getElementById('brainDumpText').value;
-      this.app.saveState();
-    });
-
-    // Energy Slider readout
-    const slider = document.getElementById('dailyEnergyRating');
-    const valText = document.getElementById('energyValText');
-    slider?.addEventListener('input', () => {
-      if (valText) valText.textContent = slider.value;
-    });
-
-    // Save Reflection
-    document.getElementById('saveReviewBtn')?.addEventListener('click', () => {
-      this.app.state.focus.review = {
-        energy: parseInt(slider.value, 10),
-        needleMoved: document.getElementById('needleMovedInput').value,
-        friction: document.getElementById('frictionInput').value
-      };
-      this.app.saveState();
-      this.app.showToast('Daily reflection logged!', 'success');
-    });
-
-    // Auto Rollover from Review
-    document.getElementById('rolloverIncompleteReviewBtn')?.addEventListener('click', () => {
-      this.app.planner.rolloverIncomplete();
-    });
-  }
-
-  loadFocusData() {
-    const focus = this.app.state.focus;
+  loadTop3AndBrainDump() {
+    const focus = this.app.state.focus || {};
     if (focus.top3) {
       if (document.getElementById('top3_1')) document.getElementById('top3_1').value = focus.top3[0]?.text || '';
       if (document.getElementById('top3_1_check')) document.getElementById('top3_1_check').checked = !!focus.top3[0]?.done;
@@ -3357,14 +3405,287 @@ class FocusController {
     if (document.getElementById('brainDumpText')) {
       document.getElementById('brainDumpText').value = focus.brainDump || '';
     }
-    if (focus.review) {
-      const slider = document.getElementById('dailyEnergyRating');
-      const valText = document.getElementById('energyValText');
-      if (slider) slider.value = focus.review.energy || 8;
-      if (valText) valText.textContent = focus.review.energy || 8;
-      if (document.getElementById('needleMovedInput')) document.getElementById('needleMovedInput').value = focus.review.needleMoved || '';
-      if (document.getElementById('frictionInput')) document.getElementById('frictionInput').value = focus.review.friction || '';
+  }
+
+  getEntryForDate(dateStr) {
+    if (!this.app.state.moods) this.app.state.moods = {};
+    if (!this.app.state.moods[dateStr]) {
+      this.app.state.moods[dateStr] = {
+        mood: '',
+        score: 8,
+        factors: [],
+        note: ''
+      };
     }
+    return this.app.state.moods[dateStr];
+  }
+
+  setDate(newDateStr) {
+    if (!newDateStr) return;
+    this.activeDate = newDateStr;
+    this.renderMoodTracker();
+  }
+
+  prevDay() {
+    try {
+      const d = new Date(this.activeDate + 'T00:00:00');
+      d.setDate(d.getDate() - 1);
+      this.setDate(d.toISOString().slice(0, 10));
+    } catch (e) {}
+  }
+
+  nextDay() {
+    try {
+      const d = new Date(this.activeDate + 'T00:00:00');
+      d.setDate(d.getDate() + 1);
+      this.setDate(d.toISOString().slice(0, 10));
+    } catch (e) {}
+  }
+
+  today() {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    this.setDate(todayStr);
+  }
+
+  renderMoodTracker() {
+    const dateInput = document.getElementById('moodDateInput');
+    if (dateInput) {
+      dateInput.value = this.activeDate;
+    }
+
+    const subtitle = document.getElementById('moodSubtitleDate');
+    if (subtitle) {
+      try {
+        const d = new Date(this.activeDate + 'T00:00:00');
+        const formatted = d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+        subtitle.textContent = `Logging vibe & focus for ${formatted}`;
+      } catch (e) {
+        subtitle.textContent = `Logging vibe & focus for ${this.activeDate}`;
+      }
+    }
+
+    this.renderWeekStrip();
+    this.renderMoodButtons();
+    this.renderEnergySlider();
+    this.renderFactorTags();
+    this.renderNote();
+  }
+
+  renderWeekStrip() {
+    const strip = document.getElementById('moodWeekStrip');
+    if (!strip) return;
+
+    const baseDate = new Date(this.activeDate + 'T00:00:00');
+    const dayPills = [];
+    const todayStr = new Date().toISOString().slice(0, 10);
+
+    for (let i = -4; i <= 2; i++) {
+      const d = new Date(baseDate);
+      d.setDate(baseDate.getDate() + i);
+      const dStr = d.toISOString().slice(0, 10);
+      const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+      const dayNum = d.getDate();
+      const entry = (this.app.state.moods && this.app.state.moods[dStr]) ? this.app.state.moods[dStr] : null;
+      const moodObj = entry && entry.mood ? this.getMoodOption(entry.mood) : null;
+      const isSelected = (dStr === this.activeDate);
+      const isToday = (dStr === todayStr);
+
+      dayPills.push(`
+        <div class="mood-day-pill ${isSelected ? 'active' : ''} ${isToday ? 'is-today' : ''}" onclick="app.focusCtrl.setDate('${dStr}')" title="${dStr}">
+          <span class="day-pill-name">${dayName}</span>
+          <span class="day-pill-num">${dayNum}</span>
+          <span class="day-pill-emoji">${moodObj ? moodObj.emoji : '<span class="day-pill-dot"></span>'}</span>
+        </div>
+      `);
+    }
+
+    strip.innerHTML = dayPills.join('');
+  }
+
+  renderMoodButtons() {
+    const container = document.getElementById('moodEmojisGrid');
+    if (!container) return;
+
+    const entry = this.getEntryForDate(this.activeDate);
+    const activeMoodId = entry.mood;
+
+    container.innerHTML = this.moodOptions.map(m => {
+      const isActive = (m.id === activeMoodId);
+      return `
+        <button type="button" 
+          class="mood-emoji-btn ${isActive ? 'active' : ''}" 
+          style="--mood-color: ${m.color}; --mood-bg: ${m.bg}; --mood-glow: ${m.glow};"
+          onclick="app.focusCtrl.selectMood('${m.id}')">
+          <span class="mood-btn-emoji">${m.emoji}</span>
+          <span class="mood-btn-label">${m.label}</span>
+          <span class="mood-btn-vibe">${m.vibe}</span>
+        </button>
+      `;
+    }).join('');
+  }
+
+  selectMood(moodId) {
+    const entry = this.getEntryForDate(this.activeDate);
+    const moodObj = this.getMoodOption(moodId);
+    if (!moodObj) return;
+
+    entry.mood = moodId;
+    if (!entry.score || entry.score === 8) {
+      entry.score = moodObj.defaultScore;
+    }
+
+    this.app.saveState();
+    this.renderMoodButtons();
+    this.renderWeekStrip();
+    this.renderEnergySlider();
+    this.showSaveIndicator();
+    try { this.app.renderDashboard(); } catch (e) {}
+  }
+
+  renderEnergySlider() {
+    const entry = this.getEntryForDate(this.activeDate);
+    const slider = document.getElementById('moodEnergySlider');
+    const badge = document.getElementById('moodEnergyValText');
+    const score = Number(entry.score) || 8;
+
+    if (slider) slider.value = score;
+    if (badge) {
+      let desc = 'Steady';
+      if (score >= 9) desc = 'Peak Flow';
+      else if (score >= 7) desc = 'High Drive';
+      else if (score >= 5) desc = 'Moderate';
+      else if (score >= 3) desc = 'Low Energy';
+      else desc = 'Drained';
+
+      badge.textContent = `${score} / 10 • ${desc}`;
+      if (score >= 8) {
+        badge.style.color = '#10b981';
+        badge.style.background = 'rgba(16, 185, 129, 0.15)';
+      } else if (score >= 6) {
+        badge.style.color = '#38bdf8';
+        badge.style.background = 'rgba(56, 189, 248, 0.15)';
+      } else if (score >= 4) {
+        badge.style.color = '#f59e0b';
+        badge.style.background = 'rgba(245, 158, 11, 0.15)';
+      } else {
+        badge.style.color = '#ef4444';
+        badge.style.background = 'rgba(239, 68, 68, 0.15)';
+      }
+    }
+  }
+
+  renderFactorTags() {
+    const container = document.getElementById('moodTagsWrap');
+    if (!container) return;
+
+    const entry = this.getEntryForDate(this.activeDate);
+    const activeFactors = entry.factors || [];
+
+    container.innerHTML = this.factors.map(f => {
+      const isActive = activeFactors.includes(f.id);
+      return `
+        <button type="button" 
+          class="mood-tag-chip ${isActive ? 'active' : ''}" 
+          onclick="app.focusCtrl.toggleFactor('${f.id}')">
+          ${f.label}
+        </button>
+      `;
+    }).join('');
+  }
+
+  toggleFactor(factorId) {
+    const entry = this.getEntryForDate(this.activeDate);
+    if (!entry.factors) entry.factors = [];
+    const idx = entry.factors.indexOf(factorId);
+    if (idx > -1) {
+      entry.factors.splice(idx, 1);
+    } else {
+      entry.factors.push(factorId);
+    }
+    this.app.saveState();
+    this.renderFactorTags();
+    this.showSaveIndicator();
+    try { this.app.renderDashboard(); } catch (e) {}
+  }
+
+  renderNote() {
+    const entry = this.getEntryForDate(this.activeDate);
+    const noteInput = document.getElementById('moodNoteInput');
+    if (noteInput) {
+      noteInput.value = entry.note || '';
+    }
+  }
+
+  showSaveIndicator() {
+    const statusEl = document.getElementById('moodSaveStatus');
+    if (statusEl) {
+      statusEl.classList.add('visible');
+      clearTimeout(this._saveTimeout);
+      this._saveTimeout = setTimeout(() => {
+        statusEl.classList.remove('visible');
+      }, 1600);
+    }
+  }
+
+  bindEvents() {
+    // Auto-save Top 3 on every keystroke / checkbox toggle
+    const saveTop3 = () => {
+      if (!this.app.state.focus) this.app.state.focus = { top3: [] };
+      if (!this.app.state.focus.top3) this.app.state.focus.top3 = [];
+      while (this.app.state.focus.top3.length < 3) {
+        this.app.state.focus.top3.push({ id: 'p' + (this.app.state.focus.top3.length + 1), text: '', done: false });
+      }
+      this.app.state.focus.top3[0].text = document.getElementById('top3_1')?.value || '';
+      this.app.state.focus.top3[0].done = !!document.getElementById('top3_1_check')?.checked;
+      this.app.state.focus.top3[1].text = document.getElementById('top3_2')?.value || '';
+      this.app.state.focus.top3[1].done = !!document.getElementById('top3_2_check')?.checked;
+      this.app.state.focus.top3[2].text = document.getElementById('top3_3')?.value || '';
+      this.app.state.focus.top3[2].done = !!document.getElementById('top3_3_check')?.checked;
+      this.app.saveState();
+      try { this.app.renderDashboard(); } catch (e) {}
+    };
+
+    ['top3_1', 'top3_2', 'top3_3'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', saveTop3);
+    });
+    ['top3_1_check', 'top3_2_check', 'top3_3_check'].forEach(id => {
+      document.getElementById(id)?.addEventListener('change', saveTop3);
+    });
+
+    // Auto-save Brain Dump on every keystroke
+    document.getElementById('brainDumpText')?.addEventListener('input', () => {
+      if (!this.app.state.focus) this.app.state.focus = {};
+      this.app.state.focus.brainDump = document.getElementById('brainDumpText').value;
+      this.app.saveState();
+    });
+
+    // Date Navigation Controls
+    document.getElementById('moodPrevDateBtn')?.addEventListener('click', () => this.prevDay());
+    document.getElementById('moodNextDateBtn')?.addEventListener('click', () => this.nextDay());
+    document.getElementById('moodTodayBtn')?.addEventListener('click', () => this.today());
+    document.getElementById('moodDateInput')?.addEventListener('change', (e) => {
+      if (e.target.value) this.setDate(e.target.value);
+    });
+
+    // Energy Slider
+    const slider = document.getElementById('moodEnergySlider');
+    slider?.addEventListener('input', () => {
+      const entry = this.getEntryForDate(this.activeDate);
+      entry.score = parseInt(slider.value, 10);
+      this.renderEnergySlider();
+      this.app.saveState();
+      this.showSaveIndicator();
+      try { this.app.renderDashboard(); } catch (e) {}
+    });
+
+    // Micro-Note Auto-save
+    const noteInput = document.getElementById('moodNoteInput');
+    noteInput?.addEventListener('input', () => {
+      const entry = this.getEntryForDate(this.activeDate);
+      entry.note = noteInput.value;
+      this.app.saveState();
+      this.showSaveIndicator();
+    });
   }
 }
 

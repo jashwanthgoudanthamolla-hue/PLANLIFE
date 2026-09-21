@@ -562,19 +562,19 @@
         </div>
       </div>
 
-      <!-- 8. DAILY FOCUS & BRAIN DUMP -->
+      <!-- 8. DAILY FOCUS & MOOD TRACKER -->
       <div class="widget-hub-card" data-widget-key="focus">
         <div class="card-top">
           <div class="widget-identity">
             <span class="widget-icon">⚡</span>
             <div>
-              <div class="widget-name">Daily Focus & Brain Dump</div>
-              <div class="widget-desc">Non-Negotiable Top 3 leverage outcomes & frictionless notes</div>
+              <div class="widget-name">Daily Focus &amp; Mood Tracker</div>
+              <div class="widget-desc">Non-Negotiable Top 3, Brain Dump &amp; Date-Wise Mood Tracker</div>
             </div>
           </div>
-          <span class="sizing-pill">H: 420px | Full Width</span>
+          <span class="sizing-pill">H: 520px | Full Width</span>
         </div>
-        <div class="preview-frame-container" style="height: 380px;">
+        <div class="preview-frame-container" style="height: 440px;">
           <iframe class="preview-iframe" id="frame-focus" src="../index.html?widget=focus&theme=dark" style="height: 100%;"></iframe>
         </div>
         <div class="card-bottom">
@@ -590,7 +590,35 @@
         </div>
       </div>
 
-      <!-- 9. COMBINED DAY PLANNER (CLOCK + SCHEDULE) -->
+      <!-- 9. STANDALONE DATE-WISE MOOD TRACKER -->
+      <div class="widget-hub-card" data-widget-key="mood">
+        <div class="card-top">
+          <div class="widget-identity">
+            <span class="widget-icon">✨</span>
+            <div>
+              <div class="widget-name">Date-Wise Mood &amp; Energy Tracker</div>
+              <div class="widget-desc">Standalone date-wise mood spectrum, 7-day strip, energy meter &amp; notes</div>
+            </div>
+          </div>
+          <span class="sizing-pill">H: 420px | Full Width</span>
+        </div>
+        <div class="preview-frame-container" style="height: 380px;">
+          <iframe class="preview-iframe" id="frame-mood" src="../index.html?widget=mood&theme=dark" style="height: 100%;"></iframe>
+        </div>
+        <div class="card-bottom">
+          <div class="url-input-wrap">
+            <input type="text" readonly class="url-input" id="url-mood">
+          </div>
+          <div class="action-btn-row">
+            <button class="btn-copy-embed" onclick="copyWidgetUrl('mood')">
+              <span>📋 Copy Notion URL</span>
+            </button>
+            <a class="btn-external" id="ext-mood" target="_blank" title="Open in new tab">↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 10. COMBINED DAY PLANNER (CLOCK + SCHEDULE) -->
       <div class="widget-hub-card" data-widget-key="planner" style="grid-column: 1 / -1;">
         <div class="card-top">
           <div class="widget-identity">
@@ -629,7 +657,7 @@
 
   <script>
     let currentTheme = 'dark';
-    const widgetKeys = ['clock', 'schedule', 'kpis', 'habits', 'finance', 'goals', 'checklist', 'focus', 'planner'];
+    const widgetKeys = ['clock', 'schedule', 'kpis', 'habits', 'finance', 'goals', 'checklist', 'focus', 'mood', 'planner'];
 
     function getBaseUrl() {
       const loc = window.location;
