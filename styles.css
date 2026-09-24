@@ -3696,40 +3696,40 @@ body.widget-kpi {
   overflow: hidden !important;
 }
 
+.widget-dashboard .app-container,
 .widget-kpis .app-container,
 .widget-kpi .app-container,
+html.widget-dashboard .app-container,
 html.widget-kpis .app-container,
 html.widget-kpi .app-container,
+body.widget-dashboard .app-container,
 body.widget-kpis .app-container,
 body.widget-kpi .app-container {
-  padding: 6px 10px !important;
-  justify-content: center !important;
-  overflow: hidden !important;
+  padding: 16px 20px !important;
+  justify-content: flex-start !important;
+  overflow-y: auto !important;
 }
 
+.widget-dashboard #tab-dashboard,
 .widget-kpis #tab-dashboard,
 .widget-kpi #tab-dashboard,
+html.widget-dashboard #tab-dashboard,
 html.widget-kpis #tab-dashboard,
 html.widget-kpi #tab-dashboard,
+body.widget-dashboard #tab-dashboard,
 body.widget-kpis #tab-dashboard,
 body.widget-kpi #tab-dashboard {
   display: flex !important;
   flex-direction: column !important;
-  justify-content: center !important;
+  justify-content: flex-start !important;
   flex: 1 1 auto !important;
   min-height: 100% !important;
   margin: 0 !important;
   padding: 0 !important;
   width: 100% !important;
-  overflow: hidden !important;
+  overflow: visible !important;
 }
 
-.widget-kpis .page-header,
-.widget-kpi .page-header,
-html.widget-kpis .page-header,
-html.widget-kpi .page-header,
-body.widget-kpis .page-header,
-body.widget-kpi .page-header,
 .widget-kpis .dash-split-grid,
 .widget-kpi .dash-split-grid,
 .widget-kpis #tab-dashboard > .dash-card.mt-4,
@@ -4136,7 +4136,14 @@ body.widget-mood #tab-focus {
 .widget-tasks .page-header-flex,     html.widget-tasks .page-header-flex,     body.widget-tasks .page-header-flex,
 .widget-focus .page-header-flex,     html.widget-focus .page-header-flex,     body.widget-focus .page-header-flex,
 .widget-mood .page-header-flex,      html.widget-mood .page-header-flex,      body.widget-mood .page-header-flex,
+.widget-finance .page-header-flex,   html.widget-finance .page-header-flex,   body.widget-finance .page-header-flex,
 .widget-finance .page-header,        html.widget-finance .page-header,        body.widget-finance .page-header,
+.widget-dashboard .page-header-flex, html.widget-dashboard .page-header-flex, body.widget-dashboard .page-header-flex,
+.widget-dashboard .page-header,      html.widget-dashboard .page-header,      body.widget-dashboard .page-header,
+.widget-kpi .page-header-flex,       html.widget-kpi .page-header-flex,       body.widget-kpi .page-header-flex,
+.widget-kpi .page-header,            html.widget-kpi .page-header,            body.widget-kpi .page-header,
+.widget-kpis .page-header-flex,      html.widget-kpis .page-header-flex,      body.widget-kpis .page-header-flex,
+.widget-kpis .page-header,           html.widget-kpis .page-header,           body.widget-kpis .page-header,
 .widget-clock .dayplanner-header-wrap,     html.widget-clock .dayplanner-header-wrap,     body.widget-clock .dayplanner-header-wrap,
 .widget-clockdial .dayplanner-header-wrap, html.widget-clockdial .dayplanner-header-wrap, body.widget-clockdial .dayplanner-header-wrap,
 .widget-schedule .dayplanner-header-wrap,  html.widget-schedule .dayplanner-header-wrap,  body.widget-schedule .dayplanner-header-wrap,
@@ -4166,9 +4173,30 @@ body.widget-focus .page-header-flex .page-title,
 .widget-mood .page-header-flex .page-title,
 html.widget-mood .page-header-flex .page-title,
 body.widget-mood .page-header-flex .page-title,
+.widget-finance .page-header-flex .page-title,
+html.widget-finance .page-header-flex .page-title,
+body.widget-finance .page-header-flex .page-title,
 .widget-finance .page-header .page-title,
 html.widget-finance .page-header .page-title,
 body.widget-finance .page-header .page-title,
+.widget-dashboard .page-header-flex .page-title,
+html.widget-dashboard .page-header-flex .page-title,
+body.widget-dashboard .page-header-flex .page-title,
+.widget-dashboard .page-header .page-title,
+html.widget-dashboard .page-header .page-title,
+body.widget-dashboard .page-header .page-title,
+.widget-kpi .page-header-flex .page-title,
+html.widget-kpi .page-header-flex .page-title,
+body.widget-kpi .page-header-flex .page-title,
+.widget-kpi .page-header .page-title,
+html.widget-kpi .page-header .page-title,
+body.widget-kpi .page-header .page-title,
+.widget-kpis .page-header-flex .page-title,
+html.widget-kpis .page-header-flex .page-title,
+body.widget-kpis .page-header-flex .page-title,
+.widget-kpis .page-header .page-title,
+html.widget-kpis .page-header .page-title,
+body.widget-kpis .page-header .page-title,
 .widget-clock .dayplanner-title,     html.widget-clock .dayplanner-title,     body.widget-clock .dayplanner-title,
 .widget-clockdial .dayplanner-title, html.widget-clockdial .dayplanner-title, body.widget-clockdial .dayplanner-title,
 .widget-schedule .dayplanner-title,  html.widget-schedule .dayplanner-title,  body.widget-schedule .dayplanner-title,
@@ -4182,10 +4210,13 @@ body.widget-finance .page-header .page-title,
   letter-spacing: -0.02em !important;
 }
 
-/* --- Finance header layout fix --- */
-.widget-finance .page-header,
-html.widget-finance .page-header,
-body.widget-finance .page-header {
-  padding: 16px 20px 10px !important;
-  margin: 0 !important;
+/* --- Finance & Dashboard tab container padding in widget mode --- */
+.widget-finance #tab-finance,
+html.widget-finance #tab-finance,
+body.widget-finance #tab-finance,
+.widget-dashboard #tab-dashboard,
+html.widget-dashboard #tab-dashboard,
+body.widget-dashboard #tab-dashboard {
+  padding: 16px 20px !important;
+  box-sizing: border-box !important;
 }
