@@ -4122,3 +4122,65 @@ body.widget-mood #tab-focus {
 .planlife-toast.toast-info {
   border-left: 3px solid #38bdf8;
 }
+
+/* ============================================================================
+   WIDGET HEADERS — show page title bar in every widget (matching Goals style)
+   ============================================================================ */
+
+/* --- Shared header style for all widget headers --- */
+.widget-habits .page-header-flex,    html.widget-habits .page-header-flex,    body.widget-habits .page-header-flex,
+.widget-checklist .page-header-flex, html.widget-checklist .page-header-flex, body.widget-checklist .page-header-flex,
+.widget-tasks .page-header-flex,     html.widget-tasks .page-header-flex,     body.widget-tasks .page-header-flex,
+.widget-focus .page-header-flex,     html.widget-focus .page-header-flex,     body.widget-focus .page-header-flex,
+.widget-mood .page-header-flex,      html.widget-mood .page-header-flex,      body.widget-mood .page-header-flex,
+.widget-finance .page-header,        html.widget-finance .page-header,        body.widget-finance .page-header,
+.widget-clock .dayplanner-header-wrap,     html.widget-clock .dayplanner-header-wrap,     body.widget-clock .dayplanner-header-wrap,
+.widget-clockdial .dayplanner-header-wrap, html.widget-clockdial .dayplanner-header-wrap, body.widget-clockdial .dayplanner-header-wrap,
+.widget-schedule .dayplanner-header-wrap,  html.widget-schedule .dayplanner-header-wrap,  body.widget-schedule .dayplanner-header-wrap,
+.widget-planner .dayplanner-header-wrap,   html.widget-planner .dayplanner-header-wrap,   body.widget-planner .dayplanner-header-wrap {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 14px !important;
+  padding-bottom: 10px !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  flex-shrink: 0 !important;
+}
+
+/* --- Title font for all widget headers --- */
+.widget-habits .page-header-flex .page-title,
+html.widget-habits .page-header-flex .page-title,
+body.widget-habits .page-header-flex .page-title,
+.widget-checklist .page-header-flex .page-title,
+html.widget-checklist .page-header-flex .page-title,
+body.widget-checklist .page-header-flex .page-title,
+.widget-tasks .page-header-flex .page-title,
+html.widget-tasks .page-header-flex .page-title,
+body.widget-tasks .page-header-flex .page-title,
+.widget-focus .page-header-flex .page-title,
+html.widget-focus .page-header-flex .page-title,
+body.widget-focus .page-header-flex .page-title,
+.widget-mood .page-header-flex .page-title,
+html.widget-mood .page-header-flex .page-title,
+body.widget-mood .page-header-flex .page-title,
+.widget-finance .page-header .page-title,
+html.widget-finance .page-header .page-title,
+body.widget-finance .page-header .page-title,
+.widget-clock .dayplanner-title,     html.widget-clock .dayplanner-title,     body.widget-clock .dayplanner-title,
+.widget-clockdial .dayplanner-title, html.widget-clockdial .dayplanner-title, body.widget-clockdial .dayplanner-title,
+.widget-schedule .dayplanner-title,  html.widget-schedule .dayplanner-title,  body.widget-schedule .dayplanner-title,
+.widget-planner .dayplanner-title,   html.widget-planner .dayplanner-title,   body.widget-planner .dayplanner-title {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  display: block !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* --- Finance header layout fix --- */
+.widget-finance .page-header,
+html.widget-finance .page-header,
+body.widget-finance .page-header {
+  padding: 16px 20px 10px !important;
+  margin: 0 !important;
+}
