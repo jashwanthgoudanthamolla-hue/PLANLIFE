@@ -1717,6 +1717,7 @@ class FinanceController {
         <td class="font-mono"><strong>₹${Number(b.balance).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
         <td>${b.updated}</td>
         <td class="text-right">
+          <button type="button" class="block-action-icon" title="Edit Account" onclick="event.stopPropagation(); app.finance.openModal('bank', '${b.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
           <button type="button" class="block-action-icon text-danger" title="Delete Account" onclick="event.stopPropagation(); app.finance.deleteItem('banks', '${b.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </td>
       </tr>
@@ -1735,6 +1736,7 @@ class FinanceController {
         <td class="font-mono">₹${Number(l.remaining).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
         <td><span class="kpi-badge badge-warning">${l.status}</span></td>
         <td class="text-right">
+          <button type="button" class="block-action-icon" title="Edit Loan" onclick="event.stopPropagation(); app.finance.openModal('loan', '${l.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
           <button type="button" class="block-action-icon text-danger" title="Delete Loan" onclick="event.stopPropagation(); app.finance.deleteItem('loans', '${l.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </td>
       </tr>
@@ -1760,6 +1762,7 @@ class FinanceController {
           </td>
           <td><span class="kpi-badge badge-neutral">${c.status}</span></td>
           <td class="text-right">
+            <button type="button" class="block-action-icon" title="Edit Card" onclick="event.stopPropagation(); app.finance.openModal('card', '${c.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
             <button type="button" class="block-action-icon text-danger" title="Delete Card" onclick="event.stopPropagation(); app.finance.deleteItem('cards', '${c.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
           </td>
         </tr>
@@ -1779,6 +1782,7 @@ class FinanceController {
         <td><span class="kpi-badge badge-success">${inf.probability}</span></td>
         <td>${inf.status}</td>
         <td class="text-right">
+          <button type="button" class="block-action-icon" title="Edit Inflow" onclick="event.stopPropagation(); app.finance.openModal('inflow', '${inf.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
           <button type="button" class="block-action-icon text-danger" title="Delete Inflow" onclick="event.stopPropagation(); app.finance.deleteItem('inflows', '${inf.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </td>
       </tr>
@@ -1797,6 +1801,7 @@ class FinanceController {
         <td>${exp.recurrence}</td>
         <td><span class="kpi-badge badge-warning">${exp.status}</span></td>
         <td class="text-right">
+          <button type="button" class="block-action-icon" title="Edit Expense" onclick="event.stopPropagation(); app.finance.openModal('expense', '${exp.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
           <button type="button" class="block-action-icon text-danger" title="Delete Expense" onclick="event.stopPropagation(); app.finance.deleteItem('expenses', '${exp.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </td>
       </tr>
@@ -1822,156 +1827,170 @@ class FinanceController {
           </td>
           <td class="text-right">
             <button type="button" class="block-action-icon text-danger" title="Delete Item" onclick="event.stopPropagation(); app.finance.deleteItem('wishlist', '${w.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+          <button type="button" class="block-action-icon" title="Edit" onclick="event.stopPropagation(); app.finance.openModal('wishlist', '${w.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
           </td>
         </tr>
       `;
     }).join('');
   }
 
-  openModal(type) {
+  openModal(type, editId = null) {
     this.app.activeFinanceType = type;
+    this.app.activeFinanceEditId = editId || null;
     const modal = document.getElementById('financeModal');
     const body = document.getElementById('financeModalBody');
     const titleEl = document.getElementById('financeModalTitle');
+    const isEdit = !!editId;
+
+    // Helper to get existing item for pre-population
+    const getItem = (arr) => arr.find(x => x.id === editId) || {};
+    const f = this.app.state.finance;
 
     if (type === 'bank') {
-      titleEl.textContent = 'Add Bank Account';
+      const item = getItem(f.banks);
+      titleEl.textContent = isEdit ? 'Edit Bank Account' : 'Add Bank Account';
       body.innerHTML = `
         <div class="form-group">
           <label class="form-label">Account Name</label>
-          <input type="text" id="fin_bank_name" class="form-input" placeholder="e.g. Chase Main Checking">
+          <input type="text" id="fin_bank_name" class="form-input" placeholder="e.g. Chase Main Checking" value="${item.name || ''}">
         </div>
         <div class="form-group">
           <label class="form-label">Type / Purpose</label>
-          <input type="text" id="fin_bank_type" class="form-input" placeholder="e.g. Operating Cash, Emergency Fund">
+          <input type="text" id="fin_bank_type" class="form-input" placeholder="e.g. Operating Cash, Emergency Fund" value="${item.type || ''}">
         </div>
         <div class="form-group">
           <label class="form-label">Bank Institution</label>
-          <input type="text" id="fin_bank_inst" class="form-input" placeholder="e.g. HDFC Bank, SBI">
+          <input type="text" id="fin_bank_inst" class="form-input" placeholder="e.g. HDFC Bank, SBI" value="${item.institution || ''}">
         </div>
         <div class="form-group">
           <label class="form-label">Available Balance (₹)</label>
-          <input type="number" id="fin_bank_balance" class="form-input" step="1" placeholder="50000">
+          <input type="number" id="fin_bank_balance" class="form-input" step="1" placeholder="50000" value="${item.balance || ''}">
         </div>
       `;
     } else if (type === 'loan') {
-      titleEl.textContent = 'Add Loan / EMI';
+      const item = getItem(f.loans);
+      titleEl.textContent = isEdit ? 'Edit Loan / EMI' : 'Add Loan / EMI';
       body.innerHTML = `
         <div class="form-group">
           <label class="form-label">Loan Name</label>
-          <input type="text" id="fin_loan_name" class="form-input" placeholder="e.g. Car Loan, Education Loan">
+          <input type="text" id="fin_loan_name" class="form-input" placeholder="e.g. Car Loan, Education Loan" value="${item.name || ''}">
         </div>
         <div class="form-group">
           <label class="form-label">Lender</label>
-          <input type="text" id="fin_loan_lender" class="form-input" placeholder="e.g. HDFC Bank, SBI">
+          <input type="text" id="fin_loan_lender" class="form-input" placeholder="e.g. HDFC Bank, SBI" value="${item.lender || ''}">
         </div>
         <div class="form-row-2">
           <div class="form-group">
             <label class="form-label">Monthly EMI (₹)</label>
-            <input type="number" id="fin_loan_emi" class="form-input" step="1" placeholder="15000">
+            <input type="number" id="fin_loan_emi" class="form-input" step="1" placeholder="15000" value="${item.emi || ''}">
           </div>
           <div class="form-group">
             <label class="form-label">Next Due Date</label>
-            <input type="date" id="fin_loan_date" class="form-input">
+            <input type="date" id="fin_loan_date" class="form-input" value="${item.dueDate || ''}">
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">Total Principal Remaining (₹)</label>
-          <input type="number" id="fin_loan_rem" class="form-input" step="1" placeholder="350000">
+          <input type="number" id="fin_loan_rem" class="form-input" step="1" placeholder="350000" value="${item.remaining || ''}">
         </div>
       `;
     } else if (type === 'card') {
-      titleEl.textContent = 'Add Credit Card';
+      const item = getItem(f.cards);
+      titleEl.textContent = isEdit ? 'Edit Credit Card' : 'Add Credit Card';
       body.innerHTML = `
         <div class="form-group">
           <label class="form-label">Card Name</label>
-          <input type="text" id="fin_card_name" class="form-input" placeholder="e.g. HDFC Regalia, ICICI Sapphiro">
+          <input type="text" id="fin_card_name" class="form-input" placeholder="e.g. HDFC Regalia, ICICI Sapphiro" value="${item.name || ''}">
         </div>
         <div class="form-row-2">
           <div class="form-group">
             <label class="form-label">Statement Balance (₹)</label>
-            <input type="number" id="fin_card_bal" class="form-input" step="1" placeholder="15000">
+            <input type="number" id="fin_card_bal" class="form-input" step="1" placeholder="15000" value="${item.balance || ''}">
           </div>
           <div class="form-group">
             <label class="form-label">Minimum Due (₹)</label>
-            <input type="number" id="fin_card_min" class="form-input" step="1" placeholder="1500">
+            <input type="number" id="fin_card_min" class="form-input" step="1" placeholder="1500" value="${item.minDue || ''}">
           </div>
         </div>
         <div class="form-row-2">
           <div class="form-group">
             <label class="form-label">Payment Due Date</label>
-            <input type="date" id="fin_card_date" class="form-input">
+            <input type="date" id="fin_card_date" class="form-input" value="${item.dueDate || ''}">
           </div>
           <div class="form-group">
             <label class="form-label">Credit Limit (₹)</label>
-            <input type="number" id="fin_card_limit" class="form-input" step="1000" placeholder="200000">
+            <input type="number" id="fin_card_limit" class="form-input" step="1000" placeholder="200000" value="${item.limit || ''}">
           </div>
         </div>
       `;
     } else if (type === 'inflow') {
-      titleEl.textContent = 'Add Expected Inflow';
+      const item = getItem(f.inflows);
+      titleEl.textContent = isEdit ? 'Edit Expected Inflow' : 'Add Expected Inflow';
       body.innerHTML = `
         <div class="form-group">
           <label class="form-label">Source / Description</label>
-          <input type="text" id="fin_inflow_desc" class="form-input" placeholder="e.g. Salary, Consulting Retainer">
+          <input type="text" id="fin_inflow_desc" class="form-input" placeholder="e.g. Salary, Consulting Retainer" value="${item.source || ''}">
         </div>
         <div class="form-row-2">
           <div class="form-group">
             <label class="form-label">Category</label>
-            <input type="text" id="fin_inflow_cat" class="form-input" placeholder="e.g. Salary, Freelance">
+            <input type="text" id="fin_inflow_cat" class="form-input" placeholder="e.g. Salary, Freelance" value="${item.category || ''}">
           </div>
           <div class="form-group">
             <label class="form-label">Amount (₹)</label>
-            <input type="number" id="fin_inflow_amt" class="form-input" step="1" placeholder="75000">
+            <input type="number" id="fin_inflow_amt" class="form-input" step="1" placeholder="75000" value="${item.amount || ''}">
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">Expected Date</label>
-          <input type="date" id="fin_inflow_date" class="form-input">
+          <input type="date" id="fin_inflow_date" class="form-input" value="${item.expectedDate || ''}">
         </div>
       `;
     } else if (type === 'expense') {
-      titleEl.textContent = 'Add Future Expense';
+      const item = getItem(f.expenses);
+      titleEl.textContent = isEdit ? 'Edit Future Expense' : 'Add Future Expense';
       body.innerHTML = `
         <div class="form-group">
           <label class="form-label">Expense Title</label>
-          <input type="text" id="fin_exp_title" class="form-input" placeholder="e.g. Rent, Quarterly Tax">
+          <input type="text" id="fin_exp_title" class="form-input" placeholder="e.g. Rent, Quarterly Tax" value="${item.title || ''}">
         </div>
         <div class="form-row-2">
           <div class="form-group">
             <label class="form-label">Amount (₹)</label>
-            <input type="number" id="fin_exp_amt" class="form-input" step="1" placeholder="25000">
+            <input type="number" id="fin_exp_amt" class="form-input" step="1" placeholder="25000" value="${item.amount || ''}">
           </div>
           <div class="form-group">
             <label class="form-label">Due Date</label>
-            <input type="date" id="fin_exp_date" class="form-input">
+            <input type="date" id="fin_exp_date" class="form-input" value="${item.dueDate || ''}">
           </div>
         </div>
       `;
     } else if (type === 'wishlist') {
-      titleEl.textContent = 'Add Things to Buy';
+      const item = getItem(f.wishlist);
+      titleEl.textContent = isEdit ? 'Edit Purchase Plan' : 'Add Things to Buy';
+      const wishPrio = item.priority || 'Medium';
       body.innerHTML = `
         <div class="form-group">
           <label class="form-label">Item Name</label>
-          <input type="text" id="fin_wish_name" class="form-input" placeholder="e.g. Ergonomic Chair, MacBook Pro">
+          <input type="text" id="fin_wish_name" class="form-input" placeholder="e.g. Ergonomic Chair, MacBook Pro" value="${item.item || ''}">
         </div>
         <div class="form-row-2">
           <div class="form-group">
             <label class="form-label">Estimated Cost (₹)</label>
-            <input type="number" id="fin_wish_cost" class="form-input" step="1" placeholder="45000">
+            <input type="number" id="fin_wish_cost" class="form-input" step="1" placeholder="45000" value="${item.cost || ''}">
           </div>
           <div class="form-group">
             <label class="form-label">Priority</label>
             <select id="fin_wish_prio" class="form-input">
-              <option value="High">High</option>
-              <option value="Medium" selected>Medium</option>
-              <option value="Low">Low</option>
+              <option value="High" ${wishPrio==='High'?'selected':''}>High</option>
+              <option value="Medium" ${wishPrio==='Medium'?'selected':''}>Medium</option>
+              <option value="Low" ${wishPrio==='Low'?'selected':''}>Low</option>
             </select>
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">Target Date</label>
-          <input type="date" id="fin_wish_date" class="form-input">
+          <input type="date" id="fin_wish_date" class="form-input" value="${item.targetDate || ''}">
         </div>
       `;
     }
@@ -1986,13 +2005,20 @@ class FinanceController {
 
   saveItemFromModal() {
     const type = this.app.activeFinanceType;
+    const editId = this.app.activeFinanceEditId;
+    const f = this.app.state.finance;
     if (type === 'bank') {
       const name = document.getElementById('fin_bank_name').value.trim();
       const bType = document.getElementById('fin_bank_type').value.trim();
       const inst = document.getElementById('fin_bank_inst').value.trim();
       const balance = parseFloat(document.getElementById('fin_bank_balance').value) || 0;
       if (!name) { this.app.showToast('Account name is required', 'warning'); return; }
-      this.app.state.finance.banks.push({ id: 'bk-' + Date.now(), name, type: bType, institution: inst, balance, updated: 'Just now' });
+      if (editId) {
+        const item = f.banks.find(x => x.id === editId);
+        if (item) { item.name = name; item.type = bType; item.institution = inst; item.balance = balance; item.updated = 'Just now'; }
+      } else {
+        f.banks.push({ id: 'bk-' + Date.now(), name, type: bType, institution: inst, balance, updated: 'Just now' });
+      }
     } else if (type === 'loan') {
       const name = document.getElementById('fin_loan_name').value.trim();
       const lender = document.getElementById('fin_loan_lender').value.trim();
@@ -2008,7 +2034,12 @@ class FinanceController {
       const dueDate = document.getElementById('fin_card_date').value || '2026-10-01';
       const limit = parseFloat(document.getElementById('fin_card_limit').value) || 5000;
       if (!name) { this.app.showToast('Card name is required', 'warning'); return; }
-      this.app.state.finance.cards.push({ id: 'cc-' + Date.now(), name, balance, minDue, dueDate, limit, status: 'Pending' });
+      if (editId) {
+        const item = f.cards.find(x => x.id === editId);
+        if (item) { item.name = name; item.balance = balance; item.minDue = minDue; item.dueDate = dueDate; item.limit = limit; }
+      } else {
+        f.cards.push({ id: 'cc-' + Date.now(), name, balance, minDue, dueDate, limit, status: 'Pending' });
+      }
     } else if (type === 'inflow') {
       const source = document.getElementById('fin_inflow_desc').value.trim();
       const category = document.getElementById('fin_inflow_cat').value.trim();
@@ -3098,7 +3129,7 @@ class HabitsController {
 
   bindEvents() {
     document.getElementById('addNewHabitBtn')?.addEventListener('click', () => {
-      document.getElementById('habitModal')?.classList.add('active');
+      this.openHabitModal(null);
     });
 
     document.getElementById('saveHabitBtn')?.addEventListener('click', () => {
@@ -3106,8 +3137,31 @@ class HabitsController {
     });
   }
 
+  openHabitModal(id) {
+    this.app._editingHabitId = id || null;
+    const modal = document.getElementById('habitModal');
+    const titleEl = document.getElementById('habitModalTitle');
+    if (!modal) return;
+
+    if (id) {
+      const h = this.app.state.habits.find(x => x.id === id);
+      if (!h) return;
+      if (titleEl) titleEl.textContent = 'Edit Habit';
+      document.getElementById('habitModalName').value = h.name;
+      document.getElementById('habitModalCategory').value = h.category;
+      document.getElementById('habitModalFrequency').value = h.frequency;
+    } else {
+      if (titleEl) titleEl.textContent = 'Add New Habit';
+      document.getElementById('habitModalName').value = '';
+      document.getElementById('habitModalCategory').value = 'Mind';
+      document.getElementById('habitModalFrequency').value = 'daily';
+    }
+    modal.classList.add('active');
+  }
+
   closeModal() {
     document.getElementById('habitModal')?.classList.remove('active');
+    this.app._editingHabitId = null;
   }
 
   saveHabitFromModal() {
@@ -3120,20 +3174,35 @@ class HabitsController {
       return;
     }
 
-    this.app.state.habits.push({
-      id: 'h-' + Date.now(),
-      name,
-      category,
-      frequency,
-      currentStreak: 1,
-      bestStreak: 1,
-      history: { 'Mon': true, 'Tue': false, 'Wed': false, 'Thu': false, 'Fri': false, 'Sat': false, 'Sun': false }
-    });
-
-    this.closeModal();
-    this.app.saveState();
-    this.render();
-    this.app.showToast('Habit streak created', 'success');
+    const editId = this.app._editingHabitId;
+    if (editId) {
+      // Edit existing habit
+      const h = this.app.state.habits.find(x => x.id === editId);
+      if (h) {
+        h.name = name;
+        h.category = category;
+        h.frequency = frequency;
+      }
+      this.closeModal();
+      this.app.saveState();
+      this.render();
+      this.app.showToast('Habit updated', 'success');
+    } else {
+      // Add new habit
+      this.app.state.habits.push({
+        id: 'h-' + Date.now(),
+        name,
+        category,
+        frequency,
+        currentStreak: 0,
+        bestStreak: 0,
+        history: { 'Mon': false, 'Tue': false, 'Wed': false, 'Thu': false, 'Fri': false, 'Sat': false, 'Sun': false }
+      });
+      this.closeModal();
+      this.app.saveState();
+      this.render();
+      this.app.showToast('Habit streak created', 'success');
+    }
   }
 
   render() {
@@ -3152,6 +3221,7 @@ class HabitsController {
           <div class="habit-streak-display">
             <span class="streak-count-badge" title="Active Streak"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#f97316"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> ${h.currentStreak}d</span>
             <span style="font-size: 11px; color: var(--text-muted);">Best: ${h.bestStreak}d</span>
+            <button type="button" class="block-action-icon" title="Edit Habit" onclick="event.stopPropagation(); app.habits.openHabitModal('${h.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
             <button type="button" class="block-action-icon text-danger" title="Delete Habit" onclick="event.stopPropagation(); app.habits.deleteHabit('${h.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
           </div>
         </div>
@@ -3290,6 +3360,93 @@ class ChecklistController {
     this.app.showToast('Task deleted', 'danger');
   }
 
+  editTask(id) {
+    const task = this.app.state.tasks.find(t => t.id === id);
+    if (!task) return;
+    this.app._editingTaskId = id;
+
+    // Build or reuse the edit modal
+    let modal = document.getElementById('taskEditModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'taskEditModal';
+      modal.className = 'modal-backdrop';
+      modal.innerHTML = `
+        <div class="modal-card" style="max-width:480px;">
+          <div class="modal-header">
+            <h3 class="modal-title">Edit Task</h3>
+            <button class="modal-close-btn" onclick="app.checklist.closeTaskEditModal()">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="form-label">Task Title</label>
+              <input type="text" id="editTaskTitle" class="form-input" placeholder="Task description">
+            </div>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label">Priority</label>
+                <select id="editTaskPriority" class="form-input">
+                  <option value="high">P1 — High</option>
+                  <option value="medium">P2 — Medium</option>
+                  <option value="low">P3 — Low</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tag</label>
+                <select id="editTaskTag" class="form-input">
+                  <option value="Work">Work</option>
+                  <option value="Personal">Personal</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Health">Health</option>
+                  <option value="Learning">Learning</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Due Date</label>
+              <input type="date" id="editTaskDate" class="form-input">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-outline" onclick="app.checklist.closeTaskEditModal()">Cancel</button>
+            <button class="btn btn-dark" onclick="app.checklist.saveTaskEdit()">Save Changes</button>
+          </div>
+        </div>`;
+      document.body.appendChild(modal);
+    }
+
+    document.getElementById('editTaskTitle').value = task.title;
+    document.getElementById('editTaskPriority').value = task.priority;
+    document.getElementById('editTaskTag').value = task.tag;
+    document.getElementById('editTaskDate').value = task.dueDate;
+    modal.classList.add('active');
+  }
+
+  closeTaskEditModal() {
+    document.getElementById('taskEditModal')?.classList.remove('active');
+    this.app._editingTaskId = null;
+  }
+
+  saveTaskEdit() {
+    const id = this.app._editingTaskId;
+    if (!id) return;
+    const task = this.app.state.tasks.find(t => t.id === id);
+    if (!task) return;
+
+    const title = document.getElementById('editTaskTitle').value.trim();
+    if (!title) { this.app.showToast('Title is required', 'warning'); return; }
+
+    task.title = title;
+    task.priority = document.getElementById('editTaskPriority').value;
+    task.tag = document.getElementById('editTaskTag').value;
+    task.dueDate = document.getElementById('editTaskDate').value;
+
+    this.closeTaskEditModal();
+    this.app.saveState();
+    this.render();
+    this.app.showToast('Task updated', 'success');
+  }
+
   render() {
     const container = document.getElementById('checklistItemsContainer');
     if (!container) return;
@@ -3335,6 +3492,7 @@ class ChecklistController {
           <span class="priority-tag priority-${t.priority}">${t.priority.toUpperCase()}</span>
           <span class="task-tag-badge">#${t.tag}</span>
           <span class="task-due-date">${t.dueDate}</span>
+          <button type="button" class="block-action-icon" title="Edit Task" onclick="event.stopPropagation(); app.checklist.editTask('${t.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
           <button type="button" class="block-action-icon text-danger" title="Delete Task" onclick="event.stopPropagation(); app.checklist.deleteTask('${t.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </div>
       </div>
