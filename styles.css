@@ -3642,10 +3642,11 @@ body.widget-schedule .schedule-header-row {
 .widget-schedule .schedule-title,
 html.widget-schedule .schedule-title,
 body.widget-schedule .schedule-title {
-  font-size: 16px !important;
+  font-family: var(--font-serif) !important;
+  font-size: 24px !important;
   font-weight: 700 !important;
   margin: 0 !important;
-  line-height: 1 !important;
+  line-height: 1.2 !important;
   letter-spacing: -0.01em !important;
   color: var(--text-primary) !important;
 }
@@ -3897,8 +3898,8 @@ body.widget-goals .page-header-flex {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  margin-bottom: 14px !important;
-  padding-bottom: 10px !important;
+  margin-bottom: 20px !important;
+  padding-bottom: 14px !important;
   border-bottom: 1px solid var(--border-subtle) !important;
   flex-shrink: 0 !important;
 }
@@ -3906,10 +3907,12 @@ body.widget-goals .page-header-flex {
 .widget-goals .page-header-flex .page-title,
 html.widget-goals .page-header-flex .page-title,
 body.widget-goals .page-header-flex .page-title {
-  font-size: 20px !important;
+  font-family: var(--font-serif) !important;
+  font-size: 30px !important;
   font-weight: 700 !important;
   margin: 0 !important;
   display: block !important;
+  letter-spacing: -0.02em !important;
 }
 
 .widget-goals .goals-card-list,
@@ -4141,8 +4144,8 @@ body.widget-mood #tab-focus {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  margin-bottom: 14px !important;
-  padding-bottom: 10px !important;
+  margin-bottom: 20px !important;
+  padding-bottom: 14px !important;
   border-bottom: 1px solid var(--border-subtle) !important;
   flex-shrink: 0 !important;
 }
@@ -4170,11 +4173,13 @@ body.widget-finance .page-header .page-title,
 .widget-clockdial .dayplanner-title, html.widget-clockdial .dayplanner-title, body.widget-clockdial .dayplanner-title,
 .widget-schedule .dayplanner-title,  html.widget-schedule .dayplanner-title,  body.widget-schedule .dayplanner-title,
 .widget-planner .dayplanner-title,   html.widget-planner .dayplanner-title,   body.widget-planner .dayplanner-title {
-  font-size: 20px !important;
+  font-family: var(--font-serif) !important;
+  font-size: 30px !important;
   font-weight: 700 !important;
+  line-height: 1.15 !important;
   margin: 0 !important;
   display: block !important;
-  letter-spacing: -0.01em !important;
+  letter-spacing: -0.02em !important;
 }
 
 /* --- Finance header layout fix --- */
