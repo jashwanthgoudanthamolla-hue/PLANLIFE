@@ -323,6 +323,28 @@ class PlanLifeApp {
     this.init();
   }
 
+  // Centralized local-date helpers (prevents UTC/timezone date-shifting bugs)
+  formatDateKey(dateObj) {
+    const d = dateObj || new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  parseDateKey(dateStr) {
+    if (!dateStr || typeof dateStr !== 'string') return new Date();
+    const parts = dateStr.slice(0, 10).split('-').map(Number);
+    if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+    return new Date(dateStr);
+  }
+
+  getTodayDateKey() {
+    return this.formatDateKey(new Date());
+  }
+
   // Returns the best available storage: localStorage → sessionStorage → memory object
   _getStorage() {
     try {
@@ -700,7 +722,7 @@ class PlanLifeApp {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.state, null, 2));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `planlife_backup_${new Date().toISOString().slice(0, 10)}.json`);
+      downloadAnchor.setAttribute("download", `planlife_backup_${this.getTodayDateKey()}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
@@ -938,7 +960,7 @@ class PlanLifeApp {
     // 8. Top 3 Priorities & Today's Mood
     const moodBadge = document.getElementById('dashTodayMoodBadge');
     if (moodBadge) {
-      const todayDate = this.state.selectedDate || new Date().toISOString().slice(0, 10);
+      const todayDate = this.state.selectedDate || this.getTodayDateKey();
       const todayMood = (this.state.moods && this.state.moods[todayDate]) ? this.state.moods[todayDate] : null;
       if (todayMood && todayMood.mood) {
         const moodObj = this.focusCtrl?.getMoodOption(todayMood.mood) || { emoji: '✨', label: todayMood.mood };
@@ -987,7 +1009,7 @@ class DayPlannerController {
     document.getElementById('prevDayBtn')?.addEventListener('click', () => this.shiftDate(-1));
     document.getElementById('nextDayBtn')?.addEventListener('click', () => this.shiftDate(1));
     document.getElementById('todayBtn')?.addEventListener('click', () => {
-      this.setDate(new Date().toISOString().slice(0, 10));
+      this.setDate(this.app.getTodayDateKey());
     });
     document.getElementById('plannerDateInput')?.addEventListener('change', (e) => {
       this.setDate(e.target.value);
@@ -1022,17 +1044,24 @@ class DayPlannerController {
   }
 
   setDate(newDate) {
+    if (!newDate) return;
     this.app.state.selectedDate = newDate;
     const input = document.getElementById('plannerDateInput');
     if (input) input.value = newDate;
+    if (this.app.focusCtrl) {
+      this.app.focusCtrl.activeDate = newDate;
+      const moodInput = document.getElementById('moodDateInput');
+      if (moodInput) moodInput.value = newDate;
+      try { this.app.focusCtrl.renderMoodTracker(); } catch (e) {}
+    }
     this.app.saveState();
     this.render();
   }
 
   shiftDate(days) {
-    const current = new Date(this.app.state.selectedDate);
+    const current = this.app.parseDateKey(this.app.state.selectedDate);
     current.setDate(current.getDate() + days);
-    const dateStr = current.toISOString().slice(0, 10);
+    const dateStr = this.app.formatDateKey(current);
     this.setDate(dateStr);
   }
 
@@ -1515,9 +1544,9 @@ class DayPlannerController {
     }
 
     // Determine next day date
-    const d = new Date(date);
+    const d = this.app.parseDateKey(date);
     d.setDate(d.getDate() + 1);
-    const nextDate = d.toISOString().slice(0, 10);
+    const nextDate = this.app.formatDateKey(d);
 
     if (!this.app.state.schedule[nextDate]) {
       this.app.state.schedule[nextDate] = [];
@@ -1539,9 +1568,9 @@ class DayPlannerController {
 
   replicateYesterday() {
     const today = this.app.state.selectedDate;
-    const d = new Date(today + 'T00:00:00');
+    const d = this.app.parseDateKey(today);
     d.setDate(d.getDate() - 1);
-    const yesterday = d.toISOString().slice(0, 10);
+    const yesterday = this.app.formatDateKey(d);
 
     let sourceDate = yesterday;
     let sourceBlocks = this.app.state.schedule[yesterday] || [];
@@ -3508,7 +3537,7 @@ class ChecklistController {
 class FocusController {
   constructor(app) {
     this.app = app;
-    this.activeDate = this.app.state.selectedDate || new Date().toISOString().slice(0, 10);
+    this.activeDate = this.app.state.selectedDate || this.app.getTodayDateKey();
     this._saveTimeout = null;
 
     this.moodOptions = [
@@ -3546,6 +3575,9 @@ class FocusController {
   }
 
   render() {
+    if (this.app.state.selectedDate) {
+      this.activeDate = this.app.state.selectedDate;
+    }
     this.loadTop3AndBrainDump();
     this.renderMoodTracker();
   }
@@ -3581,28 +3613,31 @@ class FocusController {
   setDate(newDateStr) {
     if (!newDateStr) return;
     this.activeDate = newDateStr;
+    this.app.state.selectedDate = newDateStr;
+    const plannerInput = document.getElementById('plannerDateInput');
+    if (plannerInput) plannerInput.value = newDateStr;
+    this.app.saveState();
     this.renderMoodTracker();
   }
 
   prevDay() {
     try {
-      const d = new Date(this.activeDate + 'T00:00:00');
+      const d = this.app.parseDateKey(this.activeDate);
       d.setDate(d.getDate() - 1);
-      this.setDate(d.toISOString().slice(0, 10));
+      this.setDate(this.app.formatDateKey(d));
     } catch (e) {}
   }
 
   nextDay() {
     try {
-      const d = new Date(this.activeDate + 'T00:00:00');
+      const d = this.app.parseDateKey(this.activeDate);
       d.setDate(d.getDate() + 1);
-      this.setDate(d.toISOString().slice(0, 10));
+      this.setDate(this.app.formatDateKey(d));
     } catch (e) {}
   }
 
   today() {
-    const todayStr = new Date().toISOString().slice(0, 10);
-    this.setDate(todayStr);
+    this.setDate(this.app.getTodayDateKey());
   }
 
   renderMoodTracker() {
@@ -3614,7 +3649,7 @@ class FocusController {
     const subtitle = document.getElementById('moodSubtitleDate');
     if (subtitle) {
       try {
-        const d = new Date(this.activeDate + 'T00:00:00');
+        const d = this.app.parseDateKey(this.activeDate);
         const formatted = d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
         subtitle.textContent = `Logging vibe & focus for ${formatted}`;
       } catch (e) {
@@ -3633,14 +3668,14 @@ class FocusController {
     const strip = document.getElementById('moodWeekStrip');
     if (!strip) return;
 
-    const baseDate = new Date(this.activeDate + 'T00:00:00');
+    const baseDate = this.app.parseDateKey(this.activeDate);
     const dayPills = [];
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = this.app.getTodayDateKey();
 
     for (let i = -4; i <= 2; i++) {
       const d = new Date(baseDate);
       d.setDate(baseDate.getDate() + i);
-      const dStr = d.toISOString().slice(0, 10);
+      const dStr = this.app.formatDateKey(d);
       const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
       const dayNum = d.getDate();
       const entry = (this.app.state.moods && this.app.state.moods[dStr]) ? this.app.state.moods[dStr] : null;
